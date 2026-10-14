@@ -1,0 +1,135 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { platforms } from "../data/platforms";
+import { site } from "../config/site";
+import { href, type Lang } from "../i18n/config";
+import { t } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const ui = t(lang);
+const c = {
+  en: {
+    title: "Download", description: "Install Reinvent the Wheel on macOS or Android. Requirements, installation steps and current status for each platform.",
+    eyebrow: "Download", h1: "Choose your platform.",
+    lead: "RTW is installed from source with a single command — there are no packaged releases yet. Here's what each platform needs and what works today.",
+    status: "Status", release: "Release", noRelease: "No packaged release yet — install from source below.",
+    requirements: "Requirements", works: "What works today", install: "Install", limitations: "Limitations",
+    docs: (n: string) => `${n} documentation`, source: "Source code", termux: "Termux",
+  },
+  ar: {
+    title: "التنزيل", description: "ثبّت Reinvent the Wheel على macOS أو Android: المتطلبات وخطوات التثبيت والحالة الحالية لكل منصة.",
+    eyebrow: "التنزيل", h1: "اختر منصتك.",
+    lead: "يُثبَّت RTW من الشيفرة المصدرية بأمر واحد — لا توجد إصدارات جاهزة بعد. إليك ما تحتاجه كل منصة وما يعمل اليوم.",
+    status: "الحالة", release: "الإصدار", noRelease: "لا يوجد إصدار جاهز بعد — ثبّته من الشيفرة المصدرية أدناه.",
+    requirements: "المتطلبات", works: "ما يعمل اليوم", install: "التثبيت", limitations: "القيود",
+    docs: (n: string) => `توثيق ${n}`, source: "الشيفرة المصدرية", termux: "Termux",
+  },
+}[lang];
+---
+<Base title={c.title} description={c.description}>
+  <section class="section page-hero">
+    <div class="container">
+      <p class="eyebrow">{c.eyebrow}</p>
+      <h1>{c.h1}</h1>
+      <p class="lead">{c.lead}</p>
+      <div class="pick">
+        {platforms.map((p) => (
+          <a class="pick-item" href={`#${p.id}`}>
+            <Icon name={p.id === "macos" ? "apple" : "android"} size={22} />
+            <span><strong>{p.name}</strong><span class={`badge badge-${p.status}`}>{p.statusText[lang]}</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {platforms.map((p) => (
+    <section class="section platform" id={p.id} aria-labelledby={`${p.id}-h`}>
+      <div class="container pgrid">
+        <div class="pinfo">
+          <span class="icon-tile big"><Icon name={p.id === "macos" ? "apple" : "android"} size={24} /></span>
+          <h2 id={`${p.id}-h`}>{p.name}</h2>
+          <p class="lead">{p.summary[lang]}</p>
+
+          <dl class="meta">
+            <div><dt>{c.status}</dt><dd><span class={`badge badge-${p.status}`}>{p.statusText[lang]}</span></dd></div>
+            <div>
+              <dt>{c.release}</dt>
+              <dd>{p.release ? <a href={p.release.url}>{p.release.version}</a> : <span class="muted">{c.noRelease}</span>}</dd>
+            </div>
+          </dl>
+
+          <h3>{c.requirements}</h3>
+          <ul class="check-list">
+            {p.requirements.map((r) => <li><Icon name="check" size={16} /><span>{r[lang]}</span></li>)}
+          </ul>
+
+          <h3>{c.works}</h3>
+          <ul class="caps">
+            {p.capabilities.map((cap) => (
+              <li><span class={`badge badge-${cap.status}`}>{ui.status[cap.status]}</span><span>{cap.label[lang]}{cap.note && <span class="muted"> — {cap.note[lang]}</span>}</span></li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="pinstall">
+          <h3>{c.install}</h3>
+          <ol class="install">
+            {p.install.map((step) => (
+              <li>
+                <p>{step.title[lang]}</p>
+                {step.commands && <CodeBlock commands={step.commands} label={p.id === "macos" ? ui.terminal : c.termux} />}
+              </li>
+            ))}
+          </ol>
+
+          <h3>{c.limitations}</h3>
+          <ul class="check-list limits">
+            {p.limitations.map((l) => <li><Icon name="dot" size={16} /><span>{l[lang]}</span></li>)}
+          </ul>
+
+          <div class="btn-row">
+            <a class="btn btn-primary" href={href(p.docs, lang)}>{c.docs(p.name)} <Icon name="arrow" size={16} /></a>
+            {site.repo.url && <a class="btn" href={site.repo.url}><Icon name="github" size={18} /> {c.source}</a>}
+          </div>
+        </div>
+      </div>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .page-hero { padding-bottom: 40px; }
+  .page-hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); }
+  .page-hero .lead { max-width: 60ch; }
+  .pick { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .pick-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-decoration: none; min-width: 220px; }
+  .pick-item:hover { border-color: var(--border-strong); }
+  .pick-item > span { display: grid; gap: 4px; }
+  .pick-item .badge { justify-self: start; font-size: .62rem; }
+  .platform { scroll-margin-top: var(--header-h); }
+  .pgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(32px, 5vw, 64px); align-items: start; }
+  .big { width: 48px; height: 48px; }
+  h3 { margin-top: 32px; margin-bottom: 14px; font-size: .78rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--subtle); font-weight: 500; }
+  :global([dir="rtl"]) h3 { font-family: var(--font-sans); font-size: .9rem; letter-spacing: 0; }
+  .pinstall h3:first-child { margin-top: 0; }
+  .meta { display: grid; gap: 10px; margin: 24px 0 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .meta div { display: grid; grid-template-columns: 80px 1fr; gap: 12px; align-items: center; }
+  .meta dt { color: var(--subtle); font-size: .85rem; }
+  .meta dd { margin: 0; font-size: .92rem; }
+  .caps { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: .92rem; }
+  .caps li { display: grid; grid-template-columns: 112px 1fr; gap: 12px; }
+  .caps .badge { justify-self: start; align-self: start; font-size: .64rem; padding: 2px 8px; }
+  .install { list-style: none; counter-reset: i; padding: 0; margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .install li { counter-increment: i; position: relative; padding-inline-start: 40px; min-width: 0; }
+  .install li::before {
+    content: counter(i); position: absolute; inset-inline-start: 0; top: 0; width: 26px; height: 26px; display: grid; place-items: center;
+    border: 1px solid var(--accent); color: var(--accent); border-radius: 50%; font-family: var(--font-mono); font-size: .78rem;
+  }
+  .install p { margin: 0 0 10px; font-weight: 500; }
+  .limits { margin-bottom: 28px; }
+  @media (max-width: 920px) { .pgrid { grid-template-columns: minmax(0, 1fr); } }
+</style>

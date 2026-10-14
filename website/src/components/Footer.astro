@@ -1,40 +1,48 @@
 ---
 import Logo from "./Logo.astro";
 import { site } from "../config/site";
+import { href, type Lang } from "../i18n/config";
+import { t } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const s = t(lang);
+const f = s.footer;
+const h = (p: string) => href(p, lang);
 
 const year = new Date().getFullYear();
 const cols = [
   {
-    title: "Project",
+    title: f.project,
     links: [
-      { href: "/how-it-works/", label: "How It Works" },
-      { href: "/library/", label: "Knowledge Library" },
-      { href: "/about/", label: "About" },
-      { href: "/about/#roadmap", label: "Roadmap" },
+      { href: h("/how-it-works/"), label: s.nav.how },
+      { href: h("/library/"), label: f.knowledgeLibrary },
+      { href: h("/about/"), label: s.nav.about },
+      { href: h("/about/#roadmap"), label: f.roadmap },
     ],
   },
   {
-    title: "Platforms",
+    title: f.platforms,
     links: [
-      { href: "/download/#macos", label: "macOS" },
-      { href: "/download/#android", label: "Android" },
-      { href: "/docs/quick-start/", label: "Quick Start" },
+      { href: h("/download/#macos"), label: "macOS" },
+      { href: h("/download/#android"), label: "Android" },
+      { href: h("/docs/quick-start/"), label: f.quickStart },
     ],
   },
   {
-    title: "Resources",
+    title: f.resources,
     links: [
-      { href: "/docs/", label: "Documentation" },
-      { href: "/contribute/", label: "Contribute" },
+      { href: h("/docs/"), label: f.documentation },
+      { href: h("/contribute/"), label: s.nav.contribute },
       ...(site.repo.url ? [{ href: site.repo.url, label: "GitHub" }] : []),
-      { href: "/about/#acknowledgments", label: "Acknowledgments" },
+      { href: h("/about/#acknowledgments"), label: f.acknowledgments },
     ],
   },
   {
-    title: "Legal",
+    title: f.legal,
     links: [
-      { href: "/privacy/", label: "Privacy" },
-      { href: "/terms/", label: "Terms" },
+      { href: h("/privacy/"), label: f.privacy },
+      { href: h("/terms/"), label: f.terms },
     ],
   },
 ];
@@ -43,8 +51,8 @@ const cols = [
   <div class="container">
     <div class="top">
       <div class="brand-col">
-        <a href="/" class="brand" aria-label={`${site.name} — home`}><Logo /></a>
-        <p class="tag">{site.tagline}<br /><span>{site.statement}</span></p>
+        <a href={h("/")} class="brand" aria-label={`${site.name} — ${s.home}`}><Logo /></a>
+        <p class="tag">{site.tagline[lang]}<br /><span>{site.statement[lang]}</span></p>
       </div>
       {cols.map((c) => (
         <nav aria-label={c.title}>
@@ -57,28 +65,30 @@ const cols = [
     </div>
     <div class="bottom">
       <p>
-        © {year} {site.maintainer.url ? <a href={site.maintainer.url}>{site.maintainer.name}</a> : site.maintainer.name} and contributors.
-        {site.license ? <> Released under the <a href={site.license.url}>{site.license.name} license</a>.</> : " Open source; license to be published in the repository."}
+        © {year} {site.maintainer.url ? <a href={site.maintainer.url}>{site.maintainer.name}</a> : site.maintainer.name} {f.rights}
+        {site.license ? <a href={site.license.url}>{f.licensed(site.license.name)}</a> : f.unlicensed}
       </p>
-      <p class="mono">Built on Kiwix, OpenStreetMap, Protomaps, nginx and MapLibre.</p>
+      <p class="mono built">{f.builtOn}</p>
     </div>
   </div>
 </footer>
 
 <style>
-  .site-footer { border-top: 1px solid var(--border); padding: 56px 0 32px; margin-top: 0; font-size: .92rem; }
+  .site-footer { border-top: 1px solid var(--border); padding: 56px 0 32px; font-size: .92rem; }
   .top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px; }
   .brand { text-decoration: none; display: inline-flex; }
   .tag { margin-top: 14px; color: var(--text); font-weight: 500; }
   .tag span { color: var(--muted); font-weight: 400; }
   h2 { font-size: .75rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--subtle); font-weight: 500; margin-bottom: 14px; }
+  :global([dir="rtl"]) h2 { font-family: var(--font-sans); letter-spacing: 0; font-size: .82rem; }
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   a { color: var(--muted); text-decoration: none; }
   a:hover { color: var(--text); }
   .bottom { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; color: var(--subtle); }
   .bottom p { margin: 0; }
   .bottom a { color: var(--muted); text-decoration: underline; }
-  .bottom .mono { font-size: .78rem; }
+  .built { font-size: .78rem; }
+  :global([dir="rtl"]) .built { font-family: var(--font-sans); }
   @media (max-width: 860px) {
     .top { grid-template-columns: repeat(2, 1fr); }
     .brand-col { grid-column: 1 / -1; }

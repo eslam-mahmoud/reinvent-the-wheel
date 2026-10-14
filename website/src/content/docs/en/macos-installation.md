@@ -4,13 +4,13 @@ description: Requirements, installation and day-to-day use on a Mac.
 order: 3
 ---
 
-**Status: available from source.** Tested on an Apple Silicon Mac. There is no packaged app — RTW runs from a terminal.
+**Status: available from source.** Tested on an Apple Silicon Mac, including sharing to an Android tablet on the same Wi-Fi. There is no packaged app — RTW runs from a terminal.
 
 ## Requirements
 
 - macOS on Apple Silicon or Intel
+- Xcode Command Line Tools — provides `git` and Python 3 (`xcode-select --install`)
 - [Homebrew](https://brew.sh)
-- `git`
 - Disk space for content (see [Preparing Your Library](/docs/preparing-your-library/))
 
 ## Install

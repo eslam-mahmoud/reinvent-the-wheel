@@ -2,24 +2,33 @@
 import Logo from "./Logo.astro";
 import Icon from "./Icon.astro";
 import { site } from "../config/site";
+import { href, langMeta, switchLang, type Lang } from "../i18n/config";
+import { t } from "../i18n/ui";
+
+interface Props { lang: Lang; translated?: boolean }
+const { lang, translated = true } = Astro.props;
+const s = t(lang);
+const other: Lang = lang === "ar" ? "en" : "ar";
 
 const nav = [
-  { href: "/how-it-works/", label: "How It Works" },
-  { href: "/download/", label: "Download" },
-  { href: "/library/", label: "Library" },
-  { href: "/docs/", label: "Docs" },
-  { href: "/about/", label: "About" },
+  { href: href("/how-it-works/", lang), label: s.nav.how },
+  { href: href("/download/", lang), label: s.nav.download },
+  { href: href("/library/", lang), label: s.nav.library },
+  { href: href("/docs/", lang), label: s.nav.docs },
+  { href: href("/about/", lang), label: s.nav.about },
 ];
+const contributeHref = href("/contribute/", lang);
 const path = Astro.url.pathname;
-const isCurrent = (href: string) => path === href || (href !== "/" && path.startsWith(href));
+const isCurrent = (h: string) => path === h || path.startsWith(h);
+const otherHref = translated ? switchLang(path, other) : href("/", other);
 ---
 <header class="site-header">
   <div class="container bar">
-    <a href="/" class="brand" aria-label={`${site.name} — home`}>
+    <a href={href("/", lang)} class="brand" aria-label={`${site.name} — ${s.home}`}>
       <Logo />
     </a>
 
-    <nav class="nav-desktop" aria-label="Main">
+    <nav class="nav-desktop" aria-label={s.mainNav}>
       <ul>
         {nav.map((n) => (
           <li><a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a></li>
@@ -28,29 +37,34 @@ const isCurrent = (href: string) => path === href || (href !== "/" && path.start
     </nav>
 
     <div class="actions">
-      <button class="icon-btn theme-toggle" type="button" aria-label="Switch color theme" data-theme-toggle>
+      <a class="icon-btn lang-btn" href={otherHref} hreflang={other} lang={other} title={s.switchTo} aria-label={s.switchTo}>
+        {langMeta[other].short}
+      </a>
+      <button class="icon-btn theme-toggle" type="button" aria-label={s.themeToggle} data-theme-toggle>
         <Icon name="sun" class="i-sun" /><Icon name="moon" class="i-moon" />
       </button>
       {site.repo.url && (
-        <a class="icon-btn hide-sm" href={site.repo.url} aria-label="Reinvent the Wheel on GitHub">
+        <a class="icon-btn hide-sm" href={site.repo.url} aria-label={`${site.name} — GitHub`}>
           <Icon name="github" />
         </a>
       )}
-      <a class="btn btn-primary btn-sm hide-sm" href="/docs/quick-start/">Get Started</a>
-      <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu" data-menu>
+      <a class="btn btn-primary btn-sm hide-sm" href={href("/docs/quick-start/", lang)}>{s.getStarted}</a>
+      <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label={s.openMenu}
+        data-menu data-open-label={s.openMenu} data-close-label={s.closeMenu}>
         <Icon name="menu" class="i-open" /><Icon name="close" class="i-close" />
       </button>
     </div>
   </div>
 
-  <nav id="mobile-nav" class="nav-mobile" aria-label="Main" hidden>
+  <nav id="mobile-nav" class="nav-mobile" aria-label={s.mainNav} hidden>
     <ul class="container">
       {nav.map((n) => (
         <li><a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a></li>
       ))}
-      <li><a href="/contribute/" aria-current={isCurrent("/contribute/") ? "page" : undefined}>Contribute</a></li>
+      <li><a href={contributeHref} aria-current={isCurrent(contributeHref) ? "page" : undefined}>{s.nav.contribute}</a></li>
       {site.repo.url && <li><a href={site.repo.url}>GitHub <Icon name="external" size={14} /></a></li>}
-      <li class="mobile-cta"><a class="btn btn-primary" href="/docs/quick-start/">Get Started</a></li>
+      <li><a href={otherHref} hreflang={other} lang={other}>{langMeta[other].name}</a></li>
+      <li class="mobile-cta"><a class="btn btn-primary" href={href("/docs/quick-start/", lang)}>{s.getStarted}</a></li>
     </ul>
   </nav>
 </header>
@@ -69,9 +83,8 @@ const isCurrent = (href: string) => path === href || (href !== "/" && path.start
   const setOpen = (open: boolean) => {
     if (!btn || !panel) return;
     btn.setAttribute("aria-expanded", String(open));
-    btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    btn.setAttribute("aria-label", (open ? btn.dataset.closeLabel : btn.dataset.openLabel) || "");
     panel.hidden = !open;
-    document.body.classList.toggle("menu-open", open);
   };
   btn?.addEventListener("click", () => setOpen(btn.getAttribute("aria-expanded") !== "true"));
   document.addEventListener("keydown", (e) => {
@@ -89,19 +102,22 @@ const isCurrent = (href: string) => path === href || (href !== "/" && path.start
   }
   .bar { display: flex; align-items: center; gap: 24px; height: var(--header-h); }
   .brand { text-decoration: none; display: inline-flex; border-radius: 8px; }
-  .nav-desktop { margin-left: 8px; }
+  .nav-desktop { margin-inline-start: 8px; }
   .nav-desktop ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
   .nav-desktop a, .nav-mobile a {
     display: block; padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--muted); font-size: .93rem; font-weight: 500;
   }
   .nav-desktop a:hover, .nav-desktop a[aria-current="page"] { color: var(--text); background: var(--surface); }
-  .actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .actions { margin-inline-start: auto; display: flex; align-items: center; gap: 6px; }
   .icon-btn {
     display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
     background: transparent; border: 1px solid transparent; color: var(--muted); cursor: pointer; text-decoration: none;
   }
   .icon-btn:hover { color: var(--text); background: var(--surface); border-color: var(--border); }
-  .btn-sm { min-height: 38px; padding: 0 14px; font-size: .9rem; margin-left: 6px; }
+  .lang-btn { font-family: var(--font-sans); font-weight: 650; font-size: .85rem; width: auto; min-width: 40px; padding: 0 8px; }
+  /* The "ع" label uses the system font so English pages don't download the Arabic web font. */
+  .lang-btn[lang="ar"] { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .btn-sm { min-height: 38px; padding: 0 14px; font-size: .9rem; margin-inline-start: 6px; }
 
   /* Theme toggle shows the theme you'd switch to. */
   .theme-toggle :global(.i-moon) { display: none; }
@@ -133,6 +149,10 @@ const isCurrent = (href: string) => path === href || (href !== "/" && path.start
     .nav-mobile { display: none; }
   }
   @media (max-width: 380px) {
-    .brand :global(.logo-word) { font-size: .92rem; }
+    .brand :global(.logo-word) { font-size: .86rem; }
+    .bar { gap: 8px; }
+    .actions { gap: 0; }
+    .icon-btn { width: 36px; height: 36px; }
+    .lang-btn { min-width: 36px; padding: 0 6px; }
   }
 </style>

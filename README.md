@@ -90,7 +90,7 @@ wait in hidden `.partial` folders and are never served):
 |---|---|---|
 | `wikipedia` | ~8.4 GB | newest `wikipedia_ar_all_nopic`; `ZIM_PATTERN=wikipedia_ar_all_mini` for 3 GB |
 | `maps` | ~1.2 GB | KSA + Egypt to zoom 15; `MAXZOOM=14` for smaller |
-| `osmand` | ~850 MB | OsmAnd APK + KSA/EG navigation maps → `downloads/OsmAnd/` |
+| `osmand` | ~1.5 GB | OsmAnd APKs + KSA/EG navigation maps → `downloads/OsmAnd/` |
 | `bitchat` | ~70 MB | Bitchat (offline Bluetooth mesh chat) APKs, checksum-verified → `downloads/Bitchat/` |
 | `vendor` | ~15 MB | map viewer JS/fonts (done by `setup`) |
 

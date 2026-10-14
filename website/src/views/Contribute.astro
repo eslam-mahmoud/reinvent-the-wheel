@@ -1,0 +1,91 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { site, issuesUrl, newIssueUrl } from "../config/site";
+import { href, type Lang } from "../i18n/config";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const h = (p: string) => href(p, lang);
+const icons = ["code", "docs", "phone", "translate", "book", "accessibility", "usb", "bug"];
+const c = {
+  en: {
+    title: "Contribute", description: "Help build Reinvent the Wheel — code, documentation, testing, translation, resource curation and hardware reports all help.",
+    eyebrow: "Contribute", h1: "Help keep knowledge within reach.",
+    lead: "RTW is early, open and small enough that one person's contribution is visible. You don't need to write code to help.",
+    repo: "Repository", issues: "Issues", discussions: "Discussions", guidelines: "Contribution guidelines", waysH: "Ways to contribute",
+    ways: [["Software development", "Shell, Python and plain web pages. Start with the architecture docs and an open issue."], ["Documentation", "Fill in the pages marked draft, fix what's unclear, add what's missing."], ["Platform testing", "Try RTW on your Mac or Android device and report what happened — good or bad."], ["Translation", "Help make the library app and docs available in more languages."], ["Resource curation", "Recommend reputable, properly licensed resources for the knowledge library."], ["Accessibility", "Make the library and this website work better with assistive technology."], ["Hardware compatibility", "Phones, tablets, SD cards, USB-C drives: tell us what works."], ["Bug reports", "Clear steps to reproduce are one of the most valuable contributions there is."]],
+    firstH: "Your first contribution",
+    first: [["Try it.", "Follow the <a href=\"{qs}\">Quick Start</a> on a Mac, or the <a href=\"{android}\">Android guide</a>."], ["Write down what happened.", "Device, OS version, what you ran, what you saw."], ["Open an issue", "{new}Hardware reports, confusing docs and resource suggestions are all welcome."], ["Send a change.", "Fork the repository, make the change, open a pull request. See <a href=\"{contrib}\">Contributing</a> for guidelines."]],
+    newIssue: " — <a href=\"{url}\">start one here</a>. ",
+    contentNote: "<strong>About content.</strong> Please don't add third-party books, archives or other content to the repository. RTW links to original publishers so their licenses and terms stay intact.",
+  },
+  ar: {
+    title: "ساهم", description: "ساعد في بناء Reinvent the Wheel — الشيفرة والتوثيق والاختبار والترجمة واقتراح الموارد وتقارير الأجهزة، كلها مفيدة.",
+    eyebrow: "ساهم", h1: "ساعد في إبقاء المعرفة في متناول اليد.",
+    lead: "RTW مشروع ناشئ ومفتوح وصغير بما يكفي ليكون لمساهمة شخص واحد أثر واضح. لا تحتاج إلى كتابة الشيفرة لتساعد.",
+    repo: "المستودع", issues: "البلاغات", discussions: "النقاشات", guidelines: "إرشادات المساهمة", waysH: "طرق المساهمة",
+    ways: [["تطوير البرمجيات", "Shell وPython وصفحات ويب بسيطة. ابدأ بتوثيق البنية وبلاغ مفتوح."], ["التوثيق", "أكمل الصفحات المعلَّمة كمسودة، ووضّح الغامض، وأضف الناقص."], ["اختبار المنصات", "جرّب RTW على جهاز Mac أو Android وأخبرنا بما حدث — جيدًا كان أم سيئًا."], ["الترجمة", "ساعد في إتاحة تطبيق المكتبة والتوثيق بلغات أكثر."], ["انتقاء الموارد", "اقترح موارد موثوقة ومرخّصة بشكل صحيح لمكتبة المعرفة."], ["إمكانية الوصول", "اجعل المكتبة وهذا الموقع يعملان بشكل أفضل مع التقنيات المساعدة."], ["توافق الأجهزة", "هواتف وأجهزة لوحية وبطاقات SD وأقراص USB-C: أخبرنا بما يعمل."], ["الإبلاغ عن الأخطاء", "خطوات واضحة لإعادة إنتاج المشكلة من أثمن المساهمات على الإطلاق."]],
+    firstH: "مساهمتك الأولى",
+    first: [["جرّبه.", "اتبع <a href=\"{qs}\">البدء السريع</a> على Mac، أو <a href=\"{android}\">دليل Android</a>."], ["دوّن ما حدث.", "الجهاز، وإصدار النظام، وما شغّلته، وما رأيته."], ["افتح بلاغًا", "{new}تقارير الأجهزة والتوثيق المربك واقتراحات الموارد كلها مرحّب بها."], ["أرسل تعديلًا.", "انسخ المستودع (fork)، وأجرِ التعديل، وافتح طلب دمج. راجع <a href=\"{contrib}\">المساهمة</a> للإرشادات."]],
+    newIssue: " — <a href=\"{url}\">ابدأ من هنا</a>. ",
+    contentNote: "<strong>بشأن المحتوى.</strong> نرجو عدم إضافة كتب أو أرشيفات أو أي محتوى من أطراف أخرى إلى المستودع. يربط RTW بالناشرين الأصليين لتبقى رخصهم وشروطهم محفوظة.",
+  },
+}[lang];
+const fill = (s: string) => s
+  .replace("{qs}", h("/docs/quick-start/"))
+  .replace("{android}", h("/docs/android-installation/"))
+  .replace("{contrib}", h("/docs/contributing/"))
+  .replace("{new}", newIssueUrl ? c.newIssue.replace("{url}", newIssueUrl) : " ");
+---
+<Base title={c.title} description={c.description}>
+  <section class="section page-hero">
+    <div class="container">
+      <p class="eyebrow">{c.eyebrow}</p>
+      <h1>{c.h1}</h1>
+      <p class="lead">{c.lead}</p>
+      <div class="btn-row">
+        {site.repo.url && <a class="btn btn-primary" href={site.repo.url}><Icon name="github" size={18} /> {c.repo}</a>}
+        {issuesUrl && <a class="btn" href={issuesUrl}>{c.issues}</a>}
+        {site.repo.discussions && <a class="btn" href={site.repo.discussions}>{c.discussions}</a>}
+        {site.repo.contributing && <a class="btn" href={site.repo.contributing}>{c.guidelines}</a>}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ways-h">
+    <div class="container">
+      <h2 id="ways-h" class="visually-hidden">{c.waysH}</h2>
+      <div class="grid grid-4">
+        {c.ways.map(([title, text], i) => (
+          <div class="card">
+            <span class="icon-tile"><Icon name={icons[i]} /></span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container steps-wrap">
+      <div>
+        <h2>{c.firstH}</h2>
+        <ol class="first">
+          {c.first.map(([b, rest]) => <li><strong>{b}</strong> <span set:html={fill(rest)} /></li>)}
+        </ol>
+      </div>
+      <aside class="note" set:html={c.contentNote} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); max-width: 18ch; }
+  .page-hero .lead { max-width: 58ch; margin-bottom: 28px; }
+  .steps-wrap { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .first { padding-inline-start: 1.3em; display: grid; gap: 12px; color: color-mix(in srgb, var(--text) 86%, var(--muted)); }
+  .first :global(a) { color: var(--accent); }
+  @media (max-width: 860px) { .steps-wrap { grid-template-columns: minmax(0, 1fr); } }
+</style>

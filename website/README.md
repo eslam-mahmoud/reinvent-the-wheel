@@ -30,12 +30,31 @@ node scripts/check-links.mjs --external   # also request every external URL
 | `src/config/site.ts` | **Project facts in one place:** domain, GitHub URL, maintainer, license, legal date. A `null` value hides that link instead of inventing one. |
 | `src/data/platforms.ts` | Platform status, requirements, install commands, capabilities (available / in testing / planned). Releases stay `null` until real ones exist. |
 | `src/data/library.ts` | Knowledge Library categories and recommended sources. |
-| `src/content/docs/*.md` | Documentation pages (Markdown). `order` sets sidebar order; `draft: true` shows a "work in progress" banner. |
-| `src/pages/` | One file per page. |
+| `src/content/docs/{en,ar}/*.md` | Documentation pages (Markdown), one folder per language with the same file names. `order` sets sidebar order; `draft: true` shows a "work in progress" banner. |
+| `src/views/` | Each page's markup **and its English + Arabic text**, side by side. |
+| `src/pages/` | Thin routes: `/page/` renders a view with `lang="en"`, `/ar/page/` with `lang="ar"`. |
+| `src/i18n/` | Languages (`config.ts`: direction, URL helpers) and shared UI strings (`ui.ts`). |
 | `src/components/` | Header, footer, logo, diagrams, cards, code blocks, icons. |
 | `src/styles/global.css` | Design tokens (colors, type, spacing) and shared styles. Dark first, light theme via OS setting or the toggle. |
 | `public/` | Favicon, icons, Open Graph image, `_headers` (security and cache headers). |
 | `scripts/` | `check-links.mjs`, `icons.mjs` (PNG icons from `favicon.svg`), `og.html` (source of `public/og.png`). |
+
+## Languages
+
+English is served at `/`, Arabic at `/ar/` (right-to-left). Every page has
+`hreflang` alternates and a language switch in the header.
+
+- Text lives next to the markup in `src/views/*.astro` as `{ en: …, ar: … }`.
+- Project data with text (`src/data/*.ts`) uses the same shape.
+- Use logical CSS (`margin-inline-start`, `inset-inline-end`, `text-align: start`)
+  so layouts mirror automatically. Code and commands are always left-to-right.
+- Don't add letter-spacing to Arabic text — it breaks letter joining
+  (`global.css` resets it under `[dir="rtl"]`).
+- Fonts: Inter for Latin, Noto Sans Arabic for Arabic; both self-hosted.
+
+To add a language: add it to `src/i18n/config.ts` and `ui.ts`, add its text to each
+view and data file, add `src/content/docs/<lang>/`, and create `src/pages/<lang>/`
+routes like the `ar` ones.
 
 ## Deploy
 

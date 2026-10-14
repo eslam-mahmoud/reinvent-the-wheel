@@ -16,7 +16,7 @@
   --plan: #8fa6c4;
   --grid: rgba(243, 241, 235, 0.035);
 
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter Variable", "Noto Sans Arabic Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --radius-sm: 8px;
@@ -97,7 +97,7 @@ code, kbd, pre { font-family: var(--font-mono); font-size: .875em; }
 :not(pre) > code { background: var(--elevated); border: 1px solid var(--border); padding: .1em .4em; border-radius: 6px; font-size: .85em; }
 
 .skip-link {
-  position: absolute; left: 12px; top: -48px; z-index: 100;
+  position: absolute; inset-inline-start: 12px; top: -48px; z-index: 100;
   background: var(--accent); color: var(--accent-ink); padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 600;
 }
 .skip-link:focus { top: 12px; }
@@ -171,7 +171,7 @@ a.card:hover, .card.hoverable:hover { border-color: var(--border-strong); transf
 .check-list li svg { flex: none; margin-top: 3px; color: var(--accent); }
 
 .note {
-  border: 1px solid var(--border); border-left: 3px solid var(--accent); background: var(--surface);
+  border: 1px solid var(--border); border-inline-start: 3px solid var(--accent); background: var(--surface);
   border-radius: var(--radius); padding: 14px 18px; color: var(--muted); font-size: .95rem;
 }
 .note strong { color: var(--text); }
@@ -182,7 +182,7 @@ a.card:hover, .card.hoverable:hover { border-color: var(--border-strong); transf
 .prose h2 { font-size: 1.5rem; margin-top: 2.2em; padding-top: .2em; }
 .prose h3 { font-size: 1.15rem; margin-top: 1.8em; }
 .prose p, .prose li { color: color-mix(in srgb, var(--text) 86%, var(--muted)); }
-.prose ul, .prose ol { padding-left: 1.3em; }
+.prose ul, .prose ol { padding-inline-start: 1.3em; }
 .prose li { margin: .35em 0; }
 .prose a { color: var(--accent); }
 .prose pre {
@@ -191,12 +191,12 @@ a.card:hover, .card.hoverable:hover { border-color: var(--border-strong); transf
 }
 .prose pre code { background: none; border: 0; padding: 0; }
 .prose table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 1.2em 0; display: block; overflow-x: auto; }
-.prose th, .prose td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.prose th, .prose td { text-align: start; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .prose th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
-.prose blockquote { margin: 1.2em 0; padding: 12px 18px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; }
+.prose blockquote { margin: 1.2em 0; padding: 12px 18px; border-inline-start: 3px solid var(--accent); background: var(--surface); border-start-end-radius: var(--radius); border-end-end-radius: var(--radius); }
 .prose blockquote p:last-child { margin: 0; }
 .prose hr { border: 0; border-top: 1px solid var(--border); margin: 2.5em 0; }
-.prose .heading-anchor { opacity: 0; margin-left: 6px; text-decoration: none; color: var(--subtle); }
+.prose .heading-anchor { opacity: 0; margin-inline-start: 6px; text-decoration: none; color: var(--subtle); }
 .prose :is(h2, h3):hover .heading-anchor { opacity: 1; }
 
 /* Motion */
@@ -243,3 +243,16 @@ a.card:hover, .card.hoverable:hover { border-color: var(--border-strong); transf
     --astro-code-token-string-expression: #1d6b3a;
   }
 }
+
+/* ---- Right-to-left (Arabic) ---- */
+/* Letter-spacing breaks Arabic letter joining; uppercase/mono labels read as Latin. */
+[dir="rtl"] body { line-height: 1.8; }
+[dir="rtl"] :is(h1, h2, h3, h4, .eyebrow, .badge, .lead, p, li, a, span, strong, dt, dd, th, td, button) { letter-spacing: 0; }
+[dir="rtl"] :is(h1, h2, h3) { line-height: 1.35; }
+[dir="rtl"] .eyebrow { font-family: var(--font-sans); text-transform: none; font-size: .9rem; font-weight: 500; }
+[dir="rtl"] .badge { font-family: var(--font-sans); text-transform: none; font-size: .75rem; }
+/* Commands, paths and code always read left to right. */
+pre, code, kbd, .ltr { direction: ltr; unicode-bidi: isolate; }
+pre { text-align: left; }
+/* Directional icons (arrows) point the reading direction. */
+[dir="rtl"] .flip-rtl { transform: scaleX(-1); }

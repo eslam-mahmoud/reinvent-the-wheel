@@ -1,3 +1,5 @@
+import type { Localized } from "../i18n/config";
+
 // Central project settings. Everything the site says about the project's
 // identity, links and ownership comes from here — change it in one place.
 //
@@ -7,10 +9,12 @@
 export const site = {
   name: "Reinvent the Wheel",
   shortName: "RTW",
-  tagline: "Civilization, Offline.",
-  statement: "Knowledge worth keeping.",
-  description:
-    "Reinvent the Wheel (RTW) is a free, open-source, offline-first knowledge library. Preserve, access and share useful human knowledge on a Mac or Android device — no internet required to use what you've downloaded.",
+  tagline: <Localized>{ en: "Civilization, Offline.", ar: "الحضارة، بلا إنترنت." },
+  statement: <Localized>{ en: "Knowledge worth keeping.", ar: "معرفة تستحق الحفظ." },
+  description: <Localized>{
+    en: "Reinvent the Wheel (RTW) is a free, open-source, offline-first knowledge library. Preserve, access and share useful human knowledge on a Mac or Android device — no internet required to use what you've downloaded.",
+    ar: "Reinvent the Wheel ‏(RTW) مكتبة معرفة مجانية ومفتوحة المصدر تعمل دون اتصال. احفظ المعرفة الإنسانية المفيدة واطّلع عليها وشاركها على جهاز Mac أو Android، دون الحاجة إلى الإنترنت لاستخدام ما نزّلته.",
+  },
   url: "https://reinvent-the-wheel.com",
   locale: "en",
 

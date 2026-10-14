@@ -1,26 +1,47 @@
 ---
 // Storage → Host device → Local server → Local Wi-Fi → Clients.
-const stages = [
-  { label: "STORAGE", title: "Internal storage", sub: "external drive: planned", icon: "storage" },
-  { label: "HOST DEVICE", title: "Mac or Android", sub: "runs the services", icon: "tablet" },
-  { label: "LOCAL SERVER", title: "nginx + Kiwix", sub: "http :8080 · https :8443", icon: "server" },
-  { label: "LOCAL WI-FI", title: "Hotspot or router", sub: "no internet needed", icon: "wifi" },
-  { label: "CLIENTS", title: "Phones, laptops", sub: "a web browser", icon: "phone" },
-];
 import Icon from "./Icon.astro";
+import { langFromPath } from "../i18n/config";
+
+const lang = langFromPath(Astro.url.pathname);
+const c = {
+  en: {
+    aria: "Architecture, from storage to connected clients",
+    caption: "Each stage hands off to the next. Everything after the host device happens on the local network only.",
+    stages: [
+      ["STORAGE", "Internal storage", "external drive: planned"],
+      ["HOST DEVICE", "Mac or Android", "runs the services"],
+      ["LOCAL SERVER", "nginx + Kiwix", "http :8080 · https :8443"],
+      ["LOCAL WI-FI", "Hotspot or router", "no internet needed"],
+      ["CLIENTS", "Phones, laptops", "a web browser"],
+    ],
+  },
+  ar: {
+    aria: "البنية، من التخزين إلى الأجهزة المتصلة",
+    caption: "كل مرحلة تُسلّم إلى التي تليها. كل ما يأتي بعد الجهاز المضيف يجري على الشبكة المحلية فقط.",
+    stages: [
+      ["التخزين", "التخزين الداخلي", "القرص الخارجي: مخطط له"],
+      ["الجهاز المضيف", "Mac أو Android", "يشغّل الخدمات"],
+      ["الخادم المحلي", "nginx وKiwix", "http :8080 · https :8443"],
+      ["Wi-Fi المحلية", "نقطة اتصال أو راوتر", "لا حاجة للإنترنت"],
+      ["الأجهزة", "هواتف وحواسيب", "متصفح ويب فقط"],
+    ],
+  },
+}[lang];
+const icons = ["storage", "tablet", "server", "wifi", "phone"];
 ---
 <figure class="arch">
-  <ol class="flow" aria-label="Architecture, from storage to connected clients">
-    {stages.map((s, i) => (
-      <li style={`--i:${i}`}>
-        <span class="icon-tile"><Icon name={s.icon} /></span>
-        <span class="lbl mono">{s.label}</span>
-        <strong>{s.title}</strong>
-        <span class="sub">{s.sub}</span>
+  <ol class="flow" aria-label={c.aria}>
+    {c.stages.map(([label, title, sub], i) => (
+      <li>
+        <span class="icon-tile"><Icon name={icons[i]} /></span>
+        <span class="lbl">{label}</span>
+        <strong>{title}</strong>
+        <span class="sub">{sub}</span>
       </li>
     ))}
   </ol>
-  <figcaption>Each stage hands off to the next. Everything to the right of the host device happens on the local network only.</figcaption>
+  <figcaption>{c.caption}</figcaption>
 </figure>
 
 <style>
@@ -32,11 +53,12 @@ import Icon from "./Icon.astro";
   }
   .flow li:nth-child(3) { border-color: var(--accent); }
   .flow li:not(:last-child)::after {
-    content: ""; position: absolute; top: 38px; right: -28px; width: 28px; height: 2px;
+    content: ""; position: absolute; top: 38px; inset-inline-end: -28px; width: 28px; height: 2px;
     background: repeating-linear-gradient(90deg, var(--accent) 0 5px, transparent 5px 10px);
   }
   .flow .icon-tile { margin-bottom: 10px; }
-  .lbl { font-size: .66rem; letter-spacing: .08em; color: var(--accent); }
+  .lbl { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .08em; color: var(--accent); }
+  :global([dir="rtl"]) .lbl { font-family: var(--font-sans); font-size: .8rem; letter-spacing: 0; }
   strong { font-size: .98rem; }
   .sub { color: var(--muted); font-size: .82rem; }
   figcaption { margin-top: 14px; color: var(--muted); font-size: .9rem; }
@@ -45,7 +67,7 @@ import Icon from "./Icon.astro";
   }
   @keyframes dash { to { background-position: 20px 0; } }
   @media (max-width: 900px) {
-    .flow { grid-template-columns: 1fr; gap: 20px; }
-    .flow li:not(:last-child)::after { top: auto; bottom: -20px; right: auto; left: 36px; width: 2px; height: 20px; background: repeating-linear-gradient(180deg, var(--accent) 0 5px, transparent 5px 10px); }
+    .flow { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .flow li:not(:last-child)::after { top: auto; bottom: -20px; inset-inline-end: auto; inset-inline-start: 36px; width: 2px; height: 20px; background: repeating-linear-gradient(180deg, var(--accent) 0 5px, transparent 5px 10px); }
   }
 </style>

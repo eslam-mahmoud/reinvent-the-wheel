@@ -23,7 +23,7 @@ Subfolders are fine everywhere. On a Mac the folders are in `content/`; on Andro
 
 ## Three ways to add content
 
-1. **Fetch commands** — `rtw fetch wikipedia | maps | osmand | all`. Resumable; unfinished downloads wait in hidden `.partial` folders and are never shown to readers.
+1. **Fetch commands** — `rtw fetch wikipedia | maps | osmand | bitchat | all`. Resumable; unfinished downloads wait in hidden `.partial` folders and are never shown to readers.
 2. **The admin page** — open `/admin/`, log in as `admin`, and drop files. *Quick upload* sends each file to the right section by type. You can also rename, move, replace and delete files, and write notes in the browser.
 3. **Copy files directly** into the folders — Finder, the Android Files app, a USB cable or a memory card.
 
@@ -36,7 +36,8 @@ Approximate sizes of the default collections:
 | Arabic Wikipedia, text only (`wikipedia_ar_all_nopic`) | ~8.4 GB |
 | Arabic Wikipedia, introductions only (`wikipedia_ar_all_mini`) | ~3 GB |
 | Saudi Arabia + Egypt map to zoom 15 | ~1.1 GB |
-| OsmAnd app + Saudi Arabia/Egypt navigation maps | ~0.8 GB |
+| OsmAnd app + Saudi Arabia/Egypt navigation maps | ~1.5 GB |
+| Bitchat app (arm64 + universal) | ~70 MB |
 
 Leave headroom: the server refuses an upload if it would leave less than about 200 MB free.
 

@@ -1,0 +1,151 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { type Lang } from "../i18n/config";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const roadmapIcons = ["laptop", "layers", "search", "usb", "bolt", "wifi", "translate", "phone", "cap"];
+const thanksBase = [
+  { name: "Kiwix", url: "https://kiwix.org", license: "kiwix-tools: GPL-3.0" },
+  { name: "Internet-in-a-Box", url: "https://internet-in-a-box.org", license: null },
+  { name: "OpenStreetMap", url: "https://www.openstreetmap.org/copyright", license: "ODbL" },
+  { name: "Protomaps & PMTiles", url: "https://protomaps.com", license: null },
+  { name: "MapLibre GL JS", url: "https://maplibre.org", license: "BSD-3-Clause" },
+  { name: "nginx", url: "https://nginx.org", license: "BSD-2-Clause" },
+  { name: "Termux", url: "https://termux.dev", license: null },
+  { name: "OsmAnd", url: "https://osmand.net", license: null },
+  { name: "Bitchat", url: "https://github.com/permissionlesstech/bitchat-android", license: "GPL-3.0" },
+  { name: "Wikipedia & Wikimedia", url: "https://www.wikipedia.org", license: "CC BY-SA" },
+];
+
+const c = {
+  en: {
+    title: "About", description: "Why Reinvent the Wheel exists: keeping the most useful parts of the internet on the devices we already own.",
+    eyebrow: "About", h1: "Why reinvent the wheel?",
+    lead: "We live in a world where nearly all human knowledge can be reached through a device in our pockets.",
+    big: "But access is not ownership.",
+    p1: "If connectivity disappears, much of that knowledge becomes unreachable — not destroyed, just out of reach. A lost connection, an outage, a remote valley, a classroom without a data plan.",
+    p2a: "Reinvent the Wheel began with a simple question: ", p2b: "what if we could keep the most useful parts of the internet with us, on the devices we already own?",
+    nameH: "The name",
+    name1: "“Reinventing the wheel” usually means wasted effort — rebuilding something that already exists. We take that advice seriously: RTW is built from proven tools wherever they exist.",
+    name2: "But the phrase hides a question. What happens when the knowledge of how to build the wheel isn't at hand? Sometimes reinventing it becomes necessary — and it's far easier with the right references nearby. RTW exists to keep the knowledge needed to understand, repair, build, teach and, if it comes to it, rebuild.",
+    beliefsH: "What we believe",
+    beliefs: [["archive", "Preservation", "Useful knowledge deserves local copies, not just a link to a server somewhere else."], ["lock", "Independence", "People should be able to keep and use information without depending on infrastructure they don't control."], ["cap", "Education", "Learning shouldn't stop when the connection does — especially where connectivity is scarce or expensive."], ["refresh", "Resilience", "Everyday tools that keep working when conditions change are worth building before they're needed."]],
+    honest: "RTW is a young project. It's honest about what works today, and it isn't a substitute for emergency services or professional advice.",
+    plannedBadge: "Planned — not yet built", roadmapH: "Roadmap",
+    roadmapLead: "Directions the project wants to explore. None of these exist yet, and there are no dates. Ideas and help are welcome.",
+    roadmap: [["More operating systems", "Linux and Windows hosts, using the same server design."], ["Curated knowledge packs", "Essential resources per category, checked for licensing, loaded in one step."], ["Better offline search", "One search across Wikipedia, books and notes."], ["External storage workflows", "Tested, documented ways to keep large libraries on SD cards and USB drives."], ["Simpler installation", "Fewer steps, fewer prerequisites, ideally one tap."], ["Local network discovery", "Find a nearby library without typing an IP address."], ["More languages", "The library app and the documentation in more languages."], ["Hardware compatibility database", "Community-maintained reports of which devices work, and how well."], ["Technical education collections", "Offline courses for practical and technical skills."]],
+    ackH: "Acknowledgments", ackLead: "RTW stands on the work of these projects and communities. Each keeps its own license; please respect them.",
+    roles: ["ZIM format and kiwix-serve, which serve Wikipedia and other collections.", "The original inspiration: a library in a box for places the internet doesn't reach.", "The map data, built by contributors worldwide.", "World map builds and the single-file tile format behind offline maps.", "Renders maps in the browser.", "The web server at the front of every library.", "A Linux environment on Android, without root.", "Offline navigation, offered to readers as a download.", "Offline Bluetooth mesh chat, offered to readers as a download.", "The encyclopedia most libraries start with."],
+    fonts: "This website uses the Inter, Noto Sans Arabic and JetBrains Mono typefaces (SIL Open Font License) and is built with Astro.",
+  },
+  ar: {
+    title: "عن المشروع", description: "لماذا وُجد Reinvent the Wheel: الاحتفاظ بأنفع ما في الإنترنت على الأجهزة التي نملكها أصلًا.",
+    eyebrow: "عن المشروع", h1: "لماذا نعيد اختراع العجلة؟",
+    lead: "نعيش في عالم يمكن فيه الوصول إلى معظم المعرفة الإنسانية عبر جهاز في جيوبنا.",
+    big: "لكن الوصول ليس امتلاكًا.",
+    p1: "إذا انقطع الاتصال، يصبح كثير من هذه المعرفة بعيد المنال — لا يُمحى، لكنه يصبح خارج متناولنا. اتصال مفقود، أو انقطاع في الخدمة، أو وادٍ بعيد، أو فصل دراسي بلا باقة بيانات.",
+    p2a: "بدأ Reinvent the Wheel بسؤال بسيط: ", p2b: "ماذا لو استطعنا الاحتفاظ بأنفع ما في الإنترنت معنا، على الأجهزة التي نملكها أصلًا؟",
+    nameH: "الاسم",
+    name1: "عبارة «إعادة اختراع العجلة» تعني عادةً جهدًا ضائعًا — إعادة بناء شيء موجود أصلًا. ونحن نأخذ هذه النصيحة بجدية: يُبنى RTW من أدوات مُثبتة حيثما وُجدت.",
+    name2: "لكن العبارة تخفي سؤالًا: ماذا يحدث حين لا تكون معرفة صنع العجلة في متناول اليد؟ أحيانًا تصبح إعادة اختراعها ضرورة — وتكون أسهل بكثير حين تكون المراجع الصحيحة قريبة. وُجد RTW ليحفظ المعرفة اللازمة للفهم والإصلاح والبناء والتعليم، وإعادة البناء إن لزم الأمر.",
+    beliefsH: "ما نؤمن به",
+    beliefs: [["archive", "الحفظ", "المعرفة المفيدة تستحق نسخًا محلية، لا مجرد رابط إلى خادم في مكان آخر."], ["lock", "الاستقلال", "ينبغي أن يتمكن الناس من الاحتفاظ بالمعلومات واستخدامها دون الاعتماد على بنية تحتية لا يتحكمون بها."], ["cap", "التعليم", "لا ينبغي أن يتوقف التعلّم حين يتوقف الاتصال — خاصة حيث الاتصال نادر أو مكلف."], ["refresh", "الصمود", "الأدوات اليومية التي تستمر في العمل حين تتغير الظروف تستحق أن تُبنى قبل الحاجة إليها."]],
+    honest: "RTW مشروع ناشئ، صريح بشأن ما يعمل اليوم، ولا يغني عن خدمات الطوارئ أو المشورة المتخصصة.",
+    plannedBadge: "مخطط له — لم يُنفَّذ بعد", roadmapH: "خارطة الطريق",
+    roadmapLead: "اتجاهات يرغب المشروع في استكشافها. لا شيء منها موجود بعد، ولا توجد مواعيد محددة. الأفكار والمساعدة مرحّب بها.",
+    roadmap: [["أنظمة تشغيل أكثر", "تشغيل الخادم على Linux وWindows بالتصميم نفسه."], ["حِزم معرفة منتقاة", "الموارد الأساسية لكل تصنيف، مع التحقق من رخصها، وتحميلها بخطوة واحدة."], ["بحث أفضل دون اتصال", "بحث واحد يشمل ويكيبيديا والكتب والملاحظات."], ["مسارات التخزين الخارجي", "طرق مختبرة وموثقة لحفظ المكتبات الكبيرة على بطاقات SD وأقراص USB."], ["تثبيت أبسط", "خطوات ومتطلبات أقل، وبنقرة واحدة إن أمكن."], ["اكتشاف المكتبة على الشبكة", "العثور على مكتبة قريبة دون كتابة عنوان IP."], ["لغات أكثر", "تطبيق المكتبة والتوثيق بلغات إضافية."], ["قاعدة بيانات توافق الأجهزة", "تقارير يحدّثها المجتمع عن الأجهزة التي تعمل ومدى جودتها."], ["مجموعات تعليمية تقنية", "مقررات دون اتصال للمهارات العملية والتقنية."]],
+    ackH: "شكر وتقدير", ackLead: "يقوم RTW على عمل هذه المشاريع والمجتمعات. لكلٍّ منها رخصته؛ نرجو احترامها.",
+    roles: ["صيغة ZIM وأداة kiwix-serve اللتان تقدّمان ويكيبيديا والمجموعات الأخرى.", "الإلهام الأول: مكتبة في صندوق للأماكن التي لا يصلها الإنترنت.", "بيانات الخرائط، يبنيها متطوعون من حول العالم.", "إصدارات خرائط العالم وصيغة الملف الواحد وراء الخرائط دون اتصال.", "يعرض الخرائط في المتصفح.", "خادم الويب في واجهة كل مكتبة.", "بيئة Linux على Android دون صلاحيات root.", "ملاحة دون اتصال، تُقدَّم للقرّاء كملف للتنزيل.", "دردشة دون إنترنت عبر شبكة بلوتوث متداخلة، تُقدَّم للقرّاء كملف للتنزيل.", "الموسوعة التي تبدأ بها معظم المكتبات."],
+    fonts: "يستخدم هذا الموقع خطوط Inter وNoto Sans Arabic وJetBrains Mono (برخصة SIL Open Font License)، وهو مبني بـAstro.",
+  },
+}[lang];
+const thanks = thanksBase.map((th, i) => ({ ...th, role: c.roles[i] }));
+---
+<Base title={c.title} description={c.description}>
+  <section class="section page-hero">
+    <div class="container narrow">
+      <p class="eyebrow">{c.eyebrow}</p>
+      <h1>{c.h1}</h1>
+      <div class="story">
+        <p class="lead">{c.lead}</p>
+        <p class="big">{c.big}</p>
+        <p>{c.p1}</p>
+        <p>{c.p2a}<strong>{c.p2b}</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <h2>{c.nameH}</h2>
+      <p>{c.name1}</p>
+      <p>{c.name2}</p>
+
+      <h2>{c.beliefsH}</h2>
+      <div class="grid grid-2 beliefs">
+        {c.beliefs.map(([icon, title, text]) => <div class="card"><span class="icon-tile"><Icon name={icon} /></span><h3>{title}</h3><p>{text}</p></div>)}
+      </div>
+      <p class="muted honest">{c.honest}</p>
+    </div>
+  </section>
+
+  <section class="section" id="roadmap" aria-labelledby="roadmap-h">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge badge-planned">{c.plannedBadge}</span>
+        <h2 id="roadmap-h" style="margin-top:14px">{c.roadmapH}</h2>
+        <p class="lead">{c.roadmapLead}</p>
+      </div>
+      <div class="grid grid-3">
+        {c.roadmap.map(([title, text], i) => (
+          <div class="card">
+            <span class="icon-tile"><Icon name={roadmapIcons[i]} /></span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="acknowledgments" aria-labelledby="ack-h">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="ack-h">{c.ackH}</h2>
+        <p class="lead">{c.ackLead}</p>
+      </div>
+      <ul class="thanks">
+        {thanks.map((th) => (
+          <li>
+            <a href={th.url}>{th.name}</a>
+            <span>{th.role}</span>
+            {th.license && <span class="mono lic">{th.license}</span>}
+          </li>
+        ))}
+      </ul>
+      <p class="muted fonts">{c.fonts}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow { max-width: 760px; }
+  .page-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); }
+  .story p { font-size: 1.1rem; color: color-mix(in srgb, var(--text) 86%, var(--muted)); }
+  .story .lead { font-size: clamp(1.2rem, 2vw, 1.4rem); color: var(--muted); }
+  .story .big { font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 650; letter-spacing: -.02em; color: var(--accent); }
+  #roadmap, #acknowledgments { scroll-margin-top: var(--header-h); }
+  .narrow h2 { margin-top: 1.6em; }
+  .narrow > p { color: color-mix(in srgb, var(--text) 86%, var(--muted)); font-size: 1.05rem; }
+  .beliefs { margin: 24px 0; }
+  .honest { font-size: .95rem; }
+  .thanks { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+  .thanks li { display: grid; gap: 4px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .thanks a { font-weight: 650; color: var(--text); }
+  .thanks span { color: var(--muted); font-size: .9rem; }
+  .thanks .lic { font-size: .72rem; color: var(--subtle); }
+  .fonts { margin-top: 24px; font-size: .88rem; }
+</style>

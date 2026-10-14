@@ -4,7 +4,7 @@ description: Get an offline library running on a Mac in a few minutes.
 order: 2
 ---
 
-This is the fastest path: a Mac, a terminal and [Homebrew](https://brew.sh). For Android, see [Android Installation](/docs/android-installation/).
+This is the fastest path: a Mac with the Xcode Command Line Tools (for `git` and Python 3) and [Homebrew](https://brew.sh). For Android, see [Android Installation](/docs/android-installation/).
 
 ## 1. Get the code
 

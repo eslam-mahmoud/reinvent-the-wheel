@@ -8,7 +8,7 @@ A Wi-Fi network is a connection between nearby devices. It doesn't need the inte
 
 ## Two ways to connect
 
-1. **The host's hotspot** — turn on the Android hotspot (or macOS Internet Sharing) and let people join it. Best for the field: no router needed, and some routers block devices from seeing each other.
+1. **The host's hotspot** — on Android, turn on the hotspot and let people join it. Best for the field: no router needed, and some routers block devices from seeing each other. (A Mac is easiest to use on an existing network.)
 2. **An existing Wi-Fi network** — the host and readers join the same router.
 
 `rtw start` prints the address to share, for example:

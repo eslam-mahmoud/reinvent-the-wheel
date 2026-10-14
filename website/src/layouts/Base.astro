@@ -1,12 +1,16 @@
 ---
 import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/noto-sans-arabic/wght.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "../styles/global.css";
 import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import notoArabic from "@fontsource-variable/noto-sans-arabic/files/noto-sans-arabic-arabic-wght-normal.woff2?url";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { site } from "../config/site";
+import { langFromPath, langMeta, locales, switchLang, defaultLang } from "../i18n/config";
+import { t } from "../i18n/ui";
 
 interface Props {
   title?: string;
@@ -14,22 +18,29 @@ interface Props {
   ogImage?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
+  /** Set false for pages that exist in one language only (e.g. 404). */
+  translated?: boolean;
 }
 
-const { title, description = site.description, ogImage = "/og.png", jsonLd, noindex = false } = Astro.props;
-const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline}`;
+const lang = langFromPath(Astro.url.pathname);
+const { title, description = site.description[lang], ogImage = "/og.png", jsonLd, noindex = false, translated = true } = Astro.props;
+const meta = langMeta[lang];
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline[lang]}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogUrl = new URL(ogImage, site.url).href;
 const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const alternates = translated ? locales.map((l) => ({ lang: l, url: new URL(switchLang(Astro.url.pathname, l), site.url).href })) : [];
 ---
 <!doctype html>
-<html lang={site.locale}>
+<html lang={lang} dir={meta.dir}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.url} />)}
+    {translated && <link rel="alternate" hreflang="x-default" href={new URL(switchLang(Astro.url.pathname, defaultLang), site.url).href} />}
     {noindex && <meta name="robots" content="noindex" />}
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -40,16 +51,19 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta name="theme-color" content="#f6f4ee" media="(prefers-color-scheme: light)" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    {lang === "ar" && <link rel="preload" href={notoArabic} as="font" type="font/woff2" crossorigin />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={meta.og} />
+    {locales.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={langMeta[l].og} />)}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name} — ${site.tagline}`} />
+    <meta property="og:image:alt" content={`${site.name} — ${site.tagline[lang]}`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
@@ -66,11 +80,11 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <Header />
+    <a class="skip-link" href="#main">{t(lang).skip}</a>
+    <Header lang={lang} translated={translated} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
   </body>
 </html>

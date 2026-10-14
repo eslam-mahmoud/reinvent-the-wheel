@@ -1,0 +1,10 @@
+---
+import DocPage from "../../../views/DocPage.astro";
+import { getDocs } from "../../../data/docs";
+
+export async function getStaticPaths() {
+  const docs = await getDocs("ar");
+  return docs.map((doc) => ({ params: { slug: doc.slug }, props: { doc } }));
+}
+---
+<DocPage lang="ar" doc={Astro.props.doc} />

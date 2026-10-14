@@ -2,64 +2,76 @@
 // Concept illustration of an offline library interface, built in HTML/CSS.
 // It is labelled as a concept on the page — not a screenshot.
 import Icon from "./Icon.astro";
+import { langFromPath } from "../i18n/config";
+import { t } from "../i18n/ui";
 
-const shelves = [
-  { name: "Encyclopedia", icon: "book", meta: "ZIM · Kiwix" },
-  { name: "Science & Engineering", icon: "atom", meta: "PDF · ZIM" },
-  { name: "Water & Sanitation", icon: "droplet", meta: "PDF" },
-  { name: "Agriculture", icon: "sprout", meta: "PDF · EPUB" },
-  { name: "Medicine & Healthcare", icon: "cross", meta: "ZIM · PDF" },
-  { name: "Tools & Manufacturing", icon: "gear", meta: "PDF · HTML" },
-  { name: "Maps & Navigation", icon: "map", meta: "PMTiles" },
-  { name: "Education", icon: "cap", meta: "PDF · HTML" },
-];
+const lang = langFromPath(Astro.url.pathname);
+const c = {
+  en: {
+    shelves: ["Encyclopedia", "Science & Engineering", "Water & Sanitation", "Agriculture", "Medicine & Healthcare", "Tools & Manufacturing", "Maps & Navigation", "Education"],
+    noNet: "No internet", library: "Library", all: "All shelves", reading: "Reading", maps: "Maps", notes: "Notes", downloads: "Downloads",
+    storage: "Local storage", onDevice: "on this device", search: "Search the offline library…",
+    peers: "Shared on local Wi-Fi · 3 nearby devices connected",
+    caption: "An illustration of an offline library interface — categories, local storage and nearby devices. Not a screenshot.",
+  },
+  ar: {
+    shelves: ["الموسوعة", "العلوم والهندسة", "المياه والصرف الصحي", "الزراعة", "الطب والرعاية الصحية", "الأدوات والتصنيع", "الخرائط والملاحة", "التعليم"],
+    noNet: "لا يوجد إنترنت", library: "المكتبة", all: "كل الرفوف", reading: "القراءة", maps: "الخرائط", notes: "الملاحظات", downloads: "التنزيلات",
+    storage: "التخزين المحلي", onDevice: "على هذا الجهاز", search: "ابحث في المكتبة دون اتصال…",
+    peers: "مشتركة عبر Wi-Fi المحلية · 3 أجهزة قريبة متصلة",
+    caption: "رسم توضيحي لواجهة مكتبة تعمل دون اتصال — تصنيفات وتخزين محلي وأجهزة قريبة. ليس لقطة شاشة.",
+  },
+}[lang];
+const meta = ["ZIM · Kiwix", "PDF · ZIM", "PDF", "PDF · EPUB", "ZIM · PDF", "PDF · HTML", "PMTiles", "PDF · HTML"];
+const icons = ["book", "atom", "droplet", "sprout", "cross", "gear", "map", "cap"];
+const shelves = c.shelves.map((name, i) => ({ name, icon: icons[i], meta: meta[i] }));
 ---
 <figure class="mockup" aria-labelledby="mockup-cap">
   <div class="window" aria-hidden="true">
     <div class="chrome">
       <span class="dots"><i></i><i></i><i></i></span>
-      <span class="address"><Icon name="wifi" size={12} /> 192.168.43.1:8080</span>
-      <span class="net"><Icon name="offline" size={14} /> No internet</span>
+      <span class="address ltr"><Icon name="wifi" size={12} /> 192.168.43.1:8080</span>
+      <span class="net"><Icon name="offline" size={14} /> {c.noNet}</span>
     </div>
     <div class="body">
       <aside class="side">
         <div class="side-brand">
           <svg width="18" height="18" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M16 3.5A12.5 12.5 0 0 1 26.83 9.75" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/><circle cx="16" cy="16" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
-          Library
+          {c.library}
         </div>
         <ul>
-          <li class="on"><Icon name="layers" size={14} /> All shelves</li>
-          <li><Icon name="book" size={14} /> Reading</li>
-          <li><Icon name="map" size={14} /> Maps</li>
-          <li><Icon name="docs" size={14} /> Notes</li>
-          <li><Icon name="archive" size={14} /> Downloads</li>
+          <li class="on"><Icon name="layers" size={14} /> {c.all}</li>
+          <li><Icon name="book" size={14} /> {c.reading}</li>
+          <li><Icon name="map" size={14} /> {c.maps}</li>
+          <li><Icon name="docs" size={14} /> {c.notes}</li>
+          <li><Icon name="archive" size={14} /> {c.downloads}</li>
         </ul>
         <div class="storage">
-          <span>Local storage</span>
+          <span>{c.storage}</span>
           <div class="meter"><b></b></div>
-          <span class="mono">on this device</span>
+          <span>{c.onDevice}</span>
         </div>
       </aside>
       <div class="main">
-        <div class="search"><Icon name="search" size={15} /> Search the offline library…</div>
+        <div class="search"><Icon name="search" size={15} /> {c.search}</div>
         <div class="shelves">
           {shelves.map((s, i) => (
             <div class="shelf" style={`--i:${i}`}>
               <span class="shelf-icon"><Icon name={s.icon} size={17} /></span>
               <span class="shelf-name">{s.name}</span>
-              <span class="shelf-meta">{s.meta}</span>
+              <span class="shelf-meta ltr">{s.meta}</span>
             </div>
           ))}
         </div>
         <div class="peers">
-          <span class="pulse"></span> Shared on local Wi-Fi · 3 nearby devices connected
+          <span class="pulse"></span> {c.peers}
         </div>
       </div>
     </div>
   </div>
   <figcaption id="mockup-cap">
-    <span class="badge badge-concept">Concept</span>
-    An illustration of an offline library interface — categories, local storage and nearby devices. Not a screenshot.
+    <span class="badge badge-concept">{t(lang).status.concept}</span>
+    {c.caption}
   </figcaption>
 </figure>
 
@@ -75,10 +87,10 @@ const shelves = [
   }
   .dots { display: flex; gap: 6px; }
   .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
-  .address { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); padding: 4px 10px; border-radius: 6px; flex: 1; max-width: 300px; }
-  .net { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--accent); }
+  .address { justify-content: flex-start; display: inline-flex; align-items: center; gap: 6px; background: var(--bg); padding: 4px 10px; border-radius: 6px; flex: 1; max-width: 300px; }
+  .net { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--accent); }
   .body { display: grid; grid-template-columns: 158px 1fr; min-height: 340px; }
-  .side { border-right: 1px solid var(--border); padding: 16px 12px; display: flex; flex-direction: column; gap: 14px; font-size: .82rem; }
+  .side { border-inline-end: 1px solid var(--border); padding: 16px 12px; display: flex; flex-direction: column; gap: 14px; font-size: .82rem; }
   .side-brand { display: flex; align-items: center; gap: 8px; font-weight: 650; padding: 0 8px; }
   .side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; color: var(--muted); }
   .side li { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 7px; }
@@ -96,7 +108,7 @@ const shelves = [
   .shelf-icon { color: var(--accent); }
   .shelf-name { font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
   .shelf-meta { font-family: var(--font-mono); font-size: .66rem; color: var(--subtle); }
-  .peers { margin-top: auto; display: flex; align-items: center; gap: 8px; font-size: .76rem; color: var(--muted); font-family: var(--font-mono); }
+  .peers { margin-top: auto; display: flex; align-items: center; gap: 8px; font-size: .76rem; color: var(--muted); }
   .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); }
   figcaption { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; font-size: .82rem; color: var(--subtle); }
 

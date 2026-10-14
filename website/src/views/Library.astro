@@ -1,0 +1,135 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { categories, formats } from "../data/library";
+import { href, type Lang } from "../i18n/config";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = {
+  en: {
+    title: "Knowledge Library", description: "A curated directory of knowledge categories and reputable offline sources — encyclopedias, health guides, engineering, agriculture, maps and more.",
+    eyebrow: "Knowledge library", h1: "Preserve knowledge before you need it.",
+    lead: "A curated directory of what's worth keeping and where to find it. RTW helps you store and share these resources — it doesn't bundle or redistribute them.",
+    legend: [["Supported formats", "File types the RTW server can show today."], ["Recommended sources", "Reputable publishers. Download from them directly, under their terms."], ["Included in RTW", "No third-party content ships with RTW. Fetch commands download from the original source."]],
+    formatsH: "Supported formats", catsH: "Categories", useful: "Useful content", types: "Resource types", sources: "Recommended sources",
+    planned: "Planned", packsH: "Knowledge packs",
+    packsLead: "A future goal is curated packs — a category's essential resources, checked for licensing, ready to load in one step. They don't exist yet. Until then, this directory points you to the sources.",
+    suggest: "Suggest it", packsNote1: "Know a resource that belongs here?", packsNote2: ". Health and safety material is listed for reference and education; it hasn't been reviewed by professionals for RTW and doesn't replace qualified advice or emergency services.",
+  },
+  ar: {
+    title: "مكتبة المعرفة", description: "دليل منتقى لتصنيفات المعرفة ومصادر موثوقة تعمل دون اتصال — موسوعات، وأدلة صحية، وهندسة، وزراعة، وخرائط، وغيرها.",
+    eyebrow: "مكتبة المعرفة", h1: "احفظ المعرفة قبل أن تحتاج إليها.",
+    lead: "دليل منتقى لما يستحق الحفظ وأين تجده. يساعدك RTW على تخزين هذه الموارد ومشاركتها — لكنه لا يضمّنها ولا يعيد توزيعها.",
+    legend: [["الصيغ المدعومة", "أنواع الملفات التي يستطيع خادم RTW عرضها اليوم."], ["المصادر المقترحة", "ناشرون موثوقون. نزّل منهم مباشرة وفق شروطهم."], ["المضمَّن في RTW", "لا يأتي RTW بأي محتوى من أطراف أخرى. أوامر التنزيل تجلبه من مصدره الأصلي."]],
+    formatsH: "الصيغ المدعومة", catsH: "التصنيفات", useful: "محتوى مفيد", types: "أنواع الموارد", sources: "مصادر مقترحة",
+    planned: "مخطط له", packsH: "حِزم المعرفة",
+    packsLead: "من أهدافنا المستقبلية حِزم منتقاة — الموارد الأساسية لكل تصنيف، مع التحقق من رخصها، جاهزة للتحميل بخطوة واحدة. لم توجد بعد، وحتى ذلك الحين يرشدك هذا الدليل إلى المصادر.",
+    suggest: "اقترحه", packsNote1: "تعرف موردًا يستحق أن يكون هنا؟", packsNote2: ". المواد الصحية ومواد السلامة مدرجة للمرجعية والتعليم؛ لم يراجعها مختصون لصالح RTW، ولا تغني عن المشورة المؤهلة أو خدمات الطوارئ.",
+  },
+}[lang];
+// Provider notes may mention a command in backticks.
+const withCode = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/`([^`]+)`/g, "<code>$1</code>");
+---
+<Base title={c.title} description={c.description}>
+  <section class="section page-hero">
+    <div class="container">
+      <p class="eyebrow">{c.eyebrow}</p>
+      <h1>{c.h1}</h1>
+      <p class="lead">{c.lead}</p>
+      <div class="grid grid-3 legend">
+        {c.legend.map(([h, d]) => <div class="note"><strong>{h}</strong><br />{d}</div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section formats-sec" aria-labelledby="formats-h">
+    <div class="container">
+      <h2 id="formats-h" class="small-h">{c.formatsH}</h2>
+      <ul class="formats">
+        {Object.values(formats).map((f) => (
+          <li><span class="mono">{f.label}</span><span class="muted">{f.where[lang]}</span></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cats-h">
+    <div class="container">
+      <h2 id="cats-h" class="visually-hidden">{c.catsH}</h2>
+      <nav class="cat-nav" aria-label={c.catsH}>
+        {categories.map((cat) => <a href={`#${cat.id}`}><Icon name={cat.icon} size={15} /> {cat.name[lang]}</a>)}
+      </nav>
+      <div class="cats">
+        {categories.map((cat, i) => (
+          <article class="card cat" id={cat.id} aria-labelledby={`${cat.id}-h`}>
+            <header>
+              <span class="icon-tile"><Icon name={cat.icon} /></span>
+              <span class="mono num">{String(i + 1).padStart(2, "0")}</span>
+            </header>
+            <h3 id={`${cat.id}-h`}>{cat.name[lang]}</h3>
+            <p>{cat.description[lang]}</p>
+
+            <h4>{c.useful}</h4>
+            <ul class="examples">{cat.examples[lang].map((e) => <li>{e}</li>)}</ul>
+
+            <h4>{c.types}</h4>
+            <ul class="tags">{cat.formats.map((f) => <li class="mono">{formats[f].label}</li>)}</ul>
+
+            <h4>{c.sources}</h4>
+            <ul class="providers">
+              {cat.providers.map((p) => (
+                <li>
+                  <a href={p.url.startsWith("/") ? href(p.url, lang) : p.url}>{p.name}{p.url.startsWith("http") && <Icon name="external" size={12} />}</a>
+                  <span set:html={withCode(p.note[lang])} />
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="packs-h">
+    <div class="container narrow">
+      <span class="badge badge-planned">{c.planned}</span>
+      <h2 id="packs-h">{c.packsH}</h2>
+      <p class="lead">{c.packsLead}</p>
+      <p class="muted">{c.packsNote1} <a href={href("/contribute/", lang)}>{c.suggest}</a>{c.packsNote2}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { padding-bottom: 40px; }
+  .page-hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); max-width: 18ch; }
+  .page-hero .lead { max-width: 62ch; }
+  .legend { margin-top: 32px; }
+  .legend .note { font-size: .9rem; }
+  .formats-sec { padding: 40px 0; }
+  .small-h { font-size: .78rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--subtle); font-weight: 500; }
+  :global([dir="rtl"]) .small-h, :global([dir="rtl"]) h4 { font-family: var(--font-sans); font-size: .85rem; letter-spacing: 0; }
+  .formats { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .formats li { display: grid; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-size: .85rem; }
+  .formats .mono { color: var(--accent); }
+  .cat-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .cat-nav a { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; text-decoration: none; color: var(--muted); }
+  .cat-nav a:hover { color: var(--text); border-color: var(--border-strong); }
+  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+  .cat { display: flex; flex-direction: column; scroll-margin-top: calc(var(--header-h) + 16px); }
+  .cat header { display: flex; justify-content: space-between; }
+  .num { color: var(--subtle); font-size: .8rem; }
+  .cat h3 { font-size: 1.25rem; }
+  h4 { font-size: .7rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--subtle); font-weight: 500; margin: 20px 0 8px; }
+  .examples { margin: 0; padding-inline-start: 1.1em; color: var(--muted); font-size: .9rem; display: grid; gap: 2px; }
+  .tags { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tags li { font-size: .72rem; padding: 2px 8px; border-radius: 6px; background: var(--elevated); border: 1px solid var(--border); }
+  .providers { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: .88rem; }
+  .providers li { display: grid; gap: 2px; }
+  .providers a { color: var(--text); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+  .providers span { color: var(--muted); }
+  .narrow { max-width: 760px; }
+  .narrow h2 { margin-top: 14px; }
+  .narrow a { color: var(--accent); }
+</style>

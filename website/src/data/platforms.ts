@@ -3,26 +3,27 @@
 // Commands here are the real ones from the repository's `rtw` tool.
 
 import { rawUrl, site } from "../config/site";
+import type { Localized } from "../i18n/config";
 
 export type Status = "available" | "testing" | "planned";
 
 export interface Capability {
-  label: string;
+  label: Localized;
   status: Status;
-  note?: string;
+  note?: Localized;
 }
 
 export interface Platform {
   id: "macos" | "android";
   name: string;
-  summary: string;
+  summary: Localized;
   status: Status;
-  statusText: string;
+  statusText: Localized;
   /** No packaged releases exist yet; this links to one when it does. */
   release: { version: string; url: string; date: string } | null;
-  requirements: string[];
-  install: { title: string; commands?: string[]; text?: string }[];
-  limitations: string[];
+  requirements: Localized[];
+  install: { title: Localized; commands?: string[] }[];
+  limitations: Localized[];
   capabilities: Capability[];
   docs: string;
 }
@@ -33,84 +34,93 @@ export const platforms: Platform[] = [
   {
     id: "macos",
     name: "macOS",
-    summary: "Run the full library on a Mac and share it with devices on the same Wi-Fi.",
+    summary: {
+      en: "Run the full library on a Mac and share it with devices on the same Wi-Fi.",
+      ar: "شغّل المكتبة كاملة على جهاز Mac وشاركها مع الأجهزة المتصلة بشبكة Wi-Fi نفسها.",
+    },
     status: "available",
-    statusText: "Available from source",
+    statusText: { en: "Available from source", ar: "متاح من الشيفرة المصدرية" },
     release: null,
     requirements: [
-      "macOS on Apple Silicon or Intel",
-      "Homebrew (installs nginx)",
-      "git and a terminal",
-      "Free disk space for content — Arabic Wikipedia (text only) is about 8.4 GB",
+      { en: "macOS on Apple Silicon or Intel (tested on Apple Silicon)", ar: "macOS على معالج Apple Silicon أو Intel (اختُبر على Apple Silicon)" },
+      { en: "Xcode Command Line Tools (provides git and Python 3)", ar: "أدوات سطر أوامر Xcode (توفّر git وPython 3)" },
+      { en: "Homebrew (installs nginx)", ar: "Homebrew (لتثبيت nginx)" },
+      { en: "Free disk space for content — Arabic Wikipedia (text only) is about 8.4 GB", ar: "مساحة تخزين للمحتوى — ويكيبيديا العربية (نص فقط) نحو 8.4 غيغابايت" },
     ],
     install: [
       {
-        title: "Get the code",
-        commands: site.repo.url
-          ? [`git clone ${site.repo.url}.git`, "cd reinvent-the-wheel"]
-          : undefined,
+        title: { en: "Get the code", ar: "احصل على الشيفرة" },
+        commands: site.repo.url ? [`git clone ${site.repo.url}.git`, "cd reinvent-the-wheel"] : undefined,
       },
-      { title: "Install dependencies and set an admin password", commands: ["./rtw setup"] },
-      { title: "Start the library", commands: ["./rtw start"] },
-      { title: "Download content while you're online", commands: ["./rtw fetch all"] },
+      { title: { en: "Install dependencies and set an admin password", ar: "ثبّت المتطلبات واختر كلمة مرور للمشرف" }, commands: ["./rtw setup"] },
+      { title: { en: "Start the library", ar: "شغّل المكتبة" }, commands: ["./rtw start"] },
+      { title: { en: "Download content while you're online", ar: "نزّل المحتوى وأنت متصل بالإنترنت" }, commands: ["./rtw fetch all"] },
     ],
     limitations: [
-      "No packaged macOS app yet — it runs from a terminal.",
-      "The Mac must stay awake while other devices use the library.",
-      "Showing your location on the map from another device needs the HTTPS address and a one-time certificate warning.",
+      { en: "No packaged macOS app yet — it runs from a terminal.", ar: "لا يوجد تطبيق macOS جاهز بعد — يعمل من الطرفية." },
+      { en: "The Mac must stay awake while other devices use the library.", ar: "يجب أن يبقى جهاز Mac مستيقظًا ما دامت الأجهزة الأخرى تستخدم المكتبة." },
+      { en: "Showing your location on the map from another device needs the HTTPS address and a one-time certificate warning.", ar: "عرض موقعك على الخريطة من جهاز آخر يتطلب عنوان HTTPS وقبول تحذير الشهادة مرة واحدة." },
     ],
     capabilities: [
-      { label: "Offline Wikipedia and other Kiwix ZIM files", status: "available" },
-      { label: "Books (PDF, EPUB), notes, downloads, static sites", status: "available" },
-      { label: "Offline vector maps (Saudi Arabia + Egypt extract)", status: "available" },
-      { label: "Upload and manage content from a browser (password)", status: "available" },
-      { label: "Share with devices on the same Wi-Fi", status: "available" },
-      { label: "Packaged installer", status: "planned" },
+      { label: { en: "Offline Wikipedia and other Kiwix ZIM files", ar: "ويكيبيديا وملفات Kiwix ‏ZIM الأخرى دون اتصال" }, status: "available" },
+      { label: { en: "Books (PDF, EPUB), notes, downloads, static sites", ar: "الكتب (PDF وEPUB) والملاحظات والتنزيلات والمواقع الثابتة" }, status: "available" },
+      { label: { en: "Offline vector maps (Saudi Arabia + Egypt extract)", ar: "خرائط متجهية دون اتصال (السعودية ومصر)" }, status: "available" },
+      { label: { en: "Upload and manage content from a browser (password)", ar: "رفع المحتوى وإدارته من المتصفح (بكلمة مرور)" }, status: "available" },
+      {
+        label: { en: "Share with devices on the same Wi-Fi", ar: "المشاركة مع الأجهزة على شبكة Wi-Fi نفسها" },
+        status: "available",
+        note: { en: "Verified from an Android tablet on the same network", ar: "تم التحقق من جهاز Android لوحي على الشبكة نفسها" },
+      },
+      { label: { en: "Packaged installer", ar: "مثبّت جاهز" }, status: "planned" },
     ],
     docs: "/docs/macos-installation/",
   },
   {
     id: "android",
     name: "Android",
-    summary: "Turn a phone or tablet into a portable library that nearby devices reach over its hotspot.",
+    summary: {
+      en: "Turn a phone or tablet into a portable library that nearby devices reach over its hotspot.",
+      ar: "حوّل هاتفًا أو جهازًا لوحيًا إلى مكتبة متنقلة تصل إليها الأجهزة القريبة عبر نقطة الاتصال الخاصة به.",
+    },
     status: "testing",
-    statusText: "In testing",
+    statusText: { en: "In testing", ar: "قيد الاختبار" },
     release: null,
     requirements: [
-      "64-bit ARM device (arm64-v8a)",
-      "Termux — the F-Droid build supports Android 7+; the Google Play build we tested needs Android 12L or newer",
-      "Several GB of free storage for content",
-      "About 4 GB of RAM or more is comfortable",
+      { en: "64-bit ARM device (arm64-v8a)", ar: "جهاز ARM بنظام 64 بت ‏(arm64-v8a)" },
+      {
+        en: "Termux — the F-Droid build supports Android 7+; the Google Play build we tested needs Android 12L or newer",
+        ar: "تطبيق Termux — نسخة F-Droid تدعم Android 7 فما فوق؛ ونسخة Google Play التي اختبرناها تتطلب Android 12L أو أحدث",
+      },
+      { en: "Several GB of free storage for content", ar: "عدة غيغابايتات من المساحة الحرة للمحتوى" },
+      { en: "4 GB of RAM or more recommended (tested with 8 GB)", ar: "يُنصح بذاكرة 4 غيغابايت أو أكثر (اختُبر بـ8 غيغابايت)" },
     ],
     install: [
-      { title: "Install Termux and open it" },
+      { title: { en: "Install Termux and open it", ar: "ثبّت Termux وافتحه" } },
       {
-        title: "Run the installer (asks for storage access and an admin password)",
+        title: { en: "Run the installer (asks for storage access and an admin password)", ar: "شغّل المثبّت (يطلب إذن الوصول إلى التخزين وكلمة مرور للمشرف)" },
         commands: bootstrap ? [`bash -c "$(curl -fsSL ${bootstrap})"`] : undefined,
       },
-      { title: "Start the library", commands: ["rtw start"] },
-      { title: "Turn on the Android hotspot and share the address it prints" },
+      { title: { en: "Start the library", ar: "شغّل المكتبة" }, commands: ["rtw start"] },
+      { title: { en: "Turn on the Android hotspot and share the address it prints", ar: "فعّل نقطة الاتصال في Android وشارك العنوان الذي يظهر" } },
     ],
     limitations: [
-      "Runs inside Termux — there's no standalone Android app.",
-      "Android may stop background apps: set Termux's battery usage to “No restrictions”.",
-      "Starting on boot needs the separate Termux:Boot add-on.",
-      "External USB storage is not supported yet.",
+      { en: "Runs inside Termux — there's no standalone Android app.", ar: "يعمل داخل Termux — لا يوجد تطبيق Android مستقل." },
+      { en: "Android may stop background apps: set Termux's battery usage to “No restrictions”.", ar: "قد يوقف Android التطبيقات في الخلفية: اضبط استهلاك البطارية لتطبيق Termux على «بلا قيود»." },
+      { en: "Starting on boot needs the separate Termux:Boot add-on.", ar: "التشغيل عند الإقلاع يتطلب الإضافة المنفصلة Termux:Boot." },
+      { en: "External USB storage is not supported yet.", ar: "التخزين الخارجي عبر USB غير مدعوم بعد." },
     ],
     capabilities: [
-      { label: "Dependencies install in Termux (nginx, kiwix-tools, Python)", status: "available", note: "Verified on a Redmi Pad 2 Pro, Android 16" },
-      { label: "Full library served from the device", status: "testing" },
-      { label: "Sharing over the device's own hotspot", status: "testing" },
-      { label: "Downloading content directly on the device", status: "testing" },
-      { label: "External USB-C storage", status: "planned" },
-      { label: "Standalone app", status: "planned" },
+      {
+        label: { en: "Dependencies install in Termux (nginx, kiwix-tools, Python)", ar: "تثبيت المتطلبات في Termux ‏(nginx وkiwix-tools وPython)" },
+        status: "available",
+        note: { en: "Verified on a Redmi Pad 2 Pro, Android 16", ar: "تم التحقق على Redmi Pad 2 Pro بنظام Android 16" },
+      },
+      { label: { en: "Full library served from the device", ar: "تقديم المكتبة كاملة من الجهاز" }, status: "testing" },
+      { label: { en: "Sharing over the device's own hotspot", ar: "المشاركة عبر نقطة الاتصال الخاصة بالجهاز" }, status: "testing" },
+      { label: { en: "Downloading content directly on the device", ar: "تنزيل المحتوى مباشرة على الجهاز" }, status: "testing" },
+      { label: { en: "External USB-C storage", ar: "التخزين الخارجي عبر USB-C" }, status: "planned" },
+      { label: { en: "Standalone app", ar: "تطبيق مستقل" }, status: "planned" },
     ],
     docs: "/docs/android-installation/",
   },
 ];
-
-export const statusLabel: Record<Status, string> = {
-  available: "Available",
-  testing: "In testing",
-  planned: "Planned",
-};

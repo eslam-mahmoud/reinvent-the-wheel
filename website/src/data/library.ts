@@ -1,189 +1,267 @@
 // Curated reference directory — NOT a list of bundled content.
 // RTW doesn't ship, mirror or redistribute third-party material. Each provider
 // sets its own license and terms; visitors download from the source.
+import type { Localized } from "../i18n/config";
 
 export type Format = "zim" | "pdf" | "epub" | "pmtiles" | "html" | "md" | "apk";
 
 /** File types the RTW server can serve today, and where they appear. */
-export const formats: Record<Format, { label: string; where: string }> = {
-  zim: { label: "ZIM", where: "Wikipedia section (Kiwix)" },
-  pdf: { label: "PDF", where: "Books or Downloads" },
-  epub: { label: "EPUB", where: "Books" },
-  pmtiles: { label: "PMTiles", where: "Maps" },
-  html: { label: "HTML", where: "Sites" },
-  md: { label: "Markdown / TXT", where: "Notes" },
-  apk: { label: "APK", where: "Downloads" },
+export const formats: Record<Format, { label: string; where: Localized }> = {
+  zim: { label: "ZIM", where: { en: "Wikipedia section (Kiwix)", ar: "قسم ويكيبيديا (Kiwix)" } },
+  pdf: { label: "PDF", where: { en: "Books or Downloads", ar: "الكتب أو التنزيلات" } },
+  epub: { label: "EPUB", where: { en: "Books", ar: "الكتب" } },
+  pmtiles: { label: "PMTiles", where: { en: "Maps", ar: "الخرائط" } },
+  html: { label: "HTML", where: { en: "Sites", ar: "المواقع" } },
+  md: { label: "Markdown / TXT", where: { en: "Notes", ar: "الملاحظات" } },
+  apk: { label: "APK", where: { en: "Downloads", ar: "التنزيلات" } },
 };
 
 export interface Provider {
   name: string;
   url: string;
-  note: string;
+  note: Localized;
 }
 
 export interface Category {
   id: string;
-  name: string;
+  name: Localized;
   icon: string;
-  description: string;
-  examples: string[];
+  description: Localized;
+  examples: Localized<string[]>;
   formats: Format[];
   providers: Provider[];
 }
 
-const kiwix: Provider = {
-  name: "Kiwix Library",
-  url: "https://library.kiwix.org",
-  note: "Offline ZIM archives of Wikipedia, Wiktionary, Wikibooks, Stack Exchange sites and more.",
-};
+const kiwix = (note: Localized): Provider => ({ name: "Kiwix Library", url: "https://library.kiwix.org", note });
+const kiwixGeneral = kiwix({
+  en: "Offline ZIM archives of Wikipedia, Wiktionary, Wikibooks, Stack Exchange sites and more.",
+  ar: "أرشيفات ZIM دون اتصال لويكيبيديا وويكاموس وويكي الكتب ومواقع Stack Exchange وغيرها.",
+});
+const appropedia = (note: Localized): Provider => ({ name: "Appropedia", url: "https://www.appropedia.org", note });
+const hesperian = (note: Localized): Provider => ({ name: "Hesperian Health Guides", url: "https://hesperian.org", note });
+const survivor = (note: Localized): Provider => ({ name: "Survivor Library", url: "https://www.survivorlibrary.com", note });
+const openstax = (note: Localized): Provider => ({ name: "OpenStax", url: "https://openstax.org", note });
 
 export const categories: Category[] = [
   {
     id: "water",
-    name: "Water & Sanitation",
+    name: { en: "Water & Sanitation", ar: "المياه والصرف الصحي" },
     icon: "droplet",
-    description: "Finding, treating and storing safe water, and keeping communities healthy through sanitation.",
-    examples: ["Water purification methods", "Well and cistern construction", "Latrine design", "Hygiene education material"],
+    description: {
+      en: "Finding, treating and storing safe water, and keeping communities healthy through sanitation.",
+      ar: "إيجاد المياه الآمنة ومعالجتها وتخزينها، والحفاظ على صحة المجتمعات من خلال الصرف الصحي.",
+    },
+    examples: {
+      en: ["Water purification methods", "Well and cistern construction", "Latrine design", "Hygiene education material"],
+      ar: ["طرق تنقية المياه", "بناء الآبار والخزانات", "تصميم المراحيض", "مواد التوعية الصحية"],
+    },
     formats: ["pdf", "zim", "html"],
     providers: [
-      { name: "Appropedia", url: "https://www.appropedia.org", note: "Open wiki on appropriate technology and sustainability." },
-      { name: "Hesperian Health Guides", url: "https://hesperian.org", note: "Community health books, including water and sanitation guides. Check each title's terms." },
+      appropedia({ en: "Open wiki on appropriate technology and sustainability.", ar: "موسوعة مفتوحة عن التقنيات الملائمة والاستدامة." }),
+      hesperian({ en: "Community health books, including water and sanitation guides. Check each title's terms.", ar: "كتب صحة مجتمعية، منها أدلة المياه والصرف الصحي. راجع شروط كل كتاب." }),
     ],
   },
   {
     id: "food",
-    name: "Food & Agriculture",
+    name: { en: "Food & Agriculture", ar: "الغذاء والزراعة" },
     icon: "sprout",
-    description: "Growing, preserving and storing food, from small gardens to community-scale farming.",
-    examples: ["Crop and soil guides", "Food preservation", "Irrigation basics", "Livestock care"],
+    description: {
+      en: "Growing, preserving and storing food, from small gardens to community-scale farming.",
+      ar: "زراعة الغذاء وحفظه وتخزينه، من الحدائق الصغيرة إلى الزراعة على مستوى المجتمع.",
+    },
+    examples: {
+      en: ["Crop and soil guides", "Food preservation", "Irrigation basics", "Livestock care"],
+      ar: ["أدلة المحاصيل والتربة", "حفظ الأغذية", "أساسيات الري", "رعاية الماشية"],
+    },
     formats: ["pdf", "epub", "zim"],
     providers: [
-      { name: "FAO publications", url: "https://www.fao.org/publications", note: "Food and Agriculture Organization of the UN. Licenses vary by publication." },
-      { name: "Appropedia", url: "https://www.appropedia.org", note: "Practical agriculture and food-processing projects." },
+      { name: "FAO publications", url: "https://www.fao.org/publications", note: { en: "Food and Agriculture Organization of the UN. Licenses vary by publication.", ar: "منظمة الأغذية والزراعة للأمم المتحدة. تختلف الرخص من منشور لآخر." } },
+      appropedia({ en: "Practical agriculture and food-processing projects.", ar: "مشاريع عملية في الزراعة وتصنيع الأغذية." }),
     ],
   },
   {
     id: "medicine",
-    name: "Medicine & Healthcare",
+    name: { en: "Medicine & Healthcare", ar: "الطب والرعاية الصحية" },
     icon: "cross",
-    description: "Reference health information for learning and preparedness. Not a substitute for professional care.",
-    examples: ["First-aid references", "Community health worker manuals", "Medical encyclopedia articles", "Maternal and child health guides"],
+    description: {
+      en: "Reference health information for learning and preparedness. Not a substitute for professional care.",
+      ar: "معلومات صحية مرجعية للتعلّم والاستعداد. لا تغني عن الرعاية المتخصصة.",
+    },
+    examples: {
+      en: ["First-aid references", "Community health worker manuals", "Medical encyclopedia articles", "Maternal and child health guides"],
+      ar: ["مراجع الإسعافات الأولية", "أدلة العاملين في الصحة المجتمعية", "مقالات موسوعية طبية", "أدلة صحة الأم والطفل"],
+    },
     formats: ["zim", "pdf"],
     providers: [
-      { ...kiwix, note: "Includes medical collections such as WikiMed (Wikipedia's medicine articles)." },
-      { name: "Hesperian Health Guides", url: "https://hesperian.org", note: "Widely used community health books. Check each title's terms." },
-      { name: "WHO publications", url: "https://www.who.int/publications", note: "World Health Organization guidelines and manuals." },
+      kiwix({ en: "Includes medical collections such as Wikipedia's medicine articles.", ar: "تضم مجموعات طبية مثل مقالات الطب في ويكيبيديا." }),
+      hesperian({ en: "Widely used community health books. Check each title's terms.", ar: "كتب صحة مجتمعية واسعة الانتشار. راجع شروط كل كتاب." }),
+      { name: "WHO publications", url: "https://www.who.int/publications", note: { en: "World Health Organization guidelines and manuals.", ar: "إرشادات وأدلة منظمة الصحة العالمية." } },
     ],
   },
   {
     id: "engineering",
-    name: "Engineering & Mechanics",
+    name: { en: "Engineering & Mechanics", ar: "الهندسة والميكانيكا" },
     icon: "gear",
-    description: "How machines work and how to build, maintain and repair them.",
-    examples: ["Repair guides", "Simple machines", "Workshop practice", "Historical trade manuals"],
+    description: {
+      en: "How machines work and how to build, maintain and repair them.",
+      ar: "كيف تعمل الآلات وكيف تُبنى وتُصان وتُصلَح.",
+    },
+    examples: {
+      en: ["Repair guides", "Simple machines", "Workshop practice", "Historical trade manuals"],
+      ar: ["أدلة الإصلاح", "الآلات البسيطة", "العمل في الورشة", "أدلة الحِرف التاريخية"],
+    },
     formats: ["zim", "pdf", "html"],
     providers: [
-      { name: "iFixit", url: "https://www.ifixit.com", note: "Repair guides; also available as an offline ZIM in the Kiwix library." },
-      { name: "Survivor Library", url: "https://www.survivorlibrary.com", note: "Scanned historical books on pre-industrial technology." },
-      { name: "Open Source Ecology", url: "https://www.opensourceecology.org", note: "Open designs for essential machines." },
+      { name: "iFixit", url: "https://www.ifixit.com", note: { en: "Repair guides; also available as an offline ZIM in the Kiwix library.", ar: "أدلة إصلاح؛ ومتاحة أيضًا كملف ZIM في مكتبة Kiwix." } },
+      survivor({ en: "Scanned historical books on pre-industrial technology.", ar: "كتب تاريخية ممسوحة ضوئيًا عن تقنيات ما قبل الثورة الصناعية." }),
+      { name: "Open Source Ecology", url: "https://www.opensourceecology.org", note: { en: "Open designs for essential machines.", ar: "تصاميم مفتوحة لآلات أساسية." } },
     ],
   },
   {
     id: "energy",
-    name: "Energy & Electricity",
+    name: { en: "Energy & Electricity", ar: "الطاقة والكهرباء" },
     icon: "bolt",
-    description: "Generating, storing and using power safely — from solar panels to basic wiring.",
-    examples: ["Small solar systems", "Battery care", "Basic electrical safety", "Micro-hydro and wind"],
+    description: {
+      en: "Generating, storing and using power safely — from solar panels to basic wiring.",
+      ar: "توليد الطاقة وتخزينها واستخدامها بأمان — من الألواح الشمسية إلى التمديدات الكهربائية الأساسية.",
+    },
+    examples: {
+      en: ["Small solar systems", "Battery care", "Basic electrical safety", "Micro-hydro and wind"],
+      ar: ["أنظمة شمسية صغيرة", "العناية بالبطاريات", "أساسيات السلامة الكهربائية", "الطاقة المائية الصغيرة والرياح"],
+    },
     formats: ["pdf", "zim", "html"],
     providers: [
-      { name: "Appropedia", url: "https://www.appropedia.org", note: "Renewable energy projects and how-tos." },
-      { ...kiwix, note: "Wikipedia and Wikibooks articles on electricity and energy systems." },
+      appropedia({ en: "Renewable energy projects and how-tos.", ar: "مشاريع وأدلة في الطاقة المتجددة." }),
+      kiwix({ en: "Wikipedia and Wikibooks articles on electricity and energy systems.", ar: "مقالات ويكيبيديا وويكي الكتب عن الكهرباء وأنظمة الطاقة." }),
     ],
   },
   {
     id: "construction",
-    name: "Construction & Materials",
+    name: { en: "Construction & Materials", ar: "البناء والمواد" },
     icon: "brick",
-    description: "Shelter, building techniques and working with local materials.",
-    examples: ["Earthen and masonry building", "Basic structural concepts", "Roofing", "Tool use"],
+    description: {
+      en: "Shelter, building techniques and working with local materials.",
+      ar: "المأوى وتقنيات البناء والعمل بالمواد المحلية.",
+    },
+    examples: {
+      en: ["Earthen and masonry building", "Basic structural concepts", "Roofing", "Tool use"],
+      ar: ["البناء بالطين والحجر", "مفاهيم إنشائية أساسية", "الأسقف", "استخدام الأدوات"],
+    },
     formats: ["pdf", "epub", "zim"],
     providers: [
-      { name: "Survivor Library", url: "https://www.survivorlibrary.com", note: "Historical construction and materials texts." },
-      { name: "Appropedia", url: "https://www.appropedia.org", note: "Low-cost building methods." },
+      survivor({ en: "Historical construction and materials texts.", ar: "نصوص تاريخية عن البناء والمواد." }),
+      appropedia({ en: "Low-cost building methods.", ar: "طرق بناء منخفضة التكلفة." }),
     ],
   },
   {
     id: "science",
-    name: "Science & Mathematics",
+    name: { en: "Science & Mathematics", ar: "العلوم والرياضيات" },
     icon: "atom",
-    description: "The fundamentals that everything else rests on.",
-    examples: ["Textbooks from school to university level", "Physics and chemistry references", "Math courses", "Interactive simulations"],
+    description: {
+      en: "The fundamentals that everything else rests on.",
+      ar: "الأسس التي يقوم عليها كل شيء آخر.",
+    },
+    examples: {
+      en: ["Textbooks from school to university level", "Physics and chemistry references", "Math courses", "Interactive simulations"],
+      ar: ["كتب دراسية من المدرسة حتى الجامعة", "مراجع الفيزياء والكيمياء", "مقررات الرياضيات", "محاكاة تفاعلية"],
+    },
     formats: ["pdf", "zim", "html"],
     providers: [
-      { name: "OpenStax", url: "https://openstax.org", note: "Free, openly licensed textbooks." },
-      { name: "PhET Interactive Simulations", url: "https://phet.colorado.edu", note: "Science and math simulations, several downloadable for offline use." },
-      kiwix,
+      openstax({ en: "Free, openly licensed textbooks.", ar: "كتب دراسية مجانية برخص مفتوحة." }),
+      { name: "PhET Interactive Simulations", url: "https://phet.colorado.edu", note: { en: "Science and math simulations; also packaged as a ZIM in the Kiwix library.", ar: "محاكاة علمية ورياضية؛ ومتاحة أيضًا كملف ZIM في مكتبة Kiwix." } },
+      kiwixGeneral,
     ],
   },
   {
     id: "electronics",
-    name: "Communication & Electronics",
+    name: { en: "Communication & Electronics", ar: "الاتصالات والإلكترونيات" },
     icon: "radio",
-    description: "Electronics, radio and keeping people in touch when networks are down.",
-    examples: ["Electronics fundamentals", "Radio communication basics", "Q&A archives", "Component references"],
-    formats: ["zim", "pdf"],
+    description: {
+      en: "Electronics, radio and keeping people in touch when networks are down.",
+      ar: "الإلكترونيات والراديو والحفاظ على التواصل عند انقطاع الشبكات.",
+    },
+    examples: {
+      en: ["Electronics fundamentals", "Radio communication basics", "Q&A archives", "Component references"],
+      ar: ["أساسيات الإلكترونيات", "أساسيات الاتصال اللاسلكي", "أرشيفات الأسئلة والأجوبة", "مراجع المكوّنات"],
+    },
+    formats: ["zim", "pdf", "apk"],
     providers: [
-      { ...kiwix, note: "Includes offline archives of Stack Exchange sites such as Electrical Engineering." },
-      { name: "Wikibooks", url: "https://www.wikibooks.org", note: "Open textbooks on electronics and more; offline via Kiwix." },
+      kiwix({ en: "Includes offline archives of Stack Exchange sites such as Electrical Engineering.", ar: "تضم أرشيفات دون اتصال لمواقع Stack Exchange مثل الهندسة الكهربائية." }),
+      { name: "Wikibooks", url: "https://www.wikibooks.org", note: { en: "Open textbooks on electronics and more; offline via Kiwix.", ar: "كتب مفتوحة عن الإلكترونيات وغيرها؛ متاحة دون اتصال عبر Kiwix." } },
+      { name: "Bitchat", url: "https://github.com/permissionlesstech/bitchat-android", note: { en: "Chat with nearby phones over Bluetooth mesh, no network needed (GPL-3.0). `rtw fetch bitchat` adds it to Downloads.", ar: "دردشة مع الهواتف القريبة عبر شبكة بلوتوث متداخلة دون أي شبكة (GPL-3.0). الأمر `rtw fetch bitchat` يضيفه إلى التنزيلات." } },
     ],
   },
   {
     id: "maps",
-    name: "Maps & Geography",
+    name: { en: "Maps & Geography", ar: "الخرائط والجغرافيا" },
     icon: "map",
-    description: "Offline maps for finding your way, planning and understanding a region.",
-    examples: ["Vector maps for a country or region", "Turn-by-turn navigation maps", "Travel guides", "Geography references"],
+    description: {
+      en: "Offline maps for finding your way, planning and understanding a region.",
+      ar: "خرائط دون اتصال لمعرفة الطريق والتخطيط وفهم المنطقة.",
+    },
+    examples: {
+      en: ["Vector maps for a country or region", "Turn-by-turn navigation maps", "Travel guides", "Geography references"],
+      ar: ["خرائط متجهية لبلد أو منطقة", "خرائط ملاحة خطوة بخطوة", "أدلة سفر", "مراجع جغرافية"],
+    },
     formats: ["pmtiles", "apk", "zim"],
     providers: [
-      { name: "Protomaps", url: "https://protomaps.com", note: "OpenStreetMap-based PMTiles — RTW extracts a region from their builds." },
-      { name: "OpenStreetMap", url: "https://www.openstreetmap.org", note: "The open map data behind most offline maps (ODbL)." },
-      { name: "OsmAnd", url: "https://osmand.net", note: "Offline navigation app with downloadable map files." },
+      { name: "Protomaps", url: "https://protomaps.com", note: { en: "OpenStreetMap-based PMTiles — RTW extracts a region from their builds.", ar: "ملفات PMTiles مبنية على OpenStreetMap — يقتطع RTW منطقة من إصداراتهم." } },
+      { name: "OpenStreetMap", url: "https://www.openstreetmap.org", note: { en: "The open map data behind most offline maps (ODbL).", ar: "بيانات الخرائط المفتوحة وراء معظم الخرائط دون اتصال (ODbL)." } },
+      { name: "OsmAnd", url: "https://osmand.net", note: { en: "Offline navigation app with downloadable map files. `rtw fetch osmand` adds it to Downloads.", ar: "تطبيق ملاحة دون اتصال مع ملفات خرائط قابلة للتنزيل. الأمر `rtw fetch osmand` يضيفه إلى التنزيلات." } },
     ],
   },
   {
     id: "general",
-    name: "General Knowledge",
+    name: { en: "General Knowledge", ar: "المعرفة العامة" },
     icon: "book",
-    description: "Encyclopedias, dictionaries and the long tail of everything else.",
-    examples: ["Wikipedia in many languages", "Dictionaries", "Travel guides", "Quotations and reference works"],
+    description: {
+      en: "Encyclopedias, dictionaries and the long tail of everything else.",
+      ar: "الموسوعات والقواميس وكل ما تبقّى من معارف.",
+    },
+    examples: {
+      en: ["Wikipedia in many languages", "Dictionaries", "Travel guides", "Quotations and reference works"],
+      ar: ["ويكيبيديا بلغات كثيرة", "القواميس", "أدلة السفر", "الاقتباسات والأعمال المرجعية"],
+    },
     formats: ["zim", "epub"],
     providers: [
-      { ...kiwix, note: "Wikipedia, Wiktionary, Wikivoyage and more, in many languages and sizes." },
-      { name: "Project Gutenberg", url: "https://www.gutenberg.org", note: "Over 70,000 public-domain books (status varies by country)." },
+      kiwix({ en: "Wikipedia, Wiktionary, Wikivoyage and more, in many languages and sizes.", ar: "ويكيبيديا وويكاموس وويكي رحلات وغيرها، بلغات وأحجام متعددة." }),
+      { name: "Project Gutenberg", url: "https://www.gutenberg.org", note: { en: "Over 75,000 free eBooks, mostly public domain in the US (check your country).", ar: "أكثر من 75,000 كتاب إلكتروني مجاني، معظمها ملك عام في الولايات المتحدة (تحقق من وضعها في بلدك)." } },
     ],
   },
   {
     id: "education",
-    name: "Education & Learning",
+    name: { en: "Education & Learning", ar: "التعليم والتعلّم" },
     icon: "cap",
-    description: "Structured courses and teaching material for classrooms and self-learners.",
-    examples: ["Textbooks", "Video lessons", "Exercises", "Teacher guides"],
+    description: {
+      en: "Structured courses and teaching material for classrooms and self-learners.",
+      ar: "مقررات منظمة ومواد تعليمية للفصول الدراسية والمتعلمين الذاتيين.",
+    },
+    examples: {
+      en: ["Textbooks", "Video lessons", "Exercises", "Teacher guides"],
+      ar: ["الكتب الدراسية", "الدروس المرئية", "التمارين", "أدلة المعلمين"],
+    },
     formats: ["pdf", "zim", "html"],
     providers: [
-      { name: "Kolibri by Learning Equality", url: "https://learningequality.org/kolibri/", note: "A separate offline learning platform with curated channels — it can run alongside RTW." },
-      { name: "OpenStax", url: "https://openstax.org", note: "Openly licensed textbooks." },
+      { name: "Kolibri by Learning Equality", url: "https://learningequality.org/kolibri/", note: { en: "A separate offline learning platform with curated course channels.", ar: "منصة تعلّم مستقلة تعمل دون اتصال، مع قنوات مقررات منتقاة." } },
+      openstax({ en: "Openly licensed textbooks.", ar: "كتب دراسية برخص مفتوحة." }),
     ],
   },
   {
     id: "community",
-    name: "Community & Infrastructure",
+    name: { en: "Community & Infrastructure", ar: "المجتمع والبنية التحتية" },
     icon: "people",
-    description: "Organizing, governing and maintaining the shared systems communities depend on.",
-    examples: ["Local notes and procedures", "Contact lists and schedules", "Maintenance logs", "Locally written guides"],
+    description: {
+      en: "Organizing, governing and maintaining the shared systems communities depend on.",
+      ar: "تنظيم الأنظمة المشتركة التي تعتمد عليها المجتمعات وإدارتها وصيانتها.",
+    },
+    examples: {
+      en: ["Local notes and procedures", "Contact lists and schedules", "Maintenance logs", "Locally written guides"],
+      ar: ["ملاحظات وإجراءات محلية", "قوائم الاتصال والجداول", "سجلات الصيانة", "أدلة مكتوبة محليًا"],
+    },
     formats: ["md", "html", "pdf"],
     providers: [
-      { name: "Your own notes", url: "/docs/preparing-your-library/", note: "RTW's Notes and Sites sections are made for locally written material." },
-      { name: "Appropedia", url: "https://www.appropedia.org", note: "Community-scale infrastructure projects." },
+      { name: "RTW Notes & Sites", url: "/docs/preparing-your-library/", note: { en: "The Notes and Sites sections are made for locally written material.", ar: "قسما الملاحظات والمواقع مخصّصان للمواد المكتوبة محليًا." } },
+      appropedia({ en: "Community-scale infrastructure projects.", ar: "مشاريع بنية تحتية على مستوى المجتمع." }),
     ],
   },
 ];

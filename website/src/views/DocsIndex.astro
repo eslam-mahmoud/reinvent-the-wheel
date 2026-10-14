@@ -1,0 +1,51 @@
+---
+import Docs from "../layouts/Docs.astro";
+import { getDocs, docUrl } from "../data/docs";
+import type { Lang } from "../i18n/config";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = {
+  en: { title: "Documentation", description: "Install, prepare, run and share an offline knowledge library with Reinvent the Wheel.",
+        lead: "Everything you need to install RTW, prepare a library, run it offline and share it nearby.", draft: "draft",
+        groups: ["Get started", "Use it", "Operate", "Develop"] },
+  ar: { title: "التوثيق", description: "ثبّت مكتبة معرفة تعمل دون اتصال وجهّزها وشغّلها وشاركها مع Reinvent the Wheel.",
+        lead: "كل ما تحتاجه لتثبيت RTW وتجهيز مكتبة وتشغيلها دون اتصال ومشاركتها مع من حولك.", draft: "مسودة",
+        groups: ["ابدأ", "الاستخدام", "التشغيل", "التطوير"] },
+}[lang];
+const groupSlugs = [
+  ["introduction", "quick-start", "macos-installation", "android-installation"],
+  ["preparing-your-library", "using-kiwix-and-zim-files", "running-offline", "sharing-over-local-wifi"],
+  ["external-usb-storage", "backup-and-recovery", "troubleshooting"],
+  ["architecture", "contributing"],
+];
+const docs = await getDocs(lang);
+const bySlug = Object.fromEntries(docs.map((d) => [d.slug, d]));
+---
+<Docs lang={lang} title={c.title} description={c.description}>
+  <h1>{c.title}</h1>
+  <p class="lead">{c.lead}</p>
+  {groupSlugs.map((slugs, gi) => (
+    <section class="group">
+      <h2>{c.groups[gi]}</h2>
+      <div class="doc-grid">
+        {slugs.filter((s) => bySlug[s]).map((s) => (
+          <a class="card" href={docUrl(s, lang)}>
+            <h3>{bySlug[s].entry.data.title}{bySlug[s].entry.data.draft && <span class="badge badge-testing">{c.draft}</span>}</h3>
+            <p>{bySlug[s].entry.data.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</Docs>
+
+<style>
+  .group h2 { font-size: 1rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--subtle); font-weight: 500; margin-top: 2em; }
+  :global([dir="rtl"]) .group h2 { font-family: var(--font-sans); letter-spacing: 0; }
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .doc-grid .card { text-decoration: none; padding: 18px; }
+  .doc-grid h3 { margin: 0 0 4px; display: flex; gap: 8px; align-items: center; font-size: 1rem; }
+  .doc-grid .badge { font-size: .6rem; }
+  .doc-grid p { font-size: .88rem; }
+</style>

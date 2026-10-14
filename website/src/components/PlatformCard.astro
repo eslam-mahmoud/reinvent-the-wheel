@@ -1,29 +1,32 @@
 ---
 import Icon from "./Icon.astro";
-import { statusLabel, type Platform } from "../data/platforms";
-interface Props { platform: Platform; detailed?: boolean }
-const { platform: p, detailed = false } = Astro.props;
+import type { Platform } from "../data/platforms";
+import { href, type Lang } from "../i18n/config";
+import { t } from "../i18n/ui";
+interface Props { platform: Platform; lang: Lang }
+const { platform: p, lang } = Astro.props;
+const s = t(lang);
 ---
-<article class="card platform" id={detailed ? p.id : undefined}>
+<article class="card platform">
   <header>
     <span class="icon-tile"><Icon name={p.id === "macos" ? "apple" : "android"} /></span>
-    <span class={`badge badge-${p.status}`}>{p.statusText}</span>
+    <span class={`badge badge-${p.status}`}>{p.statusText[lang]}</span>
   </header>
   <h3>{p.name}</h3>
-  <p>{p.summary}</p>
+  <p>{p.summary[lang]}</p>
 
   <ul class="caps">
     {p.capabilities.map((c) => (
       <li>
-        <span class={`badge badge-${c.status}`}>{statusLabel[c.status]}</span>
-        <span>{c.label}{c.note && <span class="note-inline"> — {c.note}</span>}</span>
+        <span class={`badge badge-${c.status}`}>{s.status[c.status]}</span>
+        <span>{c.label[lang]}{c.note && <span class="note-inline"> — {c.note[lang]}</span>}</span>
       </li>
     ))}
   </ul>
 
   <div class="btn-row">
-    <a class="btn" href={detailed ? p.docs : `/download/#${p.id}`}>
-      {p.name} Setup <Icon name="arrow" size={16} />
+    <a class="btn" href={href(`/download/#${p.id}`, lang)}>
+      {s.setup(p.name)} <Icon name="arrow" size={16} />
     </a>
   </div>
 </article>

@@ -27,7 +27,7 @@ The library's pages in `web/` are plain HTML and JavaScript — edit and reload.
 
 ## Improve these docs
 
-This website lives in `website/` in the same repository. Each documentation page is a Markdown file in `website/src/content/docs/`. Every page has an *Edit this page* link at the bottom.
+This website lives in `website/` in the same repository. Each documentation page is a Markdown file in `website/src/content/docs/` — English in `en/`, Arabic in `ar/`. Every page has an *Edit this page* link at the bottom.
 
 ## Guidelines
 

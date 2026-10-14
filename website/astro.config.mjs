@@ -12,7 +12,11 @@ export default defineConfig({
   trailingSlash: "always",
   build: { format: "directory" },
   integrations: [
-    sitemap({ filter: (page) => !page.includes("/404") }),
+    sitemap({
+      filter: (page) => !page.includes("/404"),
+      // hreflang alternates between /page/ and /ar/page/
+      i18n: { defaultLocale: "en", locales: { en: "en", ar: "ar" } },
+    }),
   ],
   markdown: {
     shikiConfig: { theme: "css-variables", wrap: false },

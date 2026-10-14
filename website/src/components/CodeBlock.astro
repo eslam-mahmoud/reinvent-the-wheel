@@ -1,34 +1,39 @@
 ---
 // Shell command block with a copy button (works without JS as plain text).
+import { langFromPath } from "../i18n/config";
+import { t } from "../i18n/ui";
 interface Props { commands: string[]; label?: string }
-const { commands, label = "Terminal" } = Astro.props;
+const s = t(langFromPath(Astro.url.pathname));
+const { commands, label = s.terminal } = Astro.props;
 const text = commands.join("\n");
 ---
-<div class="code-block">
+<div class="code-block" data-copied={s.copied} data-fail={s.copyFail}>
   <div class="cb-head">
     <span class="mono">{label}</span>
-    <button type="button" class="copy" data-copy={text} aria-label={`Copy ${label.toLowerCase()} commands`}>Copy</button>
+    <button type="button" class="copy" data-copy={text} aria-label={`${s.copy}: ${label}`}>{s.copy}</button>
   </div>
   <pre><code>{commands.map((c) => <span class="line"><span class="prompt" aria-hidden="true">$ </span>{c}{"\n"}</span>)}</code></pre>
 </div>
 
 <script>
   document.querySelectorAll<HTMLButtonElement>(".code-block .copy").forEach((b) => {
+    const box = b.closest<HTMLElement>(".code-block");
+    const label = b.textContent;
     b.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(b.dataset.copy || "");
-        b.textContent = "Copied";
+        b.textContent = box?.dataset.copied || "Copied";
       } catch {
-        b.textContent = "Select & copy";
+        b.textContent = box?.dataset.fail || "Select & copy";
       }
-      setTimeout(() => (b.textContent = "Copy"), 1800);
+      setTimeout(() => (b.textContent = label), 1800);
     });
   });
 </script>
 
 <style>
   .code-block { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); overflow: hidden; min-width: 0; max-width: 100%; }
-  .cb-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--border); font-size: .72rem; color: var(--subtle); background: var(--surface); }
+  .cb-head { direction: ltr; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--border); font-size: .72rem; color: var(--subtle); background: var(--surface); }
   .copy { font: inherit; font-family: var(--font-mono); font-size: .72rem; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; min-height: 28px; }
   .copy:hover { color: var(--text); border-color: var(--border-strong); }
   pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-size: .82rem; line-height: 1.7; }
