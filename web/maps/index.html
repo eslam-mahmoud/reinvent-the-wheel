@@ -3,46 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>الخرائط</title>
+<meta name="color-scheme" content="dark light">
+<title>RTW</title>
+<script>try{var l=localStorage.getItem("rtw-lang");if(l!=="ar"&&l!=="en")l=(navigator.language||"").toLowerCase().indexOf("en")===0?"en":"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";var m=localStorage.getItem("rtw-theme");if(m)document.documentElement.dataset.theme=m}catch(e){}</script>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/style.css">
 <link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css">
 <style>
-  html, body { height: 100%; }
-  body { display: flex; flex-direction: column; }
-  #map { flex: 1; }
-  #msg { position: absolute; inset: 70px 16px auto; z-index: 2; }
-  /* MapLibre controls are laid out for LTR. */
-  .maplibregl-map { direction: ltr; }
+  .app { height: 100vh; height: 100dvh; }
+  #map { flex: 1; min-height: 300px; position: relative; }
+  /* MapLibre's own controls are laid out for LTR. */
+  .maplibregl-map { direction: ltr; font-family: var(--font); }
+  .map-msg { margin: 24px; }
+  .gps { position: absolute; z-index: 2; inset-inline: 12px; bottom: 34px; text-align: center; }
+  .gps a { display: inline-flex; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-decoration: none; }
 </style>
-</head>
-<body>
-<header class="top"><a class="home" href="/">🏠</a><h1>🗺️ الخرائط — Maps</h1></header>
-<div id="map"></div>
-<p id="msg" class="empty" hidden></p>
 <script src="/config.js"></script>
 <script src="/vendor/maplibre/maplibre-gl.js"></script>
 <script src="/vendor/pmtiles/pmtiles.js"></script>
 <script src="/vendor/basemaps/basemaps.js"></script>
-<script>
-(async () => {
+</head>
+<body>
+<script type="module">
+import { mountShell, el } from "/assets/shell.js";
+import { t, lang } from "/assets/i18n.js";
+import { icon } from "/assets/icons.js";
+
+const main = mountShell({ active: "maps", wide: true });
+const box = el("div", { id: "map" });
+main.append(box);
+
+// Use the first .pmtiles file found in RTW/maps.
+let files = [];
+try { files = await (await fetch("/data/maps/")).json(); } catch {}
+const tiles = files.find((f) => f.type === "file" && f.name.endsWith(".pmtiles"));
+if (!tiles || !window.maplibregl) {
+  box.replaceWith(el("p", { class: "note-box map-msg" }, t.noMap));
+} else {
   const origin = location.origin;
-  const msg = (t) => { const m = document.getElementById("msg"); m.textContent = t; m.hidden = false; };
-
-  // Use the first .pmtiles file found in RTW/maps.
-  let files = [];
-  try { files = await (await fetch("/data/maps/")).json(); } catch (e) {}
-  const tiles = files.find((f) => f.type === "file" && f.name.endsWith(".pmtiles"));
-  if (!tiles) { msg("⚠️ لا توجد خريطة — put a .pmtiles file in RTW/maps"); return; }
-
   const protocol = new pmtiles.Protocol();
   maplibregl.addProtocol("pmtiles", protocol.tile);
   // Shapes Arabic labels correctly; loaded only when RTL text is on screen.
   maplibregl.setRTLTextPlugin(origin + "/vendor/rtl-text/mapbox-gl-rtl-text.js", true);
 
-  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
-  const flavor = dark ? "dark" : "light";
+  const flavor = getComputedStyle(document.documentElement).colorScheme.includes("dark") ? "dark" : "light";
   const map = new maplibregl.Map({
-    container: "map",
+    container: box,
     hash: true,
     center: [39.5, 25.5],
     zoom: 4.3,
@@ -52,31 +58,27 @@
       glyphs: origin + "/vendor/basemaps-assets/fonts/{fontstack}/{range}.pbf",
       sprite: origin + "/vendor/basemaps-assets/sprites/v4/" + flavor,
       sources: {
-        protomaps: {
-          type: "vector",
-          url: "pmtiles://" + origin + "/data/maps/" + encodeURIComponent(tiles.name),
-          attribution: "© OpenStreetMap",
-        },
+        protomaps: { type: "vector", url: "pmtiles://" + origin + "/data/maps/" + encodeURIComponent(tiles.name), attribution: "© OpenStreetMap" },
       },
-      layers: basemaps.layers("protomaps", basemaps.namedFlavor(flavor), { lang: "ar" }),
+      // Place names in the app's language.
+      layers: basemaps.layers("protomaps", basemaps.namedFlavor(flavor), { lang }),
     },
   });
   map.addControl(new maplibregl.NavigationControl(), "top-left");
   map.addControl(new maplibregl.ScaleControl(), "bottom-left");
-  // Live GPS position. Browsers only allow it on https:// or on the tablet itself.
+
+  // Live GPS position. Browsers only allow it on https:// or on this device itself.
   if (window.isSecureContext) {
     map.addControl(new maplibregl.GeolocateControl({
       trackUserLocation: true, showAccuracyCircle: true,
       positionOptions: { enableHighAccuracy: true, timeout: 120000 },
     }), "top-left");
   } else {
-    const https = "https://" + location.hostname + ":" + ((window.RTW && RTW.httpsPort) || 8443) + location.pathname + location.hash;
-    const link = document.createElement("a");
-    link.href = https; link.textContent = "📍 لتحديد موقعك افتح الخريطة عبر HTTPS — open via HTTPS for GPS";
-    link.style.cssText = "position:absolute;bottom:34px;inset-inline:12px;z-index:2;background:var(--surface);padding:8px 12px;border-radius:10px;border:1px solid var(--border);text-align:center";
-    document.body.append(link);
+    const port = (window.RTW && RTW.httpsPort) || 8443;
+    const https = `https://${location.hostname}:${port}${location.pathname}${location.hash}`;
+    box.append(el("div", { class: "gps" }, el("a", { href: https, html: `${icon("compass")}<span>${t.gpsHint}</span>` })));
   }
-})();
+}
 </script>
 </body>
 </html>

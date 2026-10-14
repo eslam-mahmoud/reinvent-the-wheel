@@ -64,7 +64,7 @@ const copy = {
   },
   ar: {
     eyebrow: ["مفتوح المصدر", "يعمل دون اتصال", "macOS وAndroid"],
-    h1a: "الحضارة،", h1b: "بلا إنترنت.",
+    h1a: "الحضارة", h1b: "بلا إنترنت.",
     question: "ماذا لو اختفى الإنترنت غدًا؟",
     lead: "احفظ المعرفة الإنسانية واطّلع عليها وشاركها باستخدام الأجهزة التي تملكها بالفعل. لا اعتماد على السحابة، ولا حاجة إلى الإنترنت للوصول إلى المحتوى الذي نزّلته.",
     platformsAria: "المنصات المدعومة", inTesting: "قيد الاختبار",
@@ -112,12 +112,12 @@ const copy = {
 }[lang];
 
 const jsonLd = [
-  { "@context": "https://schema.org", "@type": "WebSite", name: site.name, alternateName: site.shortName, url: site.url, description: site.description[lang], inLanguage: lang },
+  { "@context": "https://schema.org", "@type": "WebSite", name: site.name[lang], alternateName: [site.shortName, site.name.en], url: site.url, description: site.description[lang], inLanguage: lang },
   {
     "@context": "https://schema.org",
     "@type": "SoftwareSourceCode",
-    name: site.name,
-    alternateName: site.shortName,
+    name: site.name[lang],
+    alternateName: [site.shortName, site.name.en],
     description: site.description[lang],
     url: site.url,
     ...(site.repo.url ? { codeRepository: site.repo.url } : {}),

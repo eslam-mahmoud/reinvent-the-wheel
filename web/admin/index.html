@@ -3,268 +3,229 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>إدارة المحتوى</title>
+<meta name="color-scheme" content="dark light">
+<title>RTW</title>
+<script>try{var l=localStorage.getItem("rtw-lang");if(l!=="ar"&&l!=="en")l=(navigator.language||"").toLowerCase().indexOf("en")===0?"en":"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";var m=localStorage.getItem("rtw-theme");if(m)document.documentElement.dataset.theme=m}catch(e){}</script>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
-  .bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
-  button, .btn {
-    font: inherit; padding: 8px 14px; border-radius: 10px; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
-  }
-  button.primary, .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button.small { padding: 4px 8px; font-size: .9rem; }
-  .drop { border: 2px dashed var(--border); border-radius: var(--radius); padding: 22px; text-align: center; color: var(--muted); margin-bottom: 14px; }
-  .drop.over { border-color: var(--accent); background: var(--accent-soft); }
-  .card .stat { color: var(--muted); font-size: .9rem; }
-  .disk { margin: 14px 0; color: var(--muted); font-size: .9rem; }
-  .disk progress { width: 100%; height: 10px; }
-  ul.files li { display: flex; align-items: center; gap: 4px; padding-inline-end: 8px; }
-  ul.files li > a { flex: 1; min-width: 0; }
+  .files li > .btn { flex: none; }
+  .hint { color: var(--subtle); font-size: .85rem; margin: -6px 0 16px; }
+  .disk { margin: 4px 0 18px; color: var(--muted); font-size: .9rem; display: grid; gap: 6px; max-width: 460px; }
   #uploads div { margin: 6px 0; font-size: .9rem; }
-  #uploads progress { width: 100%; height: 8px; }
-  #status { min-height: 1.5em; color: var(--muted); }
-  .hint { color: var(--muted); font-size: .85rem; margin: -6px 0 12px; }
-  #editor textarea {
-    width: 100%; min-height: 55vh; font: 15px/1.6 ui-monospace, monospace; padding: 12px;
-    border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
-  }
+  #status { min-height: 1.4em; color: var(--muted); margin: 0 0 10px; }
+  #editor textarea { width: 100%; min-height: 55vh; font: 15px/1.7 var(--mono); padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); }
+  .tile .accepts { font-family: var(--mono); font-size: .7rem; color: var(--subtle); direction: ltr; text-align: start; }
 </style>
 </head>
 <body>
-<header class="top"><a class="home" href="/">🏠</a><h1>🔒 إدارة المحتوى — Admin</h1></header>
-<main>
-  <div id="crumbs" class="crumbs"></div>
-  <p id="status"></p>
-  <div id="uploads"></div>
-  <div id="view"></div>
-</main>
-<input id="pick" type="file" multiple hidden>
 <script type="module">
-  import { el, humanSize, iconFor } from "/assets/browse.js";
+import { mountShell, el } from "/assets/shell.js";
+import { lang, humanSize, t as common } from "/assets/i18n.js";
+import { icon, iconFor } from "/assets/icons.js";
 
-  const SECTIONS = {
-    books:     { icon: "📖", ar: "الكتب",      en: "Books" },
-    downloads: { icon: "⬇️", ar: "التنزيلات",  en: "Downloads" },
-    notes:     { icon: "📝", ar: "الملاحظات",  en: "Notes" },
-    wikipedia: { icon: "🌐", ar: "ويكيبيديا",  en: "Wikipedia" },
-    maps:      { icon: "🗺️", ar: "الخرائط",    en: "Maps" },
-    www:       { icon: "🧩", ar: "المواقع",    en: "HTML sites" },
-  };
-  // Quick upload: which section a file goes to, by extension.
-  const ROUTE = {
-    pdf: "books", epub: "books", mobi: "books", azw3: "books", djvu: "books", cbz: "books", fb2: "books",
-    md: "notes", markdown: "notes", txt: "notes",
-    zim: "wikipedia", pmtiles: "maps", html: "www", htm: "www",
-  };
-  const ext = (n) => (n.includes(".") ? n.split(".").pop().toLowerCase() : "");
-  const routeFor = (name) => ROUTE[ext(name)] || "downloads";
+const T = {
+  en: {
+    title: "Manage content", dashboard: "Dashboard",
+    quick: "Quick upload — drop files here or tap. Each file goes to its section by type.",
+    routes: "PDF/EPUB → Books · APK & others → Downloads · MD/TXT → Notes · ZIM → Wikipedia · PMTILES → Maps · HTML → Sites",
+    free: (f, tot) => `${f} free of ${tot}`, anyFile: "any file",
+    upload: "Upload", folder: "New folder", newNote: "New note", reload: "Reload Wikipedia", reloaded: "Wikipedia reloaded",
+    dropHere: "Drop files here to upload into this folder", emptyFolder: "Empty",
+    folderName: "Folder name", fileName: "File name", newPath: "New name or path (section/folder/name)",
+    exists: (n) => `"${n}" already exists. Replace it?`, del: (n) => `Delete "${n}"?`, delAll: "This folder isn't empty. Delete everything in it?",
+    edit: "Edit", replace: "Replace with a new file", rename: "Rename / move", remove: "Delete",
+    save: "Save", cancel: "Cancel", skipped: "skipped", netErr: "network error", noteExists: "A note with that name already exists",
+    sections: { books: "Books", downloads: "Downloads", notes: "Notes", wikipedia: "Wikipedia", maps: "Maps", www: "Sites" },
+  },
+  ar: {
+    title: "إدارة المحتوى", dashboard: "لوحة التحكم",
+    quick: "رفع سريع — اسحب الملفات هنا أو اضغط. يذهب كل ملف إلى قسمه حسب نوعه.",
+    routes: "PDF/EPUB ← الكتب · APK وغيرها ← التنزيلات · MD/TXT ← الملاحظات · ZIM ← ويكيبيديا · PMTILES ← الخرائط · HTML ← المواقع",
+    free: (f, tot) => `${f} متاحة من ${tot}`, anyFile: "أي ملف",
+    upload: "رفع", folder: "مجلد جديد", newNote: "ملاحظة جديدة", reload: "إعادة تحميل ويكيبيديا", reloaded: "أُعيد تحميل ويكيبيديا",
+    dropHere: "اسحب الملفات هنا لرفعها إلى هذا المجلد", emptyFolder: "فارغ",
+    folderName: "اسم المجلد", fileName: "اسم الملف", newPath: "الاسم أو المسار الجديد (القسم/المجلد/الاسم)",
+    exists: (n) => `«${n}» موجود بالفعل. هل تريد استبداله؟`, del: (n) => `حذف «${n}»؟`, delAll: "المجلد غير فارغ. هل تريد حذف كل ما فيه؟",
+    edit: "تحرير", replace: "استبدال بملف جديد", rename: "إعادة تسمية / نقل", remove: "حذف",
+    save: "حفظ", cancel: "إلغاء", skipped: "تم التخطي", netErr: "خطأ في الشبكة", noteExists: "توجد ملاحظة بهذا الاسم بالفعل",
+    sections: { books: "الكتب", downloads: "التنزيلات", notes: "الملاحظات", wikipedia: "ويكيبيديا", maps: "الخرائط", www: "المواقع" },
+  },
+}[lang];
+const SECTION_ICON = { books: "books", downloads: "downloads", notes: "notes", wikipedia: "wiki", maps: "maps", www: "sites" };
+// Quick upload: which section a file goes to, by extension.
+const ROUTE = { pdf: "books", epub: "books", mobi: "books", azw3: "books", djvu: "books", cbz: "books", fb2: "books",
+  md: "notes", markdown: "notes", txt: "notes", zim: "wikipedia", pmtiles: "maps", html: "www", htm: "www" };
+const ext = (n) => (n.includes(".") ? n.split(".").pop().toLowerCase() : "");
+const routeFor = (name) => ROUTE[ext(name)] || "downloads";
 
-  const api = "/admin/api/";
-  const $ = (id) => document.getElementById(id);
-  const status = (t) => ($("status").textContent = t || "");
-  const path = () => decodeURIComponent(location.hash.slice(1)).replace(/^\/+|\/+$/g, "");
-  const join = (...p) => p.filter(Boolean).join("/");
-  const qs = (o) => "?" + new URLSearchParams(o).toString();
-  const enc = (p) => p.split("/").map(encodeURIComponent).join("/");
+const main = mountShell({ active: "admin", title: T.title });
+const crumbsBox = el("nav", { class: "crumbs" });
+const status = el("p", { id: "status" });
+const uploads = el("div", { id: "uploads" });
+const view = el("div", { id: "view" });
+main.append(crumbsBox, status, uploads, view);
+const say = (s) => (status.textContent = s || "");
 
-  async function call(method, action, params = {}, body) {
-    const res = await fetch(api + action + qs(params), { method, body, headers: { "X-RTW": "1" } });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status });
-    return data;
-  }
-  const guard = (fn) => async (...a) => { try { await fn(...a); } catch (e) { status("⚠️ " + e.message); } };
+const api = "/admin/api/";
+const path = () => decodeURIComponent(location.hash.slice(1)).replace(/^\/+|\/+$/g, "");
+const join = (...p) => p.filter(Boolean).join("/");
+const qs = (o) => "?" + new URLSearchParams(o).toString();
+const enc = (p) => p.split("/").map(encodeURIComponent).join("/");
 
-  // Where visitors see a file.
-  function publicUrl(p) {
-    const [section, ...rest] = p.split("/");
-    const sub = rest.join("/");
-    if (section === "notes") return "/notes/?f=" + encodeURIComponent("/" + sub);
-    if (section === "www") return "/sites/" + enc(sub);
-    if (section === "wikipedia") return "/wiki/";
-    return "/data/" + section + "/" + enc(sub);
-  }
+async function call(method, action, params = {}, body) {
+  const res = await fetch(api + action + qs(params), { method, body, headers: { "X-RTW": "1" } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status });
+  return data;
+}
+const guard = (fn) => async (...a) => { try { await fn(...a); } catch (e) { say("⚠️ " + e.message); } };
 
-  // ---------- uploads ----------
+function publicUrl(p) {
+  const [section, ...rest] = p.split("/");
+  const sub = rest.join("/");
+  if (section === "notes") return "/notes/?f=" + encodeURIComponent("/" + sub);
+  if (section === "www") return "/sites/" + enc(sub);
+  if (section === "wikipedia") return "/wiki/";
+  return "/data/" + section + "/" + enc(sub);
+}
 
-  // XHR (not fetch) for upload progress on big files.
-  function put(target, blob, overwrite) {
-    return new Promise((resolve) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("PUT", api + "upload" + qs({ path: target, ...(overwrite ? { overwrite: 1 } : {}) }));
-      xhr.setRequestHeader("X-RTW", "1");
-      xhr.upload.onprogress = (e) => e.lengthComputable && put.onprogress?.(e.loaded / e.total);
-      xhr.onload = () => resolve({ status: xhr.status, error: JSON.parse(xhr.responseText || "{}").error });
-      xhr.onerror = () => resolve({ status: 0, error: "network error" });
-      xhr.send(blob);
-    });
-  }
+// ---------- uploads (XHR for progress on big files) ----------
+function put(target, blob, overwrite, onprogress) {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", api + "upload" + qs({ path: target, ...(overwrite ? { overwrite: 1 } : {}) }));
+    xhr.setRequestHeader("X-RTW", "1");
+    xhr.upload.onprogress = (e) => e.lengthComputable && onprogress?.(e.loaded / e.total);
+    xhr.onload = () => { let d = {}; try { d = JSON.parse(xhr.responseText || "{}"); } catch {} resolve({ status: xhr.status, error: d.error }); };
+    xhr.onerror = () => resolve({ status: 0, error: T.netErr });
+    xhr.send(blob);
+  });
+}
 
-  async function uploadOne(file, target, overwrite = false) {
-    const row = el("div", {}, `${file.name} → ${target.split("/")[0]} — ${humanSize(file.size)}`);
-    const bar = el("progress", { max: "1", value: "0" });
-    row.append(bar);
-    $("uploads").append(row);
-    put.onprogress = (f) => (bar.value = f);
-    let r = await put(target, file, overwrite);
-    if (r.status === 409 && r.error === "exists" &&
-        confirm(`"${file.name}" موجود — استبدال؟\nAlready exists — replace it?`)) {
-      r = await put(target, file, true);
-    }
-    row.textContent = (r.status === 200 ? "✅ " : "⚠️ ") + `${file.name} → ${target}` +
-      (r.status === 200 ? "" : " — " + (r.error === "exists" ? "skipped" : r.error));
-  }
-
-  async function uploadFiles(files, folderFor) {
-    for (const f of files) await uploadOne(f, join(folderFor(f), f.name)); // one at a time
-    render();
-  }
-
-  let pickHandler = null;
-  $("pick").onchange = (e) => { const f = [...e.target.files]; e.target.value = ""; pickHandler?.(f); };
-  function pickFiles(handler, multiple = true) {
-    pickHandler = handler;
-    $("pick").multiple = multiple;
-    $("pick").click();
-  }
-
-  function dropZone(label, onFiles) {
-    const d = el("div", { class: "drop" }, label);
-    d.ondragover = (e) => { e.preventDefault(); d.classList.add("over"); };
-    d.ondragleave = () => d.classList.remove("over");
-    d.ondrop = (e) => { e.preventDefault(); d.classList.remove("over"); onFiles([...e.dataTransfer.files]); };
-    d.onclick = () => pickFiles(onFiles);
-    d.style.cursor = "pointer";
-    return d;
-  }
-
-  // ---------- views ----------
-
-  async function renderDashboard() {
-    const s = await call("GET", "summary");
-    const grid = el("div", { class: "grid" });
-    for (const sec of s.sections) {
-      const m = SECTIONS[sec.name];
-      grid.append(el("a", { class: "card", href: "#" + sec.name },
-        el("div", { class: "icon" }, m.icon), el("h2", {}, m.ar),
-        el("p", {}, m.en), el("div", { class: "stat" }, `${sec.files} files · ${humanSize(sec.size)}`),
-        el("div", { class: "stat" }, sec.accepts ? sec.accepts.map((x) => "." + x).join(" ") : "any file")));
-    }
-    const used = s.total - s.free;
-    const disk = el("div", { class: "disk" },
-      `💾 ${humanSize(s.free)} free of ${humanSize(s.total)}`,
-      el("progress", { max: String(s.total), value: String(used) }));
-    $("view").replaceChildren(
-      dropZone("⬆️ رفع سريع: اسحب الملفات هنا أو اضغط — Quick upload: drop files or tap. Each file goes to its section by type.",
-        (files) => uploadFiles(files, (f) => routeFor(f.name))),
-      el("p", { class: "hint" }, "PDF/EPUB → books · APK & others → downloads · MD/TXT → notes · ZIM → wikipedia · PMTILES → maps · HTML → sites"),
-      disk, grid);
-  }
-
-  async function renderFolder(p) {
-    const section = p.split("/")[0];
-    const items = await call("GET", "list", { path: p });
-
-    const bar = el("div", { class: "bar" });
-    const up = el("button", { class: "primary" }, "⬆️ رفع / Upload");
-    up.onclick = () => pickFiles((files) => uploadFiles(files, () => p));
-    const mk = el("button", {}, "📁 مجلد / Folder");
-    mk.onclick = guard(async () => {
-      const name = prompt("اسم المجلد / Folder name");
-      if (name) { await call("POST", "mkdir", { path: join(p, name) }); render(); }
-    });
-    bar.append(up, mk);
-    if (section === "notes") {
-      const nn = el("button", {}, "📝 ملاحظة جديدة / New note");
-      nn.onclick = () => {
-        const name = prompt("اسم الملف / File name", "note.md");
-        if (name) openEditor(join(p, /\.(md|txt|markdown)$/i.test(name) ? name : name + ".md"), "", true);
-      };
-      bar.append(nn);
-    }
-    if (section === "wikipedia") {
-      const rw = el("button", {}, "🔄 تحديث ويكيبيديا / Reload");
-      rw.onclick = guard(async () => { status("…"); await call("POST", "restart-wiki"); status("✅ Wikipedia reloaded"); });
-      bar.append(rw);
-    }
-
-    const list = el("ul", { class: "files" });
-    for (const it of items) {
-      const isDir = it.type === "directory";
-      const target = join(p, it.name);
-      const a = el("a", { href: isDir ? "#" + enc(target) : publicUrl(target), dir: "auto", ...(isDir ? {} : { target: "_blank" }) },
-        isDir ? "📁" : iconFor(it.name), " " + it.name,
-        el("span", { class: "meta" }, isDir ? "" : humanSize(it.size) + " · " + new Date(it.mtime * 1000).toLocaleDateString()));
-      const li = el("li", {}, a);
-
-      const btn = (label, title, fn) => { const b = el("button", { class: "small", title }, label); b.onclick = guard(fn); li.append(b); };
-      if (!isDir && section === "notes") {
-        btn("📝", "Edit", async () => openEditor(target, await (await fetch("/data/" + enc(target), { cache: "no-store" })).text(), false));
-      }
-      if (!isDir) {
-        btn("🔁", "Replace with a new file", () => pickFiles(async ([f]) => {
-          if (f) { await uploadOne(f, target, true); render(); }
-        }, false));
-      }
-      btn("✏️", "Rename / move", async () => {
-        const to = prompt("الاسم أو المسار الجديد — New name or path (section/folder/name)", target);
-        if (to && to !== target) {
-          await call("POST", "rename", { path: target, to: to.includes("/") ? to : join(p, to) });
-          render();
-        }
-      });
-      btn("🗑️", "Delete", async () => {
-        if (!confirm("حذف / Delete: " + it.name + " ?")) return;
-        try { await call("POST", "delete", { path: target }); }
-        catch (e) {
-          if (e.status !== 409 || !confirm("المجلد غير فارغ — حذف كل محتوياته؟\nFolder not empty — delete everything in it?")) throw e;
-          await call("POST", "delete", { path: target, recursive: 1 });
-        }
-        render();
-      });
-      list.append(li);
-    }
-    $("view").replaceChildren(
-      bar,
-      dropZone("⬆️ اسحب الملفات هنا لرفعها إلى هذا المجلد — Drop files to upload into this folder", (files) => uploadFiles(files, () => p)),
-      items.length ? list : el("p", { class: "empty" }, "فارغ — empty"));
-  }
-
-  function openEditor(target, text, isNew) {
-    const ta = el("textarea", { dir: "auto", spellcheck: "false" });
-    ta.value = text;
-    const save = el("button", { class: "primary" }, "💾 حفظ / Save");
-    const cancel = el("button", {}, "إلغاء / Cancel");
-    const dir = target.slice(0, target.lastIndexOf("/"));
-    save.onclick = guard(async () => {
-      const r = await put(target, new Blob([ta.value], { type: "text/plain" }), !isNew);
-      if (r.status === 409 && r.error === "exists") throw new Error("a note with that name exists");
-      if (r.status !== 200) throw new Error(r.error);
-      status("✅ " + target);
-      location.hash = enc(dir);
-      render();
-    });
-    cancel.onclick = () => render();
-    $("view").replaceChildren(el("div", { id: "editor" }, el("p", { dir: "auto" }, "📝 " + target), ta, el("div", { class: "bar", style: "margin-top:10px" }, save, cancel)));
-    ta.focus();
-  }
-
-  async function render() {
-    const p = path();
-    const crumbs = $("crumbs");
-    crumbs.replaceChildren(el("a", { href: "#" }, "🏠 لوحة التحكم / Dashboard"));
-    let acc = "";
-    for (const part of p.split("/").filter(Boolean)) {
-      acc = join(acc, part);
-      const label = SECTIONS[acc] ? SECTIONS[acc].icon + " " + SECTIONS[acc].en : part;
-      crumbs.append(" / ", el("a", { href: "#" + enc(acc) }, label));
-    }
-    try { await (p ? renderFolder(p) : renderDashboard()); }
-    catch (e) { status("⚠️ " + e.message); }
-  }
-
-  addEventListener("hashchange", () => { status(); $("uploads").replaceChildren(); render(); });
+async function uploadOne(file, target, overwrite = false) {
+  const bar = el("progress", { max: "1", value: "0" });
+  const row = el("div", {}, el("span", { dir: "auto" }, `${file.name} → ${T.sections[target.split("/")[0]]} — ${humanSize(file.size)}`), bar);
+  uploads.append(row);
+  let r = await put(target, file, overwrite, (f) => (bar.value = f));
+  if (r.status === 409 && r.error === "exists" && confirm(T.exists(file.name))) r = await put(target, file, true, (f) => (bar.value = f));
+  row.replaceChildren(el("span", { dir: "auto" }, (r.status === 200 ? "✅ " : "⚠️ ") + `${file.name} → ${target}` + (r.status === 200 ? "" : " — " + (r.error === "exists" ? T.skipped : r.error))));
+}
+async function uploadFiles(files, folderFor) {
+  for (const f of files) await uploadOne(f, join(folderFor(f), f.name)); // one at a time
   render();
+}
+
+const picker = el("input", { type: "file", multiple: "", hidden: "" });
+document.body.append(picker);
+let pickHandler = null;
+picker.addEventListener("change", () => { const f = [...picker.files]; picker.value = ""; pickHandler?.(f); });
+function pickFiles(handler, multiple = true) { pickHandler = handler; picker.multiple = multiple; picker.click(); }
+
+function dropZone(label, onFiles) {
+  const d = el("div", { class: "drop", role: "button", tabindex: "0" }, label);
+  d.addEventListener("dragover", (e) => { e.preventDefault(); d.classList.add("over"); });
+  d.addEventListener("dragleave", () => d.classList.remove("over"));
+  d.addEventListener("drop", (e) => { e.preventDefault(); d.classList.remove("over"); onFiles([...e.dataTransfer.files]); });
+  d.addEventListener("click", () => pickFiles(onFiles));
+  d.addEventListener("keydown", (e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), pickFiles(onFiles)));
+  return d;
+}
+const btn = (iconName, label, onclick, cls = "btn small") => el("button", { class: cls, type: "button", title: label, "aria-label": label, html: `${icon(iconName)}<span>${label}</span>`, onclick: guard(onclick) });
+const iconBtn = (iconName, label, onclick) => el("button", { class: "btn small", type: "button", title: label, "aria-label": label, html: icon(iconName), onclick: guard(onclick) });
+
+// ---------- views ----------
+async function renderDashboard() {
+  const s = await call("GET", "summary");
+  const tiles = el("div", { class: "tiles" });
+  for (const sec of s.sections) {
+    tiles.append(el("a", { class: "tile", href: "#" + sec.name },
+      el("span", { class: "ticon", html: icon(SECTION_ICON[sec.name]) }),
+      el("h3", {}, T.sections[sec.name]),
+      el("span", { class: "accepts" }, sec.accepts ? sec.accepts.map((x) => "." + x).join(" ") : T.anyFile),
+      el("span", { class: "stat" }, `${common.files(sec.files)} · ${humanSize(sec.size)}`)));
+  }
+  const meter = el("div", { class: "meter" }, el("b", { style: `width:${Math.round(((s.total - s.free) / s.total) * 100)}%` }));
+  view.replaceChildren(
+    dropZone(T.quick, (files) => uploadFiles(files, (f) => routeFor(f.name))),
+    el("p", { class: "hint" }, T.routes),
+    el("div", { class: "disk" }, el("span", {}, T.free(humanSize(s.free), humanSize(s.total))), meter),
+    tiles);
+}
+
+async function renderFolder(p) {
+  const section = p.split("/")[0];
+  const items = await call("GET", "list", { path: p });
+  const bar = el("div", { class: "toolbar" },
+    btn("upload", T.upload, () => pickFiles((files) => uploadFiles(files, () => p)), "btn primary small"),
+    btn("plus", T.folder, async () => { const n = prompt(T.folderName); if (n) { await call("POST", "mkdir", { path: join(p, n) }); render(); } }));
+  if (section === "notes") bar.append(btn("notes", T.newNote, () => {
+    const n = prompt(T.fileName, "note.md");
+    if (n) openEditor(join(p, /\.(md|txt|markdown)$/i.test(n) ? n : n + ".md"), "", true);
+  }));
+  if (section === "wikipedia") bar.append(btn("refresh", T.reload, async () => { say("…"); await call("POST", "restart-wiki"); say("✅ " + T.reloaded); }));
+
+  const list = el("ul", { class: "files" });
+  for (const it of items) {
+    const isDir = it.type === "directory";
+    const target = join(p, it.name);
+    const a = el("a", { class: "item", href: isDir ? "#" + enc(target) : publicUrl(target), target: isDir ? null : "_blank" },
+      el("span", { class: "ficon", html: icon(isDir ? "folder" : iconFor(it.name)) }),
+      el("span", { class: "name", dir: "auto" }, it.name),
+      el("span", { class: "meta" }, isDir ? "" : `${humanSize(it.size)} · ${new Date(it.mtime * 1000).toLocaleDateString(lang === "ar" ? "ar-u-nu-latn" : "en")}`));
+    const li = el("li", {}, a);
+    if (!isDir && section === "notes") li.append(iconBtn("edit", T.edit, async () => openEditor(target, await (await fetch("/data/" + enc(target), { cache: "no-store" })).text(), false)));
+    if (!isDir) li.append(iconBtn("swap", T.replace, () => pickFiles(async ([f]) => { if (f) { await uploadOne(f, target, true); render(); } }, false)));
+    li.append(iconBtn("edit", T.rename, async () => {
+      const to = prompt(T.newPath, target);
+      if (to && to !== target) { await call("POST", "rename", { path: target, to: to.includes("/") ? to : join(p, to) }); render(); }
+    }));
+    li.append(iconBtn("trash", T.remove, async () => {
+      if (!confirm(T.del(it.name))) return;
+      try { await call("POST", "delete", { path: target }); }
+      catch (e) {
+        if (e.status !== 409 || !confirm(T.delAll)) throw e;
+        await call("POST", "delete", { path: target, recursive: 1 });
+      }
+      render();
+    }));
+    list.append(li);
+  }
+  view.replaceChildren(bar, dropZone(T.dropHere, (files) => uploadFiles(files, () => p)), items.length ? list : el("p", { class: "empty" }, T.emptyFolder));
+}
+
+function openEditor(target, text, isNew) {
+  const ta = el("textarea", { dir: "auto", spellcheck: "false" });
+  ta.value = text;
+  const dir = target.slice(0, target.lastIndexOf("/"));
+  view.replaceChildren(el("div", { id: "editor" },
+    el("p", { dir: "auto", class: "muted" }, target), ta,
+    el("div", { class: "toolbar", style: "margin-top:10px" },
+      btn("notes", T.save, async () => {
+        const r = await put(target, new Blob([ta.value], { type: "text/plain" }), !isNew);
+        if (r.status === 409 && r.error === "exists") throw new Error(T.noteExists);
+        if (r.status !== 200) throw new Error(r.error);
+        say("✅ " + target);
+        location.hash = enc(dir);
+        render();
+      }, "btn primary small"),
+      btn("close", T.cancel, () => render()))));
+  ta.focus();
+}
+
+async function render() {
+  const p = path();
+  crumbsBox.replaceChildren(el("a", { href: "#" }, T.dashboard));
+  let acc = "";
+  for (const part of p.split("/").filter(Boolean)) {
+    acc = join(acc, part);
+    crumbsBox.append(el("span", { "aria-hidden": "true" }, "›"), el("a", { href: "#" + enc(acc), dir: "auto" }, T.sections[acc] || part));
+  }
+  try { await (p ? renderFolder(p) : renderDashboard()); }
+  catch (e) { say("⚠️ " + e.message); }
+}
+addEventListener("hashchange", () => { say(); uploads.replaceChildren(); render(); });
+render();
 </script>
 </body>
 </html>

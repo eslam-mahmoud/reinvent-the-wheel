@@ -24,7 +24,7 @@ const otherHref = translated ? switchLang(path, other) : href("/", other);
 ---
 <header class="site-header">
   <div class="container bar">
-    <a href={href("/", lang)} class="brand" aria-label={`${site.name} — ${s.home}`}>
+    <a href={href("/", lang)} class="brand" aria-label={`${site.name[lang]} — ${s.home}`}>
       <Logo />
     </a>
 
@@ -44,7 +44,7 @@ const otherHref = translated ? switchLang(path, other) : href("/", other);
         <Icon name="sun" class="i-sun" /><Icon name="moon" class="i-moon" />
       </button>
       {site.repo.url && (
-        <a class="icon-btn hide-sm" href={site.repo.url} aria-label={`${site.name} — GitHub`}>
+        <a class="icon-btn hide-sm" href={site.repo.url} aria-label={`${site.name[lang]} — GitHub`}>
           <Icon name="github" />
         </a>
       )}

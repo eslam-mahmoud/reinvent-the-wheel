@@ -117,6 +117,20 @@ http {
             proxy_send_timeout 3600s;
         }
 
+        # Read-only library stats (file counts, sizes, free space) for the home page.
+        location = /api/stats {
+            proxy_pass http://127.0.0.1:@ADMIN_PORT@/admin/api/summary;
+            proxy_method GET;
+            proxy_pass_request_body off;
+            add_header Cache-Control "no-store";
+        }
+
+        location /data/www/ {
+            alias @CONTENT@/www/;
+            autoindex on;
+            autoindex_format json;
+        }
+
         # Static HTML sites: drop folders into RTW/www on the tablet.
         location /sites/ {
             alias @CONTENT@/www/;

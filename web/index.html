@@ -3,33 +3,112 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
 <title>RTW</title>
+<script>try{var l=localStorage.getItem("rtw-lang");if(l!=="ar"&&l!=="en")l=(navigator.language||"").toLowerCase().indexOf("en")===0?"en":"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";var m=localStorage.getItem("rtw-theme");if(m)document.documentElement.dataset.theme=m}catch(e){}</script>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/style.css">
+<style>
+  .hero { padding: clamp(16px, 4vw, 40px) 0 28px; max-width: 720px; }
+  .hero h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.03em; margin-bottom: 6px; }
+  [dir="rtl"] .hero h2 { letter-spacing: 0; }
+  .hero p { font-size: 1.05rem; margin: 0 0 20px; }
+  .hero-search .input { height: 52px; font-size: 1.05rem; border-radius: 14px; background: var(--surface); }
+  .sec-h { font-size: .95rem; color: var(--muted); font-weight: 600; margin: 28px 0 12px; }
+  .sub { margin: -6px 0 12px; font-size: .9rem; }
+  .foot { margin-top: 32px; }
+</style>
 </head>
 <body>
-<header class="top"><h1>🛞 RTW <span style="font-weight:400;color:var(--muted)">· Reinvent The Wheel — مكتبة بلا إنترنت</span></h1></header>
-<main>
-  <div class="grid">
-    <a class="card" href="/wiki/">
-      <div class="icon">🌐</div><h2>ويكيبيديا</h2><p>Wikipedia (Arabic)</p>
-    </a>
-    <a class="card" href="/books/">
-      <div class="icon">📖</div><h2>الكتب</h2><p>Books — PDF / EPUB</p>
-    </a>
-    <a class="card" href="/notes/">
-      <div class="icon">📝</div><h2>الملاحظات</h2><p>Notes — .md / .txt</p>
-    </a>
-    <a class="card" href="/maps/">
-      <div class="icon">🗺️</div><h2>الخرائط</h2><p>Maps — KSA &amp; Egypt</p>
-    </a>
-    <a class="card" href="/downloads/">
-      <div class="icon">⬇️</div><h2>التنزيلات</h2><p>Downloads — APK / PDF</p>
-    </a>
-    <a class="card" href="/sites/">
-      <div class="icon">🧩</div><h2>المواقع</h2><p>HTML sites</p>
-    </a>
-  </div>
-  <p style="margin-top:24px;text-align:center"><a href="/admin/">🔒 إدارة المحتوى — Admin / Upload</a></p>
-</main>
+<script type="module">
+import { mountShell, el, getStats } from "/assets/shell.js";
+import { t, humanSize, lang } from "/assets/i18n.js";
+import { icon } from "/assets/icons.js";
+
+const main = mountShell({ active: "home", title: t.appName });
+
+// Hero + Wikipedia search (kiwix-serve full-text search across all ZIMs).
+const input = el("input", { class: "input", type: "search", name: "pattern", placeholder: t.searchWiki, "aria-label": t.searchWiki, autocomplete: "off", list: "suggest" });
+const datalist = el("datalist", { id: "suggest" });
+const form = el("form", { class: "search hero-search", action: "/wiki/search", method: "get", role: "search" }, el("span", { html: icon("search") }), input, datalist);
+main.append(
+  el("section", { class: "hero" },
+    el("h2", {}, t.heroTitle),
+    el("p", { class: "muted" }, t.heroSub),
+    form),
+);
+
+// Live title suggestions from the first Wikipedia ZIM (Kiwix suggest API).
+let book;
+fetch("/wiki/catalog/v2/entries?count=50").then((r) => r.text()).then((xml) => {
+  const names = [...xml.matchAll(/<name>([^<]+)<\/name>/g)].map((m) => m[1]);
+  book = names.find((n) => n.startsWith(`wikipedia_${lang}`)) || names.find((n) => n.startsWith("wikipedia")) || names[0];
+}).catch(() => {});
+let timer;
+input.addEventListener("input", () => {
+  clearTimeout(timer);
+  const q = input.value.trim();
+  if (!book || q.length < 2) return;
+  timer = setTimeout(async () => {
+    try {
+      const items = await (await fetch(`/wiki/suggest?content=${encodeURIComponent(book)}&term=${encodeURIComponent(q)}&count=8`)).json();
+      datalist.replaceChildren(...items.filter((i) => i.kind === "path").map((i) => el("option", { value: i.value })));
+    } catch {}
+  }, 180);
+});
+input.addEventListener("change", () => {
+  // Picking a suggestion opens that article directly.
+  if (book && [...datalist.options].some((o) => o.value === input.value)) {
+    location.href = `/wiki/content/${encodeURIComponent(book)}/${encodeURIComponent(input.value.replace(/ /g, "_"))}`;
+  }
+});
+
+// Section tiles with live counts.
+const tiles = el("div", { class: "tiles" });
+const SECT = [
+  { id: "wiki", href: "/wiki/", stat: "wikipedia" },
+  { id: "books", href: "/books/", stat: "books" },
+  { id: "notes", href: "/notes/", stat: "notes" },
+  { id: "maps", href: "/maps/", stat: "maps" },
+  { id: "downloads", href: "/downloads/", stat: "downloads" },
+  { id: "sites", href: "/websites/", stat: "www" },
+];
+const iconId = { wiki: "wiki", books: "books", notes: "notes", maps: "maps", downloads: "downloads", sites: "sites" };
+for (const s of SECT) {
+  tiles.append(el("a", { class: "tile", href: s.href, "data-stat": s.stat },
+    el("span", { class: "ticon", html: icon(iconId[s.id]) }),
+    el("h3", {}, t.nav[s.id]),
+    el("p", {}, t.desc[s.id]),
+    el("span", { class: "stat" }, " ")));
+}
+main.append(el("h2", { class: "sec-h" }, t.sections), tiles);
+
+getStats().then((s) => {
+  if (!s) return;
+  const by = Object.fromEntries(s.sections.map((x) => [x.name, x]));
+  for (const tile of tiles.querySelectorAll("[data-stat]")) {
+    const x = by[tile.dataset.stat];
+    if (x) tile.querySelector(".stat").textContent = x.files ? `${t.files(x.files)} · ${humanSize(x.size)}` : t.empty;
+  }
+});
+
+// Phone apps that are in Downloads (Bitchat, OsmAnd), if present.
+fetch("/data/downloads/").then((r) => r.json()).then((items) => {
+  const have = new Set(items.filter((i) => i.type === "directory").map((i) => i.name));
+  const apps = [
+    { dir: "Bitchat", icon: "chat", text: t.bitchat },
+    { dir: "OsmAnd", icon: "compass", text: t.osmand },
+  ].filter((a) => have.has(a.dir));
+  if (!apps.length) return;
+  const row = el("div", { class: "tiles" });
+  for (const a of apps) {
+    row.append(el("a", { class: "tile app-tile", href: `/downloads/#${encodeURIComponent("/" + a.dir + "/")}` },
+      el("span", { class: "ticon", html: icon(a.icon) }), el("h3", {}, a.dir), el("p", {}, a.text)));
+  }
+  main.append(el("h2", { class: "sec-h" }, t.phoneApps), el("p", { class: "muted sub" }, t.phoneAppsSub), row);
+}).catch(() => {});
+
+main.append(el("p", { class: "status foot", html: `<span class="dot"></span>${t.offline} · ${t.connectedTo} <span class="ltr">${location.host}</span>` }));
+</script>
 </body>
 </html>

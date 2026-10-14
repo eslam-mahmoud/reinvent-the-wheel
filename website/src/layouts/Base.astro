@@ -23,9 +23,9 @@ interface Props {
 }
 
 const lang = langFromPath(Astro.url.pathname);
-const { title, description = site.description[lang], ogImage = "/og.png", jsonLd, noindex = false, translated = true } = Astro.props;
+const { title, description = site.description[lang], ogImage = lang === "ar" ? "/og-ar.png" : "/og.png", jsonLd, noindex = false, translated = true } = Astro.props;
 const meta = langMeta[lang];
-const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline[lang]}`;
+const fullTitle = title ? `${title} · ${site.name[lang]}` : `${site.name[lang]} — ${site.tagline[lang]}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogUrl = new URL(ogImage, site.url).href;
 const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
@@ -54,7 +54,7 @@ const alternates = translated ? locales.map((l) => ({ lang: l, url: new URL(swit
     {lang === "ar" && <link rel="preload" href={notoArabic} as="font" type="font/woff2" crossorigin />}
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={site.name} />
+    <meta property="og:site_name" content={site.name[lang]} />
     <meta property="og:locale" content={meta.og} />
     {locales.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={langMeta[l].og} />)}
     <meta property="og:title" content={fullTitle} />
@@ -63,7 +63,7 @@ const alternates = translated ? locales.map((l) => ({ lang: l, url: new URL(swit
     <meta property="og:image" content={ogUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name} — ${site.tagline[lang]}`} />
+    <meta property="og:image:alt" content={`${site.name[lang]} — ${site.tagline[lang]}`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />

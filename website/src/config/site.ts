@@ -7,13 +7,13 @@ import type { Localized } from "../i18n/config";
 // "not available yet" instead of linking somewhere made up.
 
 export const site = {
-  name: "Reinvent the Wheel",
+  name: <Localized>{ en: "Reinvent the Wheel", ar: "إعادة اختراع العجلة" },
   shortName: "RTW",
-  tagline: <Localized>{ en: "Civilization, Offline.", ar: "الحضارة، بلا إنترنت." },
-  statement: <Localized>{ en: "Knowledge worth keeping.", ar: "معرفة تستحق الحفظ." },
+  tagline: <Localized>{ en: "Civilization, Offline.", ar: "الحضارة بلا إنترنت." },
+  statement: <Localized>{ en: "Knowledge worth keeping.", ar: "معرفة تستحق أن تبقى." },
   description: <Localized>{
     en: "Reinvent the Wheel (RTW) is a free, open-source, offline-first knowledge library. Preserve, access and share useful human knowledge on a Mac or Android device — no internet required to use what you've downloaded.",
-    ar: "Reinvent the Wheel ‏(RTW) مكتبة معرفة مجانية ومفتوحة المصدر تعمل دون اتصال. احفظ المعرفة الإنسانية المفيدة واطّلع عليها وشاركها على جهاز Mac أو Android، دون الحاجة إلى الإنترنت لاستخدام ما نزّلته.",
+    ar: "«إعادة اختراع العجلة» (RTW) مكتبة معرفة مجانية ومفتوحة المصدر تعمل دون اتصال. احفظ المعرفة الإنسانية المفيدة واطّلع عليها وشاركها على جهاز Mac أو Android، دون الحاجة إلى الإنترنت لاستخدام ما نزّلته.",
   },
   url: "https://reinvent-the-wheel.com",
   locale: "en",

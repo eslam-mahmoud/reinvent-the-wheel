@@ -6,7 +6,10 @@ interface Props {
   size?: number;
   wordmark?: boolean;
 }
+import { site } from "../config/site";
+import { langFromPath } from "../i18n/config";
 const { size = 28, wordmark = true } = Astro.props;
+const lang = langFromPath(Astro.url.pathname);
 ---
 <span class="logo">
   <svg class="logo-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
@@ -19,9 +22,7 @@ const { size = 28, wordmark = true } = Astro.props;
     <circle cx="16" cy="16" r="1" fill="var(--accent)" />
   </svg>
   {wordmark && (
-    <span class="logo-word">
-      Reinvent the Wheel
-    </span>
+    <span class="logo-word">{site.name[lang]}</span>
   )}
 </span>
 

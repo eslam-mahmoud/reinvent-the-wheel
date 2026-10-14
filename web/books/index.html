@@ -3,21 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>الكتب</title>
+<meta name="color-scheme" content="dark light">
+<title>RTW</title>
+<script>try{var l=localStorage.getItem("rtw-lang");if(l!=="ar"&&l!=="en")l=(navigator.language||"").toLowerCase().indexOf("en")===0?"en":"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";var m=localStorage.getItem("rtw-theme");if(m)document.documentElement.dataset.theme=m}catch(e){}</script>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/style.css">
+
 </head>
 <body>
-<header class="top"><a class="home" href="/">🏠</a><h1>📖 الكتب — Books</h1></header>
-<main id="app"></main>
 <script type="module">
-  import { mountBrowser, fileUrl } from "/assets/browse.js";
-  const base = "/data/books";
-  mountBrowser(document.getElementById("app"), {
-    base,
-    emptyText: "لا توجد كتب بعد — No books yet",
-    // Open PDFs/EPUBs in the browser instead of forcing a download.
-    fileLink: (path, name) => fileUrl(base, path, name),
-  });
+import { mountShell } from "/assets/shell.js";
+import { mountBrowser, fileUrl } from "/assets/browse.js";
+import { t } from "/assets/i18n.js";
+const base = "/data/books";
+mountBrowser(mountShell({ active: "books" }), {
+  base, rootLabel: t.nav.books, emptyText: t.emptyBooks,
+  // PDFs/EPUBs open in the browser instead of forcing a download.
+  fileLink: (path, name) => fileUrl(base, path, name),
+});
 </script>
 </body>
 </html>

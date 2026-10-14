@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>التنزيلات</title>
+<meta name="color-scheme" content="dark light">
+<title>RTW</title>
+<script>try{var l=localStorage.getItem("rtw-lang");if(l!=="ar"&&l!=="en")l=(navigator.language||"").toLowerCase().indexOf("en")===0?"en":"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";var m=localStorage.getItem("rtw-theme");if(m)document.documentElement.dataset.theme=m}catch(e){}</script>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/style.css">
+
 </head>
 <body>
-<header class="top"><a class="home" href="/">🏠</a><h1>⬇️ التنزيلات — Downloads</h1></header>
-<main id="app"></main>
 <script type="module">
-  import { mountBrowser } from "/assets/browse.js";
-  mountBrowser(document.getElementById("app"), {
-    base: "/data/downloads",
-    emptyText: "لا توجد ملفات بعد — No files yet",
-  });
+import { mountShell } from "/assets/shell.js";
+import { mountBrowser } from "/assets/browse.js";
+import { t } from "/assets/i18n.js";
+mountBrowser(mountShell({ active: "downloads" }), { base: "/data/downloads", rootLabel: t.nav.downloads, emptyText: t.emptyFiles, download: true });
 </script>
 </body>
 </html>
