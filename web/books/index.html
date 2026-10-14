@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الكتب</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="top"><a class="home" href="/">🏠</a><h1>📖 الكتب — Books</h1></header>
+<main id="app"></main>
+<script type="module">
+  import { mountBrowser, fileUrl } from "/assets/browse.js";
+  const base = "/data/books";
+  mountBrowser(document.getElementById("app"), {
+    base,
+    emptyText: "لا توجد كتب بعد — No books yet",
+    // Open PDFs/EPUBs in the browser instead of forcing a download.
+    fileLink: (path, name) => fileUrl(base, path, name),
+  });
+</script>
+</body>
+</html>

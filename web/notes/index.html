@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الملاحظات</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="top"><a class="home" href="/">🏠</a><h1>📝 الملاحظات — Notes</h1></header>
+<main id="app"></main>
+<script type="module">
+  import { mountBrowser, fileUrl, currentPath, crumbs, el } from "/assets/browse.js";
+  import { renderMarkdown } from "/assets/md.js";
+  const base = "/data/notes";
+  const app = document.getElementById("app");
+  const params = new URLSearchParams(location.search);
+
+  if (params.has("f")) {
+    // Viewer: ?f=/folder/file.md
+    const f = params.get("f");
+    const dir = f.slice(0, f.lastIndexOf("/") + 1);
+    const text = await fetch(fileUrl(base, "", f)).then((r) => r.text());
+    const doc = el("article", { class: "doc", dir: "auto" });
+    if (/\.md$/i.test(f)) doc.innerHTML = renderMarkdown(text);
+    else { doc.classList.add("plain"); doc.textContent = text; }
+    const back = el("a", { href: "./#" + encodeURIComponent(dir) }, "→ رجوع / Back");
+    document.title = f.split("/").pop();
+    app.replaceChildren(el("p", {}, back), doc);
+  } else {
+    mountBrowser(app, {
+      base,
+      accept: /\.(md|txt|markdown)$/i,
+      emptyText: "لا توجد ملاحظات بعد — No notes yet",
+      fileLink: (path, name) => "?f=" + encodeURIComponent(path + name),
+    });
+  }
+</script>
+</body>
+</html>

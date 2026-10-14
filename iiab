@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# iiab — one command to set up, run and manage the offline library.
+# Works the same on the Mac (this repo) and on the Android tablet (Termux).
+#
+#   iiab setup            install dependencies + write config (first time)
+#   iiab start | stop | restart | status
+#   iiab passwd           set or reset the admin password (forgot it? run this)
+#   iiab fetch <what>     download content: vendor | wikipedia | maps | osmand | all   (Mac)
+#   iiab push [app]       copy app (+ content) to the tablet over USB             (Mac)
+#   iiab logs [name]      tail logs: nginx-error | admin | kiwix
+set -euo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(dirname "$SELF")"
+export IIAB_ENV="$ROOT/state/conf/iiab.env"
+
+is_termux() { [ -n "${PREFIX:-}" ] && [[ "$PREFIX" == */com.termux/* ]]; }
+
+# Called as iiab-start / iiab-stop / ... (tablet shortcuts) → map to subcommand.
+cmd="${1:-help}"
+case "$(basename "$0")" in
+    iiab-*) cmd="${0##*/iiab-}" ;;
+    *) shift || true ;;
+esac
+
+need_setup() {
+    [ -f "$IIAB_ENV" ] || { echo "Not set up yet. Run: $0 setup" >&2; exit 1; }
+}
+
+setup_mac() {
+    command -v brew >/dev/null || { echo "Install Homebrew first: https://brew.sh" >&2; exit 1; }
+    command -v nginx >/dev/null || brew install nginx
+    if ! command -v kiwix-serve >/dev/null && [ ! -x "$ROOT/state/bin/kiwix-serve" ]; then
+        echo "Downloading kiwix-tools (Wikipedia server) for macOS…"
+        mkdir -p "$ROOT/state/bin"
+        local arch; arch=$([ "$(uname -m)" = arm64 ] && echo arm64 || echo x86_64)
+        curl -fsSL "https://download.kiwix.org/release/kiwix-tools/kiwix-tools_macos-$arch.tar.gz" \
+            | tar xz -C "$ROOT/state/bin" --strip-components=1
+    fi
+    [ -d "$ROOT/web/vendor/maplibre" ] || bash "$ROOT/mac/fetch-vendor.sh"
+    ROOT="$ROOT" CONTENT="$ROOT/content" \
+        MIME_TYPES="$(brew --prefix)/etc/nginx/mime.types" \
+        bash "$ROOT/server/configure.sh"
+}
+
+# Mac-only kiwix lives in state/bin.
+export PATH="$ROOT/state/bin:$PATH"
+
+case "$cmd" in
+    setup)
+        if is_termux; then
+            echo "On the tablet, run: bash ~/storage/shared/IIAB/_setup/server/install-termux.sh" >&2; exit 1
+        fi
+        setup_mac
+        echo; echo "Ready. Start with: ./iiab start"
+        ;;
+    start)   need_setup; bash "$ROOT/server/start.sh" ;;
+    stop)    need_setup; bash "$ROOT/server/stop.sh" ;;
+    restart) need_setup; bash "$ROOT/server/stop.sh"; sleep 1; bash "$ROOT/server/start.sh" ;;
+    status)  need_setup; bash "$ROOT/server/status.sh" ;;
+    passwd|reset-password)
+        need_setup
+        python3 "$ROOT/server/passwd.py" "$@"
+        ;;
+    fetch)
+        what="${1:-}"
+        case "$what" in
+            vendor|wikipedia|maps|osmand) bash "$ROOT/mac/fetch-$what.sh" ;;
+            all) for w in vendor osmand maps wikipedia; do bash "$ROOT/mac/fetch-$w.sh"; done ;;
+            *) echo "usage: iiab fetch vendor|wikipedia|maps|osmand|all" >&2; exit 1 ;;
+        esac
+        ;;
+    push)    bash "$ROOT/mac/push-to-tablet.sh" "$@" ;;
+    logs)    need_setup; tail -n 50 -f "$ROOT/state/logs/${1:-nginx-error}.log" ;;
+    help|-h|--help) sed -n '2,11p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+    *) echo "Unknown command: $cmd (try: iiab help)" >&2; exit 1 ;;
+esac

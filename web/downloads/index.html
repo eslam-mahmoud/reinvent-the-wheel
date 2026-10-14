@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التنزيلات</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="top"><a class="home" href="/">🏠</a><h1>⬇️ التنزيلات — Downloads</h1></header>
+<main id="app"></main>
+<script type="module">
+  import { mountBrowser } from "/assets/browse.js";
+  mountBrowser(document.getElementById("app"), {
+    base: "/data/downloads",
+    emptyText: "لا توجد ملفات بعد — No files yet",
+  });
+</script>
+</body>
+</html>

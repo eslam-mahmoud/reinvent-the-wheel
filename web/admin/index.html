@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إدارة المحتوى</title>
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+  button, .btn {
+    font: inherit; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  button.primary, .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.small { padding: 4px 8px; font-size: .9rem; }
+  .drop { border: 2px dashed var(--border); border-radius: var(--radius); padding: 22px; text-align: center; color: var(--muted); margin-bottom: 14px; }
+  .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+  .card .stat { color: var(--muted); font-size: .9rem; }
+  .disk { margin: 14px 0; color: var(--muted); font-size: .9rem; }
+  .disk progress { width: 100%; height: 10px; }
+  ul.files li { display: flex; align-items: center; gap: 4px; padding-inline-end: 8px; }
+  ul.files li > a { flex: 1; min-width: 0; }
+  #uploads div { margin: 6px 0; font-size: .9rem; }
+  #uploads progress { width: 100%; height: 8px; }
+  #status { min-height: 1.5em; color: var(--muted); }
+  .hint { color: var(--muted); font-size: .85rem; margin: -6px 0 12px; }
+  #editor textarea {
+    width: 100%; min-height: 55vh; font: 15px/1.6 ui-monospace, monospace; padding: 12px;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
+  }
+</style>
+</head>
+<body>
+<header class="top"><a class="home" href="/">🏠</a><h1>🔒 إدارة المحتوى — Admin</h1></header>
+<main>
+  <div id="crumbs" class="crumbs"></div>
+  <p id="status"></p>
+  <div id="uploads"></div>
+  <div id="view"></div>
+</main>
+<input id="pick" type="file" multiple hidden>
+<script type="module">
+  import { el, humanSize, iconFor } from "/assets/browse.js";
+
+  const SECTIONS = {
+    books:     { icon: "📖", ar: "الكتب",      en: "Books" },
+    downloads: { icon: "⬇️", ar: "التنزيلات",  en: "Downloads" },
+    notes:     { icon: "📝", ar: "الملاحظات",  en: "Notes" },
+    wikipedia: { icon: "🌐", ar: "ويكيبيديا",  en: "Wikipedia" },
+    maps:      { icon: "🗺️", ar: "الخرائط",    en: "Maps" },
+    www:       { icon: "🧩", ar: "المواقع",    en: "HTML sites" },
+  };
+  // Quick upload: which section a file goes to, by extension.
+  const ROUTE = {
+    pdf: "books", epub: "books", mobi: "books", azw3: "books", djvu: "books", cbz: "books", fb2: "books",
+    md: "notes", markdown: "notes", txt: "notes",
+    zim: "wikipedia", pmtiles: "maps", html: "www", htm: "www",
+  };
+  const ext = (n) => (n.includes(".") ? n.split(".").pop().toLowerCase() : "");
+  const routeFor = (name) => ROUTE[ext(name)] || "downloads";
+
+  const api = "/admin/api/";
+  const $ = (id) => document.getElementById(id);
+  const status = (t) => ($("status").textContent = t || "");
+  const path = () => decodeURIComponent(location.hash.slice(1)).replace(/^\/+|\/+$/g, "");
+  const join = (...p) => p.filter(Boolean).join("/");
+  const qs = (o) => "?" + new URLSearchParams(o).toString();
+  const enc = (p) => p.split("/").map(encodeURIComponent).join("/");
+
+  async function call(method, action, params = {}, body) {
+    const res = await fetch(api + action + qs(params), { method, body, headers: { "X-IIAB": "1" } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status });
+    return data;
+  }
+  const guard = (fn) => async (...a) => { try { await fn(...a); } catch (e) { status("⚠️ " + e.message); } };
+
+  // Where visitors see a file.
+  function publicUrl(p) {
+    const [section, ...rest] = p.split("/");
+    const sub = rest.join("/");
+    if (section === "notes") return "/notes/?f=" + encodeURIComponent("/" + sub);
+    if (section === "www") return "/sites/" + enc(sub);
+    if (section === "wikipedia") return "/wiki/";
+    return "/data/" + section + "/" + enc(sub);
+  }
+
+  // ---------- uploads ----------
+
+  // XHR (not fetch) for upload progress on big files.
+  function put(target, blob, overwrite) {
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", api + "upload" + qs({ path: target, ...(overwrite ? { overwrite: 1 } : {}) }));
+      xhr.setRequestHeader("X-IIAB", "1");
+      xhr.upload.onprogress = (e) => e.lengthComputable && put.onprogress?.(e.loaded / e.total);
+      xhr.onload = () => resolve({ status: xhr.status, error: JSON.parse(xhr.responseText || "{}").error });
+      xhr.onerror = () => resolve({ status: 0, error: "network error" });
+      xhr.send(blob);
+    });
+  }
+
+  async function uploadOne(file, target, overwrite = false) {
+    const row = el("div", {}, `${file.name} → ${target.split("/")[0]} — ${humanSize(file.size)}`);
+    const bar = el("progress", { max: "1", value: "0" });
+    row.append(bar);
+    $("uploads").append(row);
+    put.onprogress = (f) => (bar.value = f);
+    let r = await put(target, file, overwrite);
+    if (r.status === 409 && r.error === "exists" &&
+        confirm(`"${file.name}" موجود — استبدال؟\nAlready exists — replace it?`)) {
+      r = await put(target, file, true);
+    }
+    row.textContent = (r.status === 200 ? "✅ " : "⚠️ ") + `${file.name} → ${target}` +
+      (r.status === 200 ? "" : " — " + (r.error === "exists" ? "skipped" : r.error));
+  }
+
+  async function uploadFiles(files, folderFor) {
+    for (const f of files) await uploadOne(f, join(folderFor(f), f.name)); // one at a time
+    render();
+  }
+
+  let pickHandler = null;
+  $("pick").onchange = (e) => { const f = [...e.target.files]; e.target.value = ""; pickHandler?.(f); };
+  function pickFiles(handler, multiple = true) {
+    pickHandler = handler;
+    $("pick").multiple = multiple;
+    $("pick").click();
+  }
+
+  function dropZone(label, onFiles) {
+    const d = el("div", { class: "drop" }, label);
+    d.ondragover = (e) => { e.preventDefault(); d.classList.add("over"); };
+    d.ondragleave = () => d.classList.remove("over");
+    d.ondrop = (e) => { e.preventDefault(); d.classList.remove("over"); onFiles([...e.dataTransfer.files]); };
+    d.onclick = () => pickFiles(onFiles);
+    d.style.cursor = "pointer";
+    return d;
+  }
+
+  // ---------- views ----------
+
+  async function renderDashboard() {
+    const s = await call("GET", "summary");
+    const grid = el("div", { class: "grid" });
+    for (const sec of s.sections) {
+      const m = SECTIONS[sec.name];
+      grid.append(el("a", { class: "card", href: "#" + sec.name },
+        el("div", { class: "icon" }, m.icon), el("h2", {}, m.ar),
+        el("p", {}, m.en), el("div", { class: "stat" }, `${sec.files} files · ${humanSize(sec.size)}`),
+        el("div", { class: "stat" }, sec.accepts ? sec.accepts.map((x) => "." + x).join(" ") : "any file")));
+    }
+    const used = s.total - s.free;
+    const disk = el("div", { class: "disk" },
+      `💾 ${humanSize(s.free)} free of ${humanSize(s.total)}`,
+      el("progress", { max: String(s.total), value: String(used) }));
+    $("view").replaceChildren(
+      dropZone("⬆️ رفع سريع: اسحب الملفات هنا أو اضغط — Quick upload: drop files or tap. Each file goes to its section by type.",
+        (files) => uploadFiles(files, (f) => routeFor(f.name))),
+      el("p", { class: "hint" }, "PDF/EPUB → books · APK & others → downloads · MD/TXT → notes · ZIM → wikipedia · PMTILES → maps · HTML → sites"),
+      disk, grid);
+  }
+
+  async function renderFolder(p) {
+    const section = p.split("/")[0];
+    const items = await call("GET", "list", { path: p });
+
+    const bar = el("div", { class: "bar" });
+    const up = el("button", { class: "primary" }, "⬆️ رفع / Upload");
+    up.onclick = () => pickFiles((files) => uploadFiles(files, () => p));
+    const mk = el("button", {}, "📁 مجلد / Folder");
+    mk.onclick = guard(async () => {
+      const name = prompt("اسم المجلد / Folder name");
+      if (name) { await call("POST", "mkdir", { path: join(p, name) }); render(); }
+    });
+    bar.append(up, mk);
+    if (section === "notes") {
+      const nn = el("button", {}, "📝 ملاحظة جديدة / New note");
+      nn.onclick = () => {
+        const name = prompt("اسم الملف / File name", "note.md");
+        if (name) openEditor(join(p, /\.(md|txt|markdown)$/i.test(name) ? name : name + ".md"), "", true);
+      };
+      bar.append(nn);
+    }
+    if (section === "wikipedia") {
+      const rw = el("button", {}, "🔄 تحديث ويكيبيديا / Reload");
+      rw.onclick = guard(async () => { status("…"); await call("POST", "restart-wiki"); status("✅ Wikipedia reloaded"); });
+      bar.append(rw);
+    }
+
+    const list = el("ul", { class: "files" });
+    for (const it of items) {
+      const isDir = it.type === "directory";
+      const target = join(p, it.name);
+      const a = el("a", { href: isDir ? "#" + enc(target) : publicUrl(target), dir: "auto", ...(isDir ? {} : { target: "_blank" }) },
+        isDir ? "📁" : iconFor(it.name), " " + it.name,
+        el("span", { class: "meta" }, isDir ? "" : humanSize(it.size) + " · " + new Date(it.mtime * 1000).toLocaleDateString()));
+      const li = el("li", {}, a);
+
+      const btn = (label, title, fn) => { const b = el("button", { class: "small", title }, label); b.onclick = guard(fn); li.append(b); };
+      if (!isDir && section === "notes") {
+        btn("📝", "Edit", async () => openEditor(target, await (await fetch("/data/" + enc(target), { cache: "no-store" })).text(), false));
+      }
+      if (!isDir) {
+        btn("🔁", "Replace with a new file", () => pickFiles(async ([f]) => {
+          if (f) { await uploadOne(f, target, true); render(); }
+        }, false));
+      }
+      btn("✏️", "Rename / move", async () => {
+        const to = prompt("الاسم أو المسار الجديد — New name or path (section/folder/name)", target);
+        if (to && to !== target) {
+          await call("POST", "rename", { path: target, to: to.includes("/") ? to : join(p, to) });
+          render();
+        }
+      });
+      btn("🗑️", "Delete", async () => {
+        if (!confirm("حذف / Delete: " + it.name + " ?")) return;
+        try { await call("POST", "delete", { path: target }); }
+        catch (e) {
+          if (e.status !== 409 || !confirm("المجلد غير فارغ — حذف كل محتوياته؟\nFolder not empty — delete everything in it?")) throw e;
+          await call("POST", "delete", { path: target, recursive: 1 });
+        }
+        render();
+      });
+      list.append(li);
+    }
+    $("view").replaceChildren(
+      bar,
+      dropZone("⬆️ اسحب الملفات هنا لرفعها إلى هذا المجلد — Drop files to upload into this folder", (files) => uploadFiles(files, () => p)),
+      items.length ? list : el("p", { class: "empty" }, "فارغ — empty"));
+  }
+
+  function openEditor(target, text, isNew) {
+    const ta = el("textarea", { dir: "auto", spellcheck: "false" });
+    ta.value = text;
+    const save = el("button", { class: "primary" }, "💾 حفظ / Save");
+    const cancel = el("button", {}, "إلغاء / Cancel");
+    const dir = target.slice(0, target.lastIndexOf("/"));
+    save.onclick = guard(async () => {
+      const r = await put(target, new Blob([ta.value], { type: "text/plain" }), !isNew);
+      if (r.status === 409 && r.error === "exists") throw new Error("a note with that name exists");
+      if (r.status !== 200) throw new Error(r.error);
+      status("✅ " + target);
+      location.hash = enc(dir);
+      render();
+    });
+    cancel.onclick = () => render();
+    $("view").replaceChildren(el("div", { id: "editor" }, el("p", { dir: "auto" }, "📝 " + target), ta, el("div", { class: "bar", style: "margin-top:10px" }, save, cancel)));
+    ta.focus();
+  }
+
+  async function render() {
+    const p = path();
+    const crumbs = $("crumbs");
+    crumbs.replaceChildren(el("a", { href: "#" }, "🏠 لوحة التحكم / Dashboard"));
+    let acc = "";
+    for (const part of p.split("/").filter(Boolean)) {
+      acc = join(acc, part);
+      const label = SECTIONS[acc] ? SECTIONS[acc].icon + " " + SECTIONS[acc].en : part;
+      crumbs.append(" / ", el("a", { href: "#" + enc(acc) }, label));
+    }
+    try { await (p ? renderFolder(p) : renderDashboard()); }
+    catch (e) { status("⚠️ " + e.message); }
+  }
+
+  addEventListener("hashchange", () => { status(); $("uploads").replaceChildren(); render(); });
+  render();
+</script>
+</body>
+</html>
