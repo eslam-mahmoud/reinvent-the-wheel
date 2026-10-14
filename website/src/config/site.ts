@@ -24,7 +24,7 @@ export const site = {
   },
 
   maintainer: {
-    name: "Eslam Mahmoud",
+    name: "Islam Mahmoud",
     url: "https://github.com/eslam-mahmoud" as string | null,
   },
 
