@@ -1,0 +1,40 @@
+---
+import Icon from "./Icon.astro";
+import { statusLabel, type Platform } from "../data/platforms";
+interface Props { platform: Platform; detailed?: boolean }
+const { platform: p, detailed = false } = Astro.props;
+---
+<article class="card platform" id={detailed ? p.id : undefined}>
+  <header>
+    <span class="icon-tile"><Icon name={p.id === "macos" ? "apple" : "android"} /></span>
+    <span class={`badge badge-${p.status}`}>{p.statusText}</span>
+  </header>
+  <h3>{p.name}</h3>
+  <p>{p.summary}</p>
+
+  <ul class="caps">
+    {p.capabilities.map((c) => (
+      <li>
+        <span class={`badge badge-${c.status}`}>{statusLabel[c.status]}</span>
+        <span>{c.label}{c.note && <span class="note-inline"> — {c.note}</span>}</span>
+      </li>
+    ))}
+  </ul>
+
+  <div class="btn-row">
+    <a class="btn" href={detailed ? p.docs : `/download/#${p.id}`}>
+      {p.name} Setup <Icon name="arrow" size={16} />
+    </a>
+  </div>
+</article>
+
+<style>
+  .platform { display: flex; flex-direction: column; gap: 4px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; }
+  h3 { font-size: 1.4rem; margin-top: 4px; }
+  .caps { list-style: none; padding: 0; margin: 18px 0 22px; display: grid; gap: 10px; font-size: .9rem; color: var(--muted); }
+  .caps li { display: grid; grid-template-columns: 104px 1fr; gap: 12px; align-items: start; }
+  .caps .badge { justify-self: start; align-self: start; font-size: .64rem; padding: 2px 8px; }
+  .note-inline { color: var(--subtle); }
+  .btn-row { margin-top: auto; }
+</style>

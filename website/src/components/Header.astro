@@ -1,0 +1,138 @@
+---
+import Logo from "./Logo.astro";
+import Icon from "./Icon.astro";
+import { site } from "../config/site";
+
+const nav = [
+  { href: "/how-it-works/", label: "How It Works" },
+  { href: "/download/", label: "Download" },
+  { href: "/library/", label: "Library" },
+  { href: "/docs/", label: "Docs" },
+  { href: "/about/", label: "About" },
+];
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || (href !== "/" && path.startsWith(href));
+---
+<header class="site-header">
+  <div class="container bar">
+    <a href="/" class="brand" aria-label={`${site.name} — home`}>
+      <Logo />
+    </a>
+
+    <nav class="nav-desktop" aria-label="Main">
+      <ul>
+        {nav.map((n) => (
+          <li><a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <button class="icon-btn theme-toggle" type="button" aria-label="Switch color theme" data-theme-toggle>
+        <Icon name="sun" class="i-sun" /><Icon name="moon" class="i-moon" />
+      </button>
+      {site.repo.url && (
+        <a class="icon-btn hide-sm" href={site.repo.url} aria-label="Reinvent the Wheel on GitHub">
+          <Icon name="github" />
+        </a>
+      )}
+      <a class="btn btn-primary btn-sm hide-sm" href="/docs/quick-start/">Get Started</a>
+      <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu" data-menu>
+        <Icon name="menu" class="i-open" /><Icon name="close" class="i-close" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-nav" class="nav-mobile" aria-label="Main" hidden>
+    <ul class="container">
+      {nav.map((n) => (
+        <li><a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a></li>
+      ))}
+      <li><a href="/contribute/" aria-current={isCurrent("/contribute/") ? "page" : undefined}>Contribute</a></li>
+      {site.repo.url && <li><a href={site.repo.url}>GitHub <Icon name="external" size={14} /></a></li>}
+      <li class="mobile-cta"><a class="btn btn-primary" href="/docs/quick-start/">Get Started</a></li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const root = document.documentElement;
+  document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
+    const dark = getComputedStyle(root).colorScheme.includes("dark");
+    const next = dark ? "light" : "dark";
+    root.dataset.theme = next;
+    try { localStorage.setItem("rtw-theme", next); } catch {}
+  });
+
+  const btn = document.querySelector<HTMLButtonElement>("[data-menu]");
+  const panel = document.getElementById("mobile-nav");
+  const setOpen = (open: boolean) => {
+    if (!btn || !panel) return;
+    btn.setAttribute("aria-expanded", String(open));
+    btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    panel.hidden = !open;
+    document.body.classList.toggle("menu-open", open);
+  };
+  btn?.addEventListener("click", () => setOpen(btn.getAttribute("aria-expanded") !== "true"));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && btn?.getAttribute("aria-expanded") === "true") { setOpen(false); btn.focus(); }
+  });
+  matchMedia("(min-width: 900px)").addEventListener("change", (e) => e.matches && setOpen(false));
+</script>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar { display: flex; align-items: center; gap: 24px; height: var(--header-h); }
+  .brand { text-decoration: none; display: inline-flex; border-radius: 8px; }
+  .nav-desktop { margin-left: 8px; }
+  .nav-desktop ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .nav-desktop a, .nav-mobile a {
+    display: block; padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--muted); font-size: .93rem; font-weight: 500;
+  }
+  .nav-desktop a:hover, .nav-desktop a[aria-current="page"] { color: var(--text); background: var(--surface); }
+  .actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .icon-btn {
+    display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
+    background: transparent; border: 1px solid transparent; color: var(--muted); cursor: pointer; text-decoration: none;
+  }
+  .icon-btn:hover { color: var(--text); background: var(--surface); border-color: var(--border); }
+  .btn-sm { min-height: 38px; padding: 0 14px; font-size: .9rem; margin-left: 6px; }
+
+  /* Theme toggle shows the theme you'd switch to. */
+  .theme-toggle :global(.i-moon) { display: none; }
+  :global(:root[data-theme="light"]) .theme-toggle :global(.i-sun) { display: none; }
+  :global(:root[data-theme="light"]) .theme-toggle :global(.i-moon) { display: block; }
+  @media (prefers-color-scheme: light) {
+    :global(:root:not([data-theme="dark"])) .theme-toggle :global(.i-sun) { display: none; }
+    :global(:root:not([data-theme="dark"])) .theme-toggle :global(.i-moon) { display: block; }
+  }
+
+  .menu-btn { display: none; }
+  .menu-btn :global(.i-close) { display: none; }
+  .menu-btn[aria-expanded="true"] :global(.i-open) { display: none; }
+  .menu-btn[aria-expanded="true"] :global(.i-close) { display: block; }
+
+  .nav-mobile { border-top: 1px solid var(--border); background: var(--bg); max-height: calc(100dvh - var(--header-h)); overflow-y: auto; }
+  .nav-mobile ul { list-style: none; margin: 0; padding-top: 12px; padding-bottom: 20px; display: grid; gap: 2px; }
+  .nav-mobile a { font-size: 1.05rem; padding: 12px; display: flex; align-items: center; gap: 6px; }
+  .nav-mobile a[aria-current="page"] { color: var(--text); background: var(--surface); }
+  .mobile-cta { margin-top: 12px; }
+  .nav-mobile .mobile-cta a { justify-content: center; color: var(--accent-ink); }
+
+  @media (max-width: 899px) {
+    .nav-desktop { display: none; }
+    .menu-btn { display: inline-grid; }
+    .hide-sm { display: none; }
+  }
+  @media (min-width: 900px) {
+    .nav-mobile { display: none; }
+  }
+  @media (max-width: 380px) {
+    .brand :global(.logo-word) { font-size: .92rem; }
+  }
+</style>

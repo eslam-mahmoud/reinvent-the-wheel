@@ -5,7 +5,7 @@
 #   rtw setup            install dependencies + write config (first time)
 #   rtw start | stop | restart | status
 #   rtw passwd           set or reset the admin password (forgot it? run this)
-#   rtw fetch <what>     download content: wikipedia | maps | osmand | vendor | all
+#   rtw fetch <what>     download content: wikipedia | maps | osmand | bitchat | vendor | all
 #   rtw update           get the latest version from GitHub and re-install
 #   rtw push [app]       Mac only: copy app (+ content) to the tablet over USB
 #   rtw logs [name]      follow a log: nginx-error | admin | kiwix
@@ -69,9 +69,9 @@ case "$cmd" in
         if [ -f "$RTW_ENV" ]; then set -a; source "$RTW_ENV"; set +a; fi
         what="${1:-}"
         case "$what" in
-            vendor|wikipedia|maps|osmand) bash "$ROOT/scripts/fetch-$what.sh" ;;
-            all) for w in vendor osmand maps wikipedia; do bash "$ROOT/scripts/fetch-$w.sh"; done ;;
-            *) echo "usage: rtw fetch wikipedia|maps|osmand|vendor|all" >&2; exit 1 ;;
+            vendor|wikipedia|maps|osmand|bitchat) bash "$ROOT/scripts/fetch-$what.sh" ;;
+            all) for w in vendor bitchat osmand maps wikipedia; do bash "$ROOT/scripts/fetch-$w.sh"; done ;;
+            *) echo "usage: rtw fetch wikipedia|maps|osmand|bitchat|vendor|all" >&2; exit 1 ;;
         esac
         ;;
     update)

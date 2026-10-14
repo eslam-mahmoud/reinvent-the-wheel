@@ -1,0 +1,42 @@
+---
+import Base from "../layouts/Base.astro";
+import { site, issuesUrl } from "../config/site";
+const updated = new Date(site.legalUpdated).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" });
+---
+<Base title="Privacy" description="What this website does and doesn't collect.">
+  <section class="section">
+    <div class="container prose">
+      <h1>Privacy</h1>
+      <p class="muted">Last updated {updated}</p>
+
+      <h2>This website</h2>
+      <p>reinvent-the-wheel.com is a static website. It has no accounts, no forms, and no comments.</p>
+      <ul>
+        <li><strong>No cookies</strong> are set by this website.</li>
+        <li><strong>No analytics or tracking scripts</strong> are used.</li>
+        <li><strong>No third-party requests:</strong> fonts, scripts and images are served from this domain.</li>
+        <li><strong>Theme preference:</strong> if you switch between light and dark, your choice is saved in your browser's local storage on your device. It's never sent anywhere. Clearing your site data removes it.</li>
+      </ul>
+
+      <h2>Hosting</h2>
+      <p>
+        The site is hosted on <a href="https://www.cloudflare.com/">Cloudflare</a>. Like any web host, Cloudflare processes technical request data —
+        such as IP addresses, browser information and requested pages — to deliver and protect the site. See
+        <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>. The project doesn't add analytics on top of that.
+      </p>
+
+      <h2>Links to other sites</h2>
+      <p>Links to GitHub, content publishers and other projects take you to sites with their own privacy practices.</p>
+
+      <h2>The RTW software</h2>
+      <p>
+        This page covers the website only. The RTW software runs on your own devices and contains no telemetry. It connects to the internet only when
+        you ask it to — installing (package managers, GitHub, Kiwix, the npm registry) and fetching content from the publishers listed in the
+        documentation. Readers who use your library talk only to your device.
+      </p>
+
+      <h2>Questions</h2>
+      <p>{issuesUrl ? <>Open an issue on <a href={issuesUrl}>GitHub</a>.</> : "Contact the maintainer through the project repository."}</p>
+    </div>
+  </section>
+</Base>

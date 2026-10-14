@@ -1,0 +1,95 @@
+---
+// Device → Knowledge library → Local network → Other devices.
+// SVG with gently animated links; fully readable when motion is reduced.
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+---
+<figure class:list={["net-diagram", { compact }]}>
+  <svg viewBox="0 0 880 300" role="img" aria-labelledby="nd-title nd-desc">
+    <title id="nd-title">How sharing works</title>
+    <desc id="nd-desc">A host device stores the knowledge library and runs a small local web server. Nearby phones, laptops and tablets connect to it over local Wi-Fi and read the library in a web browser. No internet connection is involved.</desc>
+
+    <defs>
+      <pattern id="nd-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M20 0H0V20" fill="none" stroke="var(--grid)" />
+      </pattern>
+    </defs>
+    <rect width="880" height="300" fill="url(#nd-grid)" rx="16" />
+
+    <!-- Host device + library -->
+    <g class="node">
+      <rect x="40" y="70" width="190" height="160" rx="14" class="box" />
+      <text x="60" y="100" class="label">HOST DEVICE</text>
+      <text x="60" y="124" class="title">Mac or Android</text>
+      <rect x="60" y="142" width="150" height="66" rx="10" class="inner" />
+      <path d="M78 160h10M78 174h10M78 188h10" class="ink" />
+      <text x="98" y="166" class="small">Knowledge library</text>
+      <text x="98" y="184" class="small dim">ZIM · PDF · maps</text>
+      <text x="98" y="200" class="small dim">stored locally</text>
+    </g>
+
+    <!-- Local server -->
+    <g class="node">
+      <rect x="300" y="110" width="160" height="80" rx="14" class="box accent-box" />
+      <text x="320" y="140" class="label">LOCAL SERVER</text>
+      <text x="320" y="164" class="title">Web pages on :8080</text>
+    </g>
+    <path d="M230 150H300" class="link" />
+
+    <!-- Wi-Fi -->
+    <g class="node">
+      <circle cx="560" cy="150" r="44" class="box" />
+      <path d="M538 146a32 32 0 0 1 44 0M545 154a21 21 0 0 1 30 0M552 162a10 10 0 0 1 16 0" class="ink" fill="none" />
+      <text x="560" y="222" text-anchor="middle" class="label">LOCAL WI-FI</text>
+      <text x="560" y="242" text-anchor="middle" class="small dim">hotspot or router</text>
+    </g>
+    <path d="M460 150H516" class="link" />
+
+    <!-- Clients -->
+    <g class="node">
+      <rect x="700" y="40" width="140" height="56" rx="12" class="box" />
+      <text x="720" y="64" class="title">Phone</text><text x="720" y="82" class="small dim">any browser</text>
+      <rect x="700" y="122" width="140" height="56" rx="12" class="box" />
+      <text x="720" y="146" class="title">Laptop</text><text x="720" y="164" class="small dim">any browser</text>
+      <rect x="700" y="204" width="140" height="56" rx="12" class="box" />
+      <text x="720" y="228" class="title">Tablet</text><text x="720" y="246" class="small dim">any browser</text>
+    </g>
+    <path d="M604 150C650 150 650 68 700 68" class="link" />
+    <path d="M604 150H700" class="link" />
+    <path d="M604 150C650 150 650 232 700 232" class="link" />
+
+    <!-- No internet -->
+    <g class="no-net">
+      <path d="M520 46a18 18 0 0 1 34-6 14 14 0 0 1 22 12 11 11 0 0 1-2 21h-52a14 14 0 0 1-2-27z" class="cloud" />
+      <path d="M516 30l64 52" class="strike" />
+      <text x="548" y="102" text-anchor="middle" class="small dim">no internet needed</text>
+    </g>
+  </svg>
+  {!compact && (
+    <figcaption>
+      Local Wi-Fi is just a network between nearby devices. It works with no internet connection — the
+      host device answers every request itself.
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .net-diagram { margin: 0; }
+  svg { width: 100%; height: auto; display: block; font-family: var(--font-sans); }
+  .box { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.2; }
+  .accent-box { stroke: var(--accent); }
+  .inner { fill: var(--bg); stroke: var(--border); }
+  .ink { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
+  .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; fill: var(--accent); }
+  .title { font-size: 15px; font-weight: 600; fill: var(--text); }
+  .small { font-size: 12px; fill: var(--text); }
+  .dim { fill: var(--muted); }
+  .link { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-dasharray: 5 6; opacity: .85; }
+  .cloud { fill: none; stroke: var(--subtle); stroke-width: 1.5; }
+  .strike { stroke: var(--subtle); stroke-width: 1.5; stroke-linecap: round; }
+  figcaption { margin-top: 14px; color: var(--muted); font-size: .92rem; max-width: 70ch; }
+  @media (prefers-reduced-motion: no-preference) {
+    .link { animation: flow 1.6s linear infinite; }
+  }
+  @keyframes flow { to { stroke-dashoffset: -22; } }
+</style>

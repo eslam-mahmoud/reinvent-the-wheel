@@ -1,0 +1,114 @@
+---
+// Concept illustration of an offline library interface, built in HTML/CSS.
+// It is labelled as a concept on the page — not a screenshot.
+import Icon from "./Icon.astro";
+
+const shelves = [
+  { name: "Encyclopedia", icon: "book", meta: "ZIM · Kiwix" },
+  { name: "Science & Engineering", icon: "atom", meta: "PDF · ZIM" },
+  { name: "Water & Sanitation", icon: "droplet", meta: "PDF" },
+  { name: "Agriculture", icon: "sprout", meta: "PDF · EPUB" },
+  { name: "Medicine & Healthcare", icon: "cross", meta: "ZIM · PDF" },
+  { name: "Tools & Manufacturing", icon: "gear", meta: "PDF · HTML" },
+  { name: "Maps & Navigation", icon: "map", meta: "PMTiles" },
+  { name: "Education", icon: "cap", meta: "PDF · HTML" },
+];
+---
+<figure class="mockup" aria-labelledby="mockup-cap">
+  <div class="window" aria-hidden="true">
+    <div class="chrome">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="address"><Icon name="wifi" size={12} /> 192.168.43.1:8080</span>
+      <span class="net"><Icon name="offline" size={14} /> No internet</span>
+    </div>
+    <div class="body">
+      <aside class="side">
+        <div class="side-brand">
+          <svg width="18" height="18" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M16 3.5A12.5 12.5 0 0 1 26.83 9.75" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/><circle cx="16" cy="16" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+          Library
+        </div>
+        <ul>
+          <li class="on"><Icon name="layers" size={14} /> All shelves</li>
+          <li><Icon name="book" size={14} /> Reading</li>
+          <li><Icon name="map" size={14} /> Maps</li>
+          <li><Icon name="docs" size={14} /> Notes</li>
+          <li><Icon name="archive" size={14} /> Downloads</li>
+        </ul>
+        <div class="storage">
+          <span>Local storage</span>
+          <div class="meter"><b></b></div>
+          <span class="mono">on this device</span>
+        </div>
+      </aside>
+      <div class="main">
+        <div class="search"><Icon name="search" size={15} /> Search the offline library…</div>
+        <div class="shelves">
+          {shelves.map((s, i) => (
+            <div class="shelf" style={`--i:${i}`}>
+              <span class="shelf-icon"><Icon name={s.icon} size={17} /></span>
+              <span class="shelf-name">{s.name}</span>
+              <span class="shelf-meta">{s.meta}</span>
+            </div>
+          ))}
+        </div>
+        <div class="peers">
+          <span class="pulse"></span> Shared on local Wi-Fi · 3 nearby devices connected
+        </div>
+      </div>
+    </div>
+  </div>
+  <figcaption id="mockup-cap">
+    <span class="badge badge-concept">Concept</span>
+    An illustration of an offline library interface — categories, local storage and nearby devices. Not a screenshot.
+  </figcaption>
+</figure>
+
+<style>
+  .mockup { margin: 0; }
+  .window {
+    border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .02) inset;
+  }
+  .chrome {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border);
+    background: var(--elevated); font-family: var(--font-mono); font-size: .72rem; color: var(--muted);
+  }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
+  .address { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); padding: 4px 10px; border-radius: 6px; flex: 1; max-width: 300px; }
+  .net { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--accent); }
+  .body { display: grid; grid-template-columns: 158px 1fr; min-height: 340px; }
+  .side { border-right: 1px solid var(--border); padding: 16px 12px; display: flex; flex-direction: column; gap: 14px; font-size: .82rem; }
+  .side-brand { display: flex; align-items: center; gap: 8px; font-weight: 650; padding: 0 8px; }
+  .side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; color: var(--muted); }
+  .side li { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 7px; }
+  .side li.on { background: var(--elevated); color: var(--text); }
+  .storage { margin-top: auto; padding: 10px 8px 0; border-top: 1px solid var(--border); display: grid; gap: 6px; color: var(--muted); font-size: .72rem; }
+  .meter { height: 6px; border-radius: 3px; background: var(--elevated); overflow: hidden; }
+  .meter b { display: block; height: 100%; width: 42%; background: var(--accent); border-radius: 3px; }
+  .main { padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .search { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; color: var(--subtle); font-size: .84rem; background: var(--bg); }
+  .shelves { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+  .shelf {
+    display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg);
+    font-size: .78rem; min-width: 0;
+  }
+  .shelf-icon { color: var(--accent); }
+  .shelf-name { font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+  .shelf-meta { font-family: var(--font-mono); font-size: .66rem; color: var(--subtle); }
+  .peers { margin-top: auto; display: flex; align-items: center; gap: 8px; font-size: .76rem; color: var(--muted); font-family: var(--font-mono); }
+  .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); }
+  figcaption { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; font-size: .82rem; color: var(--subtle); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .shelf { animation: reveal .6s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(.25s + var(--i) * .05s); }
+    .pulse { animation: pulse 2.4s infinite; }
+  }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+  @media (max-width: 640px) {
+    .body { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .net span, .address { font-size: .68rem; }
+  }
+</style>

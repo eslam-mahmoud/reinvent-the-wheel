@@ -48,6 +48,7 @@ bootstrap.sh       one-line install on a tablet straight from GitHub
 server/            nginx template, service scripts, admin API, Termux installer
 web/               pages (home, books, notes, maps, downloads, admin)
 scripts/           content downloads (Mac + tablet) and USB push (Mac)
+website/           reinvent-the-wheel.com — the project website (Astro)
 content/           the library itself (not in git)   ← on the tablet: /sdcard/RTW
 state/             generated config, logs, pids, password (not in git)
 ```
@@ -82,7 +83,7 @@ Download the content (resumable — re-run if interrupted; unfinished files
 wait in hidden `.partial` folders and are never served):
 
 ```bash
-./rtw fetch all          # or one of: wikipedia | maps | osmand | vendor
+./rtw fetch all          # or one of: wikipedia | maps | osmand | bitchat | vendor
 ```
 
 | Fetch | Size | Notes |
@@ -90,6 +91,7 @@ wait in hidden `.partial` folders and are never served):
 | `wikipedia` | ~8.4 GB | newest `wikipedia_ar_all_nopic`; `ZIM_PATTERN=wikipedia_ar_all_mini` for 3 GB |
 | `maps` | ~1.2 GB | KSA + Egypt to zoom 15; `MAXZOOM=14` for smaller |
 | `osmand` | ~850 MB | OsmAnd APK + KSA/EG navigation maps → `downloads/OsmAnd/` |
+| `bitchat` | ~70 MB | Bitchat (offline Bluetooth mesh chat) APKs, checksum-verified → `downloads/Bitchat/` |
 | `vendor` | ~15 MB | map viewer JS/fonts (done by `setup`) |
 
 After a new `.zim` arrives: `./rtw restart` (or use **Reload** in admin).

@@ -1,0 +1,117 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+
+const roadmap = [
+  { icon: "laptop", title: "More operating systems", text: "Linux and Windows hosts, using the same server design." },
+  { icon: "layers", title: "Curated knowledge packs", text: "Essential resources per category, checked for licensing, loaded in one step." },
+  { icon: "search", title: "Better offline search", text: "One search across Wikipedia, books and notes." },
+  { icon: "usb", title: "External storage workflows", text: "Tested, documented ways to keep large libraries on SD cards and USB drives." },
+  { icon: "bolt", title: "Simpler installation", text: "Fewer steps, fewer prerequisites, ideally one tap." },
+  { icon: "wifi", title: "Local network discovery", text: "Find a nearby library without typing an IP address." },
+  { icon: "translate", title: "Multilingual interface", text: "The library pages and documentation in more languages." },
+  { icon: "phone", title: "Hardware compatibility database", text: "Community-maintained reports of which devices work, and how well." },
+  { icon: "cap", title: "Technical education collections", text: "Offline courses for practical and technical skills." },
+];
+
+const thanks = [
+  { name: "Kiwix", url: "https://kiwix.org", role: "ZIM format and kiwix-serve, which serve Wikipedia and other collections.", license: "kiwix-tools: GPL-3.0" },
+  { name: "Internet-in-a-Box", url: "https://internet-in-a-box.org", role: "The original inspiration: a library in a box for places the internet doesn't reach.", license: null },
+  { name: "OpenStreetMap", url: "https://www.openstreetmap.org/copyright", role: "The map data, built by contributors worldwide.", license: "Data: ODbL" },
+  { name: "Protomaps & PMTiles", url: "https://protomaps.com", role: "World map builds and the single-file tile format behind offline maps.", license: null },
+  { name: "MapLibre GL JS", url: "https://maplibre.org", role: "Renders maps in the browser.", license: "BSD-3-Clause" },
+  { name: "nginx", url: "https://nginx.org", role: "The web server at the front of every library.", license: "BSD-2-Clause" },
+  { name: "Termux", url: "https://termux.dev", role: "A Linux environment on Android, without root.", license: null },
+  { name: "OsmAnd & Bitchat", url: "https://osmand.net", role: "Offline navigation and offline mesh chat, offered to readers as downloads.", license: null },
+  { name: "Wikipedia & the Wikimedia community", url: "https://www.wikipedia.org", role: "The encyclopedia most libraries start with.", license: "Content: CC BY-SA" },
+];
+---
+<Base title="About" description="Why Reinvent the Wheel exists: keeping the most useful parts of the internet on the devices we already own.">
+  <section class="section page-hero">
+    <div class="container narrow">
+      <p class="eyebrow">About</p>
+      <h1>Why reinvent the wheel?</h1>
+      <div class="story">
+        <p class="lead">We live in a world where nearly all human knowledge can be reached through a device in our pockets.</p>
+        <p class="big">But access is not ownership.</p>
+        <p>If connectivity disappears, much of that knowledge becomes unreachable — not destroyed, just out of reach. A lost connection, an outage, a remote valley, a classroom without a data plan.</p>
+        <p>Reinvent the Wheel began with a simple question: <strong>what if we could keep the most useful parts of the internet with us, on the devices we already own?</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <h2>The name</h2>
+      <p>"Reinventing the wheel" usually means wasted effort — rebuilding something that already exists. We take that advice seriously: RTW is built from proven tools wherever they exist.</p>
+      <p>But the phrase hides a question. What happens when the knowledge of how to build the wheel isn't at hand? Sometimes reinventing it becomes necessary — and it's far easier with the right references nearby. RTW exists to keep the knowledge needed to understand, repair, build, teach and, if it comes to it, rebuild.</p>
+
+      <h2>What we believe</h2>
+      <div class="grid grid-2 beliefs">
+        <div class="card"><span class="icon-tile"><Icon name="archive" /></span><h3>Preservation</h3><p>Useful knowledge deserves local copies, not just a link to a server somewhere else.</p></div>
+        <div class="card"><span class="icon-tile"><Icon name="lock" /></span><h3>Independence</h3><p>People should be able to keep and use information without depending on infrastructure they don't control.</p></div>
+        <div class="card"><span class="icon-tile"><Icon name="cap" /></span><h3>Education</h3><p>Learning shouldn't stop when the connection does — especially where connectivity is scarce or expensive.</p></div>
+        <div class="card"><span class="icon-tile"><Icon name="refresh" /></span><h3>Resilience</h3><p>Everyday tools that keep working when conditions change are worth building before they're needed.</p></div>
+      </div>
+      <p class="muted honest">
+        RTW is a young project. It's honest about what works today, and it isn't a substitute for emergency services or professional advice.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="roadmap" aria-labelledby="roadmap-h">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge badge-planned">Planned — not yet built</span>
+        <h2 id="roadmap-h" style="margin-top:14px">Roadmap</h2>
+        <p class="lead">Directions the project wants to explore. None of these exist yet, and there are no dates. Ideas and help are welcome.</p>
+      </div>
+      <div class="grid grid-3">
+        {roadmap.map((r) => (
+          <div class="card">
+            <span class="icon-tile"><Icon name={r.icon} /></span>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="acknowledgments" aria-labelledby="ack-h">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="ack-h">Acknowledgments</h2>
+        <p class="lead">RTW stands on the work of these projects and communities. Each keeps its own license; please respect them.</p>
+      </div>
+      <ul class="thanks">
+        {thanks.map((t) => (
+          <li>
+            <a href={t.url}>{t.name}</a>
+            <span>{t.role}</span>
+            {t.license && <span class="mono lic">{t.license}</span>}
+          </li>
+        ))}
+      </ul>
+      <p class="muted fonts">This website uses the Inter and JetBrains Mono typefaces (SIL Open Font License) and is built with Astro.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow { max-width: 760px; }
+  .page-hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); }
+  .story p { font-size: 1.1rem; color: color-mix(in srgb, var(--text) 86%, var(--muted)); }
+  .story .lead { font-size: clamp(1.2rem, 2vw, 1.4rem); color: var(--muted); }
+  .story .big { font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 650; letter-spacing: -.02em; color: var(--accent); }
+  .narrow h2 { margin-top: 1.6em; }
+  .narrow > p { color: color-mix(in srgb, var(--text) 86%, var(--muted)); font-size: 1.05rem; }
+  .beliefs { margin: 24px 0; }
+  .honest { font-size: .95rem; }
+  .thanks { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+  .thanks li { display: grid; gap: 4px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .thanks a { font-weight: 650; color: var(--text); }
+  .thanks span { color: var(--muted); font-size: .9rem; }
+  .thanks .lic { font-size: .72rem; color: var(--subtle); }
+  .fonts { margin-top: 24px; font-size: .88rem; }
+</style>

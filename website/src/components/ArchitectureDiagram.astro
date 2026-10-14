@@ -1,0 +1,51 @@
+---
+// Storage → Host device → Local server → Local Wi-Fi → Clients.
+const stages = [
+  { label: "STORAGE", title: "Internal storage", sub: "external drive: planned", icon: "storage" },
+  { label: "HOST DEVICE", title: "Mac or Android", sub: "runs the services", icon: "tablet" },
+  { label: "LOCAL SERVER", title: "nginx + Kiwix", sub: "http :8080 · https :8443", icon: "server" },
+  { label: "LOCAL WI-FI", title: "Hotspot or router", sub: "no internet needed", icon: "wifi" },
+  { label: "CLIENTS", title: "Phones, laptops", sub: "a web browser", icon: "phone" },
+];
+import Icon from "./Icon.astro";
+---
+<figure class="arch">
+  <ol class="flow" aria-label="Architecture, from storage to connected clients">
+    {stages.map((s, i) => (
+      <li style={`--i:${i}`}>
+        <span class="icon-tile"><Icon name={s.icon} /></span>
+        <span class="lbl mono">{s.label}</span>
+        <strong>{s.title}</strong>
+        <span class="sub">{s.sub}</span>
+      </li>
+    ))}
+  </ol>
+  <figcaption>Each stage hands off to the next. Everything to the right of the host device happens on the local network only.</figcaption>
+</figure>
+
+<style>
+  .arch { margin: 0; }
+  .flow { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; position: relative; }
+  .flow li {
+    position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  }
+  .flow li:nth-child(3) { border-color: var(--accent); }
+  .flow li:not(:last-child)::after {
+    content: ""; position: absolute; top: 38px; right: -28px; width: 28px; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--accent) 0 5px, transparent 5px 10px);
+  }
+  .flow .icon-tile { margin-bottom: 10px; }
+  .lbl { font-size: .66rem; letter-spacing: .08em; color: var(--accent); }
+  strong { font-size: .98rem; }
+  .sub { color: var(--muted); font-size: .82rem; }
+  figcaption { margin-top: 14px; color: var(--muted); font-size: .9rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .flow li:not(:last-child)::after { background-size: 20px 2px; animation: dash 1.2s linear infinite; }
+  }
+  @keyframes dash { to { background-position: 20px 0; } }
+  @media (max-width: 900px) {
+    .flow { grid-template-columns: 1fr; gap: 20px; }
+    .flow li:not(:last-child)::after { top: auto; bottom: -20px; right: auto; left: 36px; width: 2px; height: 20px; background: repeating-linear-gradient(180deg, var(--accent) 0 5px, transparent 5px 10px); }
+  }
+</style>

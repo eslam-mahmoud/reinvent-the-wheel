@@ -1,0 +1,38 @@
+---
+import Docs from "../../layouts/Docs.astro";
+import { getDocs, docUrl } from "../../data/docs";
+const docs = await getDocs();
+const groups = [
+  { title: "Get started", ids: ["introduction", "quick-start", "macos-installation", "android-installation"] },
+  { title: "Use it", ids: ["preparing-your-library", "using-kiwix-and-zim-files", "running-offline", "sharing-over-local-wifi"] },
+  { title: "Operate", ids: ["external-usb-storage", "backup-and-recovery", "troubleshooting"] },
+  { title: "Develop", ids: ["architecture", "contributing"] },
+];
+const byId = Object.fromEntries(docs.map((d) => [d.id, d]));
+---
+<Docs title="Documentation" description="Install, prepare, run and share an offline knowledge library with Reinvent the Wheel.">
+  <h1>Documentation</h1>
+  <p class="lead">Everything you need to install RTW, prepare a library, run it offline and share it nearby.</p>
+  {groups.map((g) => (
+    <section class="group">
+      <h2>{g.title}</h2>
+      <div class="doc-grid">
+        {g.ids.filter((id) => byId[id]).map((id) => (
+          <a class="card" href={docUrl(id)}>
+            <h3>{byId[id].data.title}{byId[id].data.draft && <span class="badge badge-testing">draft</span>}</h3>
+            <p>{byId[id].data.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</Docs>
+
+<style>
+  .group h2 { font-size: 1rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--subtle); font-weight: 500; margin-top: 2em; }
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .doc-grid .card { text-decoration: none; padding: 18px; }
+  .doc-grid h3 { margin: 0 0 4px; display: flex; gap: 8px; align-items: center; font-size: 1rem; }
+  .doc-grid .badge { font-size: .6rem; }
+  .doc-grid p { font-size: .88rem; }
+</style>

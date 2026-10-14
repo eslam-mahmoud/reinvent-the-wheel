@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // reinvent-the-wheel.com — a static site served by Workers static assets.
+  // Deploy: npm run deploy (or the GitHub Actions workflow on push to main).
+  "name": "reinvent-the-wheel",
+  "compatibility_date": "2026-10-01",
+
+  // The apex domain and www both serve the site (pages set canonical URLs to the apex).
+  "routes": [
+    { "pattern": "reinvent-the-wheel.com", "custom_domain": true },
+    { "pattern": "www.reinvent-the-wheel.com", "custom_domain": true }
+  ],
+
+  // Astro's build output. _headers in dist/ sets security and cache headers.
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+
+  "observability": { "enabled": true }
+}

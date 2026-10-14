@@ -1,0 +1,21 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+---
+<Base title="Page not found" description="This page doesn't exist." noindex>
+  <section class="section nf">
+    <div class="container">
+      <p class="eyebrow mono">404</p>
+      <h1>This page isn't in the library.</h1>
+      <p class="lead">It may have moved, or the link may be mistyped.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/">Home <Icon name="arrow" size={16} /></a>
+        <a class="btn" href="/docs/">Documentation</a>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { min-height: 60vh; display: grid; align-items: center; }
+  h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
+</style>

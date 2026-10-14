@@ -1,0 +1,75 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { site, issuesUrl, newIssueUrl } from "../config/site";
+
+const ways = [
+  { icon: "code", title: "Software development", text: "Shell, Python and plain web pages. Start with the architecture docs and an open issue." },
+  { icon: "docs", title: "Documentation", text: "Fill in the pages marked draft, fix what's unclear, add what's missing." },
+  { icon: "phone", title: "Platform testing", text: "Try RTW on your Mac or Android device and report what happened — good or bad." },
+  { icon: "translate", title: "Translation", text: "Help make the library pages and docs available in more languages." },
+  { icon: "book", title: "Resource curation", text: "Recommend reputable, properly licensed resources for the knowledge library." },
+  { icon: "accessibility", title: "Accessibility", text: "Make the library and this website work better with assistive technology." },
+  { icon: "usb", title: "Hardware compatibility", text: "Phones, tablets, SD cards, USB-C drives: tell us what works." },
+  { icon: "bug", title: "Bug reports", text: "Clear steps to reproduce are one of the most valuable contributions there is." },
+];
+---
+<Base title="Contribute" description="Help build Reinvent the Wheel — code, documentation, testing, translation, resource curation and hardware reports all help.">
+  <section class="section page-hero">
+    <div class="container">
+      <p class="eyebrow">Contribute</p>
+      <h1>Help keep knowledge within reach.</h1>
+      <p class="lead">
+        RTW is early, open and small enough that one person's contribution is visible. You don't need to write code to help.
+      </p>
+      <div class="btn-row">
+        {site.repo.url && <a class="btn btn-primary" href={site.repo.url}><Icon name="github" size={18} /> Repository</a>}
+        {issuesUrl && <a class="btn" href={issuesUrl}>Issues</a>}
+        {site.repo.discussions && <a class="btn" href={site.repo.discussions}>Discussions</a>}
+        {site.repo.contributing && <a class="btn" href={site.repo.contributing}>Contribution guidelines</a>}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ways-h">
+    <div class="container">
+      <h2 id="ways-h" class="visually-hidden">Ways to contribute</h2>
+      <div class="grid grid-4">
+        {ways.map((w) => (
+          <div class="card">
+            <span class="icon-tile"><Icon name={w.icon} /></span>
+            <h3>{w.title}</h3>
+            <p>{w.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container steps-wrap">
+      <div>
+        <h2>Your first contribution</h2>
+        <ol class="first">
+          <li><strong>Try it.</strong> Follow the <a href="/docs/quick-start/">Quick Start</a> on a Mac, or the <a href="/docs/android-installation/">Android guide</a>.</li>
+          <li><strong>Write down what happened.</strong> Device, OS version, what you ran, what you saw.</li>
+          <li><strong>Open an issue</strong>{newIssueUrl ? <> — <a href={newIssueUrl}>start one here</a></> : null}. Hardware reports, confusing docs and resource suggestions are all welcome.</li>
+          <li><strong>Send a change.</strong> Fork the repository, make the change, open a pull request. See <a href="/docs/contributing/">Contributing</a> for guidelines.</li>
+        </ol>
+      </div>
+      <aside class="note">
+        <strong>About content.</strong> Please don't add third-party books, archives or other content to the repository.
+        RTW links to original publishers so their licenses and terms stay intact.
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); max-width: 18ch; }
+  .page-hero .lead { max-width: 58ch; margin-bottom: 28px; }
+  .steps-wrap { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .first { padding-left: 1.3em; display: grid; gap: 12px; color: color-mix(in srgb, var(--text) 86%, var(--muted)); }
+  .first a, .note a { color: var(--accent); }
+  @media (max-width: 860px) { .steps-wrap { grid-template-columns: minmax(0, 1fr); } }
+</style>
