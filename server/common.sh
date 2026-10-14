@@ -21,10 +21,17 @@ halt() {  # halt <name>
     rm -f "$STATE/run/$1.pid"
 }
 
-lan_ips() {
-    if command -v ip >/dev/null; then
-        ip -o -4 addr show 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | grep -v '^127\.' || true
-    else
-        for i in en0 en1; do ipconfig getifaddr "$i" 2>/dev/null || true; done
-    fi
+lan_ips() {  # this device's network addresses, for the "open on other devices" hint
+    {
+        if [ "$(uname)" = Darwin ]; then
+            for i in en0 en1; do ipconfig getifaddr "$i"; done
+        else
+            # Android blocks `ip addr` for apps (netlink), but the system
+            # ifconfig (ioctl) still works; try both.
+            ip -o -4 addr show | awk '{print $4}' | cut -d/ -f1
+            for b in ifconfig /system/bin/ifconfig; do
+                command -v "$b" >/dev/null && "$b"
+            done | sed -nE 's/.*inet (addr:)?([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+).*/\2/p'
+        fi
+    } 2>/dev/null | grep -v '^127[.]' | sort -u
 }

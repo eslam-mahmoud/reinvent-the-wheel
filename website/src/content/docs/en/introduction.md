@@ -27,7 +27,7 @@ order: 1
 ## Platform status
 
 - **macOS** — available from source and tested end to end.
-- **Android** — in testing. Dependencies install and run in Termux on a test tablet; the full flow is still being verified. See [Android Installation](/docs/android-installation/).
+- **Android** — in testing. The GitHub install, serving and Wi-Fi sharing work on a test tablet; hotspot sharing and on-device downloads are still being verified. See [Android Installation](/docs/android-installation/).
 
 ## Next
 

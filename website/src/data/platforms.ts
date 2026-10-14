@@ -115,7 +115,17 @@ export const platforms: Platform[] = [
         status: "available",
         note: { en: "Verified on a Redmi Pad 2 Pro, Android 16", ar: "تم التحقق على Redmi Pad 2 Pro بنظام Android 16" },
       },
-      { label: { en: "Full library served from the device", ar: "تقديم المكتبة كاملة من الجهاز" }, status: "testing" },
+      {
+        label: { en: "One-command install from GitHub (no computer)", ar: "التثبيت بأمر واحد من GitHub (دون حاسوب)" },
+        status: "available",
+        note: { en: "Verified on a Redmi Pad 2 Pro", ar: "تم التحقق على Redmi Pad 2 Pro" },
+      },
+      { label: { en: "Library served from the device", ar: "تقديم المكتبة من الجهاز" }, status: "available" },
+      {
+        label: { en: "Share with devices on the same Wi-Fi", ar: "المشاركة مع الأجهزة على شبكة Wi-Fi نفسها" },
+        status: "available",
+        note: { en: "Verified from a Mac on the same network", ar: "تم التحقق من جهاز Mac على الشبكة نفسها" },
+      },
       { label: { en: "Sharing over the device's own hotspot", ar: "المشاركة عبر نقطة الاتصال الخاصة بالجهاز" }, status: "testing" },
       { label: { en: "Downloading content directly on the device", ar: "تنزيل المحتوى مباشرة على الجهاز" }, status: "testing" },
       { label: { en: "External USB-C storage", ar: "التخزين الخارجي عبر USB-C" }, status: "planned" },
