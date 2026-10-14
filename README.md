@@ -1,9 +1,9 @@
-# Offline Library — Internet-in-a-Box on Android
+# 🛞 RTW — Reinvent The Wheel
 
-A small, self-contained **offline library server**, inspired by
-[Internet-in-a-Box](https://internet-in-a-box.org). It runs on an **Android
-tablet** (inside the Termux app — no root, no flashing) or on a **Mac**, and
-serves, with no internet:
+**RTW** is a small, self-contained **offline library server** — a lightweight
+take on [Internet-in-a-Box](https://internet-in-a-box.org) that runs on an
+**Android tablet** (inside the Termux app — no root, no flashing) or on a
+**Mac**. It serves, with no internet:
 
 | Section | What | URL |
 |---|---|---|
@@ -43,11 +43,12 @@ Phones and laptops just connect to the server's Wi-Fi and open it in a browser.
 ## Repository layout
 
 ```
-iiab               the one command: setup / start / stop / passwd / fetch / push
+rtw               the one command: setup / start / stop / passwd / fetch / update / push
+bootstrap.sh       one-line install on a tablet straight from GitHub
 server/            nginx template, service scripts, admin API, Termux installer
 web/               pages (home, books, notes, maps, downloads, admin)
-mac/               Mac helpers: download content, push to tablet over USB
-content/           the library itself (not in git)   ← on the tablet: /sdcard/IIAB
+scripts/           content downloads (Mac + tablet) and USB push (Mac)
+content/           the library itself (not in git)   ← on the tablet: /sdcard/RTW
 state/             generated config, logs, pids, password (not in git)
 ```
 
@@ -71,16 +72,17 @@ Subfolders are fine everywhere.
 Needs [Homebrew](https://brew.sh). Two commands:
 
 ```bash
-./iiab setup     # installs nginx + kiwix, map assets, config; asks for admin password
-./iiab start     # → http://127.0.0.1:8080
+./rtw setup     # installs nginx + kiwix, map assets, config; asks for admin password
+./rtw start     # → http://127.0.0.1:8080
 ```
 
 Other devices on the same Wi-Fi can use `http://<mac-ip>:8080` (printed by `start`).
 
-Download the content (resumable — re-run if interrupted):
+Download the content (resumable — re-run if interrupted; unfinished files
+wait in hidden `.partial` folders and are never served):
 
 ```bash
-./iiab fetch all          # or one of: wikipedia | maps | osmand | vendor
+./rtw fetch all          # or one of: wikipedia | maps | osmand | vendor
 ```
 
 | Fetch | Size | Notes |
@@ -90,36 +92,57 @@ Download the content (resumable — re-run if interrupted):
 | `osmand` | ~850 MB | OsmAnd APK + KSA/EG navigation maps → `downloads/OsmAnd/` |
 | `vendor` | ~15 MB | map viewer JS/fonts (done by `setup`) |
 
-After a new `.zim` arrives: `./iiab restart` (or use **Reload** in admin).
+After a new `.zim` arrives: `./rtw restart` (or use **Reload** in admin).
 
 ## 📱 On the Android tablet (the server)
 
 Tested on a Redmi Pad 2 Pro (Android 16, 8 GB RAM). Any 64-bit Android 8+
 with ~4 GB RAM works; storage is the main need.
 
-1. Install **Termux** (Play Store or F-Droid) and open it once.
-2. Connect the tablet to the Mac by USB with *USB debugging* on, then on the Mac:
-   ```bash
-   ./iiab push            # app + all content   (./iiab push app = app only)
-   ```
-3. In Termux on the tablet:
-   ```bash
-   termux-setup-storage                                     # once — tap Allow
-   bash ~/storage/shared/IIAB/_setup/server/install-termux.sh  # asks for admin password
-   iiab start
-   ```
-4. Turn on the Android **hotspot** (or join a Wi-Fi) and share the address
-   `iiab start` prints, e.g. `http://192.168.43.1:8080`.
+### Option A — straight from GitHub (no computer needed)
 
-To **update** later: `./iiab push app` on the Mac, then re-run the
-`install-termux.sh` line (keeps content and password).
+1. Install **Termux** (Play Store or F-Droid) and open it.
+2. Paste:
+   ```bash
+   bash -c "$(curl -fsSL https://raw.githubusercontent.com/eslam-mahmoud/reinvent-the-wheel/main/bootstrap.sh)"
+   ```
+   It asks for storage access (tap **Allow**), installs everything into
+   `~/rtw`, and asks you to choose the admin password.
+3. Get content — on the tablet's own internet (Wi-Fi recommended, ~10 GB):
+   ```bash
+   rtw fetch all          # or: wikipedia | maps | osmand
+   ```
+   …or upload files from any device via `/admin/`, or copy them over USB.
+4. `rtw start`, turn on the Android **hotspot**, and share the address it
+   prints, e.g. `http://192.168.43.1:8080`.
+
+Update later with `rtw update` (pulls from GitHub, keeps content and password).
+
+### Option B — from the Mac over USB (no internet on the tablet)
+
+With *USB debugging* on and the tablet plugged in, on the Mac:
+
+```bash
+./rtw push            # app + all content   (./rtw push app = app only)
+```
+
+Then in Termux:
+
+```bash
+termux-setup-storage                                         # once — tap Allow
+bash ~/storage/shared/RTW/_setup/server/install-termux.sh   # asks for admin password
+rtw start
+```
+
+To update: `./rtw push app` on the Mac, then re-run the `install-termux.sh` line.
+Unfinished downloads (kept in hidden `.partial` folders) are never pushed.
 
 Keep it running: Android Settings → Apps → Termux → Battery → **No restrictions**.
-`iiab start` holds a wakelock. For start-on-boot, install the **Termux:Boot**
+`rtw start` holds a wakelock. For start-on-boot, install the **Termux:Boot**
 add-on from the same store as Termux (the boot script is already in place).
 
-Content can be added three ways: the **admin page** from any device, `./iiab push`
-from the Mac, or copying into the `IIAB` folder with the Files app / microSD.
+Content can be added three ways: the **admin page** from any device, `./rtw push`
+from the Mac, or copying into the `RTW` folder with the Files app / microSD.
 
 ## 📲 On phones, laptops and other tablets (visitors)
 
@@ -158,8 +181,8 @@ that don't belong to it.
 Reset it on the server itself (terminal access proves you're the owner):
 
 ```bash
-iiab passwd          # on the tablet (Termux)
-./iiab passwd        # on the Mac
+rtw passwd          # on the tablet (Termux)
+./rtw passwd        # on the Mac
 ```
 
 Takes effect immediately; no restart needed.
@@ -167,22 +190,23 @@ Takes effect immediately; no restart needed.
 ## Commands
 
 ```
-iiab setup                 first-time setup (Mac)
-iiab start|stop|restart    run the services
-iiab status                services + content sizes
-iiab passwd                set / reset admin password
-iiab logs [name]           follow a log: nginx-error (default) | admin | kiwix
-iiab fetch <what>          Mac: download content
-iiab push [app]            Mac: copy to tablet over USB
+rtw setup                 first-time setup (Mac)
+rtw start|stop|restart    run the services
+rtw status                services + content sizes
+rtw passwd                set / reset admin password
+rtw logs [name]           follow a log: nginx-error (default) | admin | kiwix
+rtw fetch <what>          download content (Mac or tablet)
+rtw update                pull the latest version from GitHub and re-install
+rtw push [app]            Mac: copy to tablet over USB
 ```
 
-On the tablet, `iiab-start`, `iiab-stop`, `iiab-status`, `iiab-passwd` also work.
+On the tablet, `rtw-start`, `rtw-stop`, `rtw-status`, `rtw-passwd` also work.
 
 ## Troubleshooting
 
 - **Page doesn't load from a phone**: same Wi-Fi? Use the IP printed by
-  `iiab start`. Some routers isolate clients — the tablet's own hotspot avoids that.
-- **Wikipedia missing**: `iiab status`, then `iiab logs kiwix`. A ZIM still
+  `rtw start`. Some routers isolate clients — the tablet's own hotspot avoids that.
+- **Wikipedia missing**: `rtw status`, then `rtw logs kiwix`. A ZIM still
   downloading can't be served; restart once it's complete.
 - **Server stopped after a while (tablet)**: Termux battery setting → No restrictions.
 - **Map blank**: is there a `.pmtiles` file in `maps/`? Was `web/vendor` pushed?

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# kiwix.sh start|stop|restart — serves every .zim in IIAB/wikipedia under /wiki.
+# kiwix.sh start|stop|restart — serves every .zim in RTW/wikipedia under /wiki.
 set -euo pipefail
 source "$(dirname "$0")/common.sh"
 

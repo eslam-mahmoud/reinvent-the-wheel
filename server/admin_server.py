@@ -89,7 +89,7 @@ def restart_wiki():
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "iiab-admin"
+    server_version = "rtw-admin"
     protocol_version = "HTTP/1.1"
 
     def _send(self, status, body):
@@ -108,8 +108,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             # Custom header forces a CORS preflight, so other sites can't
             # replay the browser's cached basic-auth credentials (CSRF).
-            if method != "GET" and self.headers.get("X-IIAB") != "1":
-                raise ApiError(403, "missing X-IIAB header")
+            if method != "GET" and self.headers.get("X-RTW") != "1":
+                raise ApiError(403, "missing X-RTW header")
             handler = getattr(self, f"{method.lower()}_{action.replace('-', '_')}", None)
             if not handler:
                 raise ApiError(404, "unknown action")

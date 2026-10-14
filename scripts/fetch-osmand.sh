@@ -4,7 +4,7 @@
 # Uses the F-Droid build "OsmAnd~" (no download limits). ~800 MB total.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="$ROOT/content/downloads/OsmAnd"
+OUT="${CONTENT:-$ROOT/content}/downloads/OsmAnd"
 mkdir -p "$OUT"
 
 # F-Droid version codes end in 03 = arm64 (most phones), 01 = 32-bit ARM (old phones).
@@ -14,15 +14,17 @@ for abi in 03:arm64 01:arm32-old-phones; do
     code="${LATEST}${abi%%:*}"
     dest="$OUT/OsmAnd-${abi#*:}.apk"
     echo "==> $dest"
-    curl -fL -C - --retry 5 -o "$dest" "https://f-droid.org/repo/net.osmand.plus_${code}.apk"
+    [ -f "$dest" ] && { echo "already present"; continue; }
+    curl -fL -C - --retry 5 -o "$OUT/.partial-$(basename "$dest")" "https://f-droid.org/repo/net.osmand.plus_${code}.apk"
+    mv "$OUT/.partial-$(basename "$dest")" "$dest"
 done
 
 for map in Egypt_africa_2 Saudi-arabia_asia_2; do
     [ -f "$OUT/$map.obf" ] && { echo "$map.obf already present"; continue; }
     echo "==> $map.obf"
-    curl -fL --retry 5 -o "$OUT/$map.obf.zip" \
+    curl -fL -C - --retry 5 -o "$OUT/.partial-$map.obf.zip" \
         "https://download.osmand.net/download?standard=yes&file=$map.obf.zip"
-    unzip -o -q "$OUT/$map.obf.zip" -d "$OUT" && rm "$OUT/$map.obf.zip"
+    unzip -o -q "$OUT/.partial-$map.obf.zip" -d "$OUT" && rm "$OUT/.partial-$map.obf.zip"
 done
 
 cat > "$OUT/اقرأني - README.txt" <<'TXT'

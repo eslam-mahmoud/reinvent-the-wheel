@@ -28,11 +28,11 @@
   const origin = location.origin;
   const msg = (t) => { const m = document.getElementById("msg"); m.textContent = t; m.hidden = false; };
 
-  // Use the first .pmtiles file found in IIAB/maps.
+  // Use the first .pmtiles file found in RTW/maps.
   let files = [];
   try { files = await (await fetch("/data/maps/")).json(); } catch (e) {}
   const tiles = files.find((f) => f.type === "file" && f.name.endsWith(".pmtiles"));
-  if (!tiles) { msg("⚠️ لا توجد خريطة — put a .pmtiles file in IIAB/maps"); return; }
+  if (!tiles) { msg("⚠️ لا توجد خريطة — put a .pmtiles file in RTW/maps"); return; }
 
   const protocol = new pmtiles.Protocol();
   maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -70,7 +70,7 @@
       positionOptions: { enableHighAccuracy: true, timeout: 120000 },
     }), "top-left");
   } else {
-    const https = "https://" + location.hostname + ":" + ((window.IIAB && IIAB.httpsPort) || 8443) + location.pathname + location.hash;
+    const https = "https://" + location.hostname + ":" + ((window.RTW && RTW.httpsPort) || 8443) + location.pathname + location.hash;
     const link = document.createElement("a");
     link.href = https; link.textContent = "📍 لتحديد موقعك افتح الخريطة عبر HTTPS — open via HTTPS for GPS";
     link.style.cssText = "position:absolute;bottom:34px;inset-inline:12px;z-index:2;background:var(--surface);padding:8px 12px;border-radius:10px;border:1px solid var(--border);text-align:center";

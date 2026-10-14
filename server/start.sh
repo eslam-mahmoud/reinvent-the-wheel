@@ -14,7 +14,7 @@ else
     spawn admin python3 "$ROOT/server/admin_server.py"
     echo "admin started"
 fi
-[ -s "$STATE/conf/htpasswd" ] || echo "WARNING: no admin password set — run: iiab passwd"
+[ -s "$STATE/conf/htpasswd" ] || echo "WARNING: no admin password set — run: rtw passwd"
 
 if running nginx; then
     echo "nginx already running"

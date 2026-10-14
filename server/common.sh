@@ -1,7 +1,7 @@
 # Shared helpers for the service scripts. No systemd on Android, so each
 # background service is tracked with a pid file in $STATE/run.
-: "${IIAB_ENV:?run via the iiab command}"
-set -a; source "$IIAB_ENV"; set +a   # exported for admin_server.py
+: "${RTW_ENV:?run via the rtw command}"
+set -a; source "$RTW_ENV"; set +a   # exported for admin_server.py
 mkdir -p "$STATE"/{logs,run}
 
 running() {  # running <name>

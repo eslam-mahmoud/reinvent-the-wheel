@@ -101,13 +101,13 @@ http {
         # Admin: upload/manage content. Password-protected; the API listens on
         # 127.0.0.1 only, so this is the only way in.
         location /admin/ {
-            auth_basic "IIAB admin";
+            auth_basic "RTW admin";
             auth_basic_user_file @STATE@/conf/htpasswd;
             try_files $uri $uri/ =404;
         }
 
         location /admin/api/ {
-            auth_basic "IIAB admin";
+            auth_basic "RTW admin";
             auth_basic_user_file @STATE@/conf/htpasswd;
             proxy_pass http://127.0.0.1:@ADMIN_PORT@;
             client_max_body_size 0;          # no limit: ZIM/map files are GBs
@@ -117,7 +117,7 @@ http {
             proxy_send_timeout 3600s;
         }
 
-        # Static HTML sites: drop folders into IIAB/www on the tablet.
+        # Static HTML sites: drop folders into RTW/www on the tablet.
         location /sites/ {
             alias @CONTENT@/www/;
             autoindex on;

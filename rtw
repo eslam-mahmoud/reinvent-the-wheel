@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# rtw — one command to set up, run and manage the offline library.
+# Works the same on the Mac and on the Android tablet (Termux).
+#
+#   rtw setup            install dependencies + write config (first time)
+#   rtw start | stop | restart | status
+#   rtw passwd           set or reset the admin password (forgot it? run this)
+#   rtw fetch <what>     download content: wikipedia | maps | osmand | vendor | all
+#   rtw update           get the latest version from GitHub and re-install
+#   rtw push [app]       Mac only: copy app (+ content) to the tablet over USB
+#   rtw logs [name]      follow a log: nginx-error | admin | kiwix
+set -euo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(dirname "$SELF")"
+export RTW_ENV="$ROOT/state/conf/rtw.env"
+# Downloaded tools (kiwix on Mac, pmtiles on Termux) live in state/bin.
+export PATH="$ROOT/state/bin:$PATH"
+
+is_termux() { [[ "${PREFIX:-}" == */com.termux/* ]]; }
+
+# Called as rtw-start / rtw-stop / … (tablet shortcuts) → map to subcommand.
+as="${RTW_AS:-$(basename "$0")}"
+if [[ "$as" == rtw-* ]]; then
+    cmd="${as#rtw-}"
+else
+    cmd="${1:-help}"; shift || true
+fi
+
+need_setup() {
+    [ -f "$RTW_ENV" ] || { echo "Not set up yet. Run: rtw setup" >&2; exit 1; }
+}
+
+setup_mac() {
+    command -v brew >/dev/null || { echo "Install Homebrew first: https://brew.sh" >&2; exit 1; }
+    command -v nginx >/dev/null || brew install nginx
+    if ! command -v kiwix-serve >/dev/null; then
+        echo "Downloading kiwix-tools (Wikipedia server) for macOS…"
+        mkdir -p "$ROOT/state/bin"
+        local arch; arch=$([ "$(uname -m)" = arm64 ] && echo arm64 || echo x86_64)
+        curl -fsSL "https://download.kiwix.org/release/kiwix-tools/kiwix-tools_macos-$arch.tar.gz" \
+            | tar xz -C "$ROOT/state/bin" --strip-components=1
+    fi
+    [ -d "$ROOT/web/vendor/maplibre" ] || bash "$ROOT/scripts/fetch-vendor.sh"
+    ROOT="$ROOT" CONTENT="$ROOT/content" \
+        MIME_TYPES="$(brew --prefix)/etc/nginx/mime.types" \
+        bash "$ROOT/server/configure.sh"
+}
+
+case "$cmd" in
+    setup)
+        if is_termux; then
+            bash "$ROOT/server/install-termux.sh"
+        else
+            setup_mac
+            echo; echo "Ready. Start with: ./rtw start"
+        fi
+        ;;
+    start)   need_setup; bash "$ROOT/server/start.sh" ;;
+    stop)    need_setup; bash "$ROOT/server/stop.sh" ;;
+    restart) need_setup; bash "$ROOT/server/stop.sh"; sleep 1; bash "$ROOT/server/start.sh" ;;
+    status)  need_setup; bash "$ROOT/server/status.sh" ;;
+    passwd|reset-password)
+        need_setup
+        python3 "$ROOT/server/passwd.py" "$@"
+        ;;
+    fetch)
+        # Content goes where the server reads it (tablet: /sdcard/RTW).
+        if [ -f "$RTW_ENV" ]; then set -a; source "$RTW_ENV"; set +a; fi
+        what="${1:-}"
+        case "$what" in
+            vendor|wikipedia|maps|osmand) bash "$ROOT/scripts/fetch-$what.sh" ;;
+            all) for w in vendor osmand maps wikipedia; do bash "$ROOT/scripts/fetch-$w.sh"; done ;;
+            *) echo "usage: rtw fetch wikipedia|maps|osmand|vendor|all" >&2; exit 1 ;;
+        esac
+        ;;
+    update)
+        [ -d "$ROOT/.git" ] || { echo "Not a git install (copied over USB) — use 'rtw push' from the Mac instead." >&2; exit 1; }
+        git -C "$ROOT" pull --ff-only
+        if is_termux; then bash "$ROOT/server/install-termux.sh"; fi
+        [ -f "$RTW_ENV" ] && { bash "$ROOT/server/stop.sh"; sleep 1; bash "$ROOT/server/start.sh"; }
+        ;;
+    push)    bash "$ROOT/scripts/push-to-tablet.sh" "$@" ;;
+    logs)    need_setup; tail -n 50 -f "$ROOT/state/logs/${1:-nginx-error}.log" ;;
+    help|-h|--help) sed -n '2,11p' "$SELF" | sed 's/^# \{0,1\}//' ;;
+    *) echo "Unknown command: $cmd (try: rtw help)" >&2; exit 1 ;;
+esac
