@@ -30,6 +30,8 @@ mkdir -p "$ROOT"
 rm -rf "$ROOT/web" "$ROOT/server" "$ROOT/bin"   # bin/: layout of older versions
 cp -r "$SRC/web" "$SRC/server" "$ROOT/"
 cp "$SRC/iiab" "$ROOT/iiab"
+# Android has no /usr/bin/env; point the shebang at Termux's bash.
+sed -i "1s|.*|#!$PREFIX/bin/bash|" "$ROOT/iiab"
 chmod +x "$ROOT/iiab"
 [ -d "$ROOT/web/vendor/maplibre" ] || echo "WARNING: web/vendor missing — maps page won't work (run 'iiab fetch vendor' on the Mac, then push)." >&2
 
