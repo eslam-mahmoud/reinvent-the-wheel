@@ -17,7 +17,7 @@
         "en": "Islamic Essentials",
         "ar": "أساسيات المكتبة الإسلامية"
       },
-      "selection": "required-default",
+      "selection": "recommended",
       "resources": [
         {
           "id": "quran-hafs",

@@ -34,7 +34,7 @@ Open `http://127.0.0.1:8080` in a browser. The command also prints an address li
 While you're online:
 
 ```bash
-./rtw fetch             # pick knowledge packs (Qur'an + Forty Nawawi always included)
+./rtw fetch             # pick knowledge packs — only what you choose is installed
 ./rtw fetch wikipedia   # Arabic Wikipedia, text only — about 8.4 GB
 ./rtw fetch maps        # Saudi Arabia + Egypt vector map — about 1.1 GB
 ./rtw fetch osmand      # OsmAnd navigation app and maps for phones

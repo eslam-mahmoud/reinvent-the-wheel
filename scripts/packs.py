@@ -6,15 +6,17 @@ Used by `rtw fetch` (macOS and Termux; Python standard library only).
   packs.py wizard                 interactive picker (TTY)
   packs.py list                   groups, items, sizes and what's installed
   packs.py status                 per-item state, checked against files on disk
-  packs.py install --groups a,b   install groups (+ the required baseline)
+  packs.py install --groups a,b   install the chosen groups
   packs.py install --all          every group, no questions (rtw fetch all)
   packs.py missing                retry anything selected before but not on disk
-  packs.py baseline               make sure required-default groups are installed
 
 Item modes (catalog `mode`):
   pdf             download from the original publisher into CONTENT/<output>
   link            reference only; listed in a local note, never downloaded
   legacy_command  delegated to the existing scripts/fetch-<name>.sh
+
+Nothing is installed unless the user chooses it; groups marked
+"recommended" are only suggested.
 
 Downloads stream into CONTENT/.rtw-packages/partial/ (hidden, never served or
 pushed), resume when the server allows, are checked (HTTP 2xx, not HTML, PDF
@@ -25,6 +27,7 @@ re-checks the files themselves.
 import argparse
 import datetime
 import hashlib
+import http.client
 import json
 import os
 import shutil
@@ -70,24 +73,22 @@ LANG = detect_lang()
 T = {
     "en": {
         "installed": "installed", "missing": "not installed", "damaged": "damaged — will re-download",
-        "link": "online link", "partial": "partly downloaded", "required": "required",
+        "link": "online link", "partial": "partly downloaded", "recommended": "recommended",
         "free": "free disk space", "total": "selected download",
-        "prompt": "Groups to install (numbers like 1 3 4, 'a' for all, Enter for required only, 'q' to quit): ",
+        "prompt": "Groups to install — numbers like 1 3 4, 'r' for recommended, 'a' for all, Enter to cancel: ",
         "nothing": "Nothing to install.", "done": "Done.", "failed": "Some items failed:",
         "retry": "Retry later with: rtw fetch missing", "no_space": "Not enough free space for",
         "linknote": "Online references — these need internet; they are not stored on this device.",
-        "baseline_fail": "The required Islamic essentials could not be downloaded now (no internet?). Retry with: rtw fetch missing",
         "unknown_group": "Unknown group",
     },
     "ar": {
         "installed": "مثبّت", "missing": "غير مثبّت", "damaged": "تالف — سيُعاد تنزيله",
-        "link": "رابط على الإنترنت", "partial": "منزّل جزئيًا", "required": "أساسي",
+        "link": "رابط على الإنترنت", "partial": "منزّل جزئيًا", "recommended": "مقترح",
         "free": "المساحة الحرة", "total": "حجم التنزيل المختار",
-        "prompt": "المجموعات المطلوبة (أرقام مثل 1 3 4، أو a للكل، أو Enter للأساسي فقط، أو q للخروج): ",
+        "prompt": "المجموعات المطلوبة — أرقام مثل 1 3 4، أو r للمقترح، أو a للكل، أو Enter للإلغاء: ",
         "nothing": "لا شيء للتثبيت.", "done": "تم.", "failed": "تعذّر تنزيل بعض العناصر:",
         "retry": "أعد المحاولة لاحقًا بالأمر: rtw fetch missing", "no_space": "لا توجد مساحة كافية لـ",
         "linknote": "روابط مرجعية — تحتاج إلى الإنترنت ولا تُحفظ على هذا الجهاز.",
-        "baseline_fail": "تعذّر تنزيل الأساسيات الإسلامية الآن (لا يوجد إنترنت؟). أعد المحاولة بالأمر: rtw fetch missing",
         "unknown_group": "مجموعة غير معروفة",
     },
 }[LANG]
@@ -142,7 +143,10 @@ def item_state(r, rec):
     if mode == "legacy_command":
         cmd = r["url"].split()[-1]
         return "installed" if cmd in LEGACY and LEGACY[cmd][1]() else "missing"
-    out = os.path.join(CONTENT, r["output"])
+    try:
+        out = output_path(r)
+    except FetchError:
+        return "damaged"
     if not os.path.isfile(out):
         return "partial" if os.path.exists(partial_path(r)) else "missing"
     size = os.path.getsize(out)
@@ -157,6 +161,14 @@ def item_state(r, rec):
     return "installed"
 
 
+def output_path(r):
+    """CONTENT/<output>, refusing paths that would escape the content folder."""
+    out = os.path.realpath(os.path.join(CONTENT, r["output"]))
+    if not out.startswith(CONTENT + os.sep):
+        raise FetchError(f'unsafe output path in catalog: {r["output"]}')
+    return out
+
+
 def partial_path(r):
     return os.path.join(PARTIAL, r["_key"].replace("/", "__") + ".part")
 
@@ -167,31 +179,42 @@ class FetchError(Exception):
     pass
 
 
-def download_pdf(r, rec, refresh=False):
-    out = os.path.join(CONTENT, r["output"])
+def download_pdf(r, rec, refresh=False, _retry=True):
+    out = output_path(r)
     if not refresh and item_state(r, rec) == "installed":
         return "already"
     os.makedirs(PARTIAL, exist_ok=True)
     part = partial_path(r)
+    meta = part + ".validator"  # ETag / Last-Modified of the partial's version
     have = os.path.getsize(part) if os.path.exists(part) else 0
+    validator = ""
+    if have and os.path.exists(meta):
+        with open(meta, encoding="utf-8") as f:
+            validator = f.read().strip()
+    if have and not validator:  # can't prove it's the same file: start over
+        have = 0
     expected = r.get("bytes")
     if expected and shutil.disk_usage(CONTENT).free < (expected - have) + (200 << 20):
         raise FetchError(f'{T["no_space"]} {name(r)} ({human(expected)})')
 
     req = urllib.request.Request(r["url"], headers={"User-Agent": UA})
     if have:
+        # Resume only if the file is unchanged; otherwise the server sends it whole.
         req.add_header("Range", f"bytes={have}-")
+        req.add_header("If-Range", validator)
     try:
         resp = urllib.request.urlopen(req, timeout=60)
     except urllib.error.HTTPError as e:
-        if e.code == 416 and have:  # already complete on disk
-            resp = None
-        else:
-            raise FetchError(f"HTTP {e.code}") from None
+        if e.code == 416 and have and _retry:  # partial doesn't fit the file: restart it
+            for f in (part, meta):
+                if os.path.exists(f):
+                    os.remove(f)
+            return download_pdf(r, rec, refresh, _retry=False)
+        raise FetchError(f"HTTP {e.code}") from None
     except (urllib.error.URLError, OSError) as e:
         raise FetchError(str(getattr(e, "reason", e))) from None
 
-    if resp is not None:
+    with resp:
         if not 200 <= resp.status < 300:
             raise FetchError(f"HTTP {resp.status}")
         ctype = (resp.headers.get("Content-Type") or "").lower()
@@ -200,17 +223,24 @@ def download_pdf(r, rec, refresh=False):
         resuming = resp.status == 206
         if not resuming:
             have = 0
+            tag = resp.headers.get("ETag") or resp.headers.get("Last-Modified") or ""
+            with open(meta, "w", encoding="utf-8") as f:
+                f.write(tag)
         length = resp.headers.get("Content-Length")
         total = have + int(length) if length else expected
-        with open(part, "ab" if resuming else "wb") as f:
-            done = have
-            while True:
-                chunk = resp.read(CHUNK)
-                if not chunk:
-                    break
-                f.write(chunk)
-                done += len(chunk)
-                progress(name(r), done, total)
+        try:
+            with open(part, "ab" if resuming else "wb") as f:
+                done = have
+                while True:
+                    chunk = resp.read(CHUNK)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    done += len(chunk)
+                    progress(name(r), done, total)
+        except (OSError, http.client.HTTPException):
+            sys.stderr.write("\n")
+            raise FetchError("connection lost — run again to resume") from None
         sys.stderr.write("\n")
         if total and os.path.getsize(part) != total:
             raise FetchError("download incomplete — run again to resume")
@@ -225,6 +255,8 @@ def download_pdf(r, rec, refresh=False):
         raise FetchError("checksum mismatch")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     os.replace(part, out)
+    if os.path.exists(meta):
+        os.remove(meta)
     rec["items"][r["_key"]] = {
         "url": r["url"], "output": r["output"], "sha256": digest, "bytes": os.path.getsize(out),
         "installed_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
@@ -297,8 +329,10 @@ def group_size(g, rec):
 def install(cat, group_ids, refresh=False):
     rec = load_receipt()
     by_id = groups_by_id(cat)
-    required = [g["id"] for g in cat["groups"] if g.get("selection") == "required-default"]
-    order = required + [g for g in group_ids if g not in required]
+    order = list(dict.fromkeys(group_ids))  # as chosen, without duplicates
+    if not order:
+        print(T["nothing"])
+        return 0
     for gid in order:
         if gid not in by_id:
             raise SystemExit(f'{T["unknown_group"]}: {gid}')
@@ -342,7 +376,7 @@ def cmd_list(cat, statuses=False):
     rec = load_receipt()
     print(f'{T["free"]}: {human(shutil.disk_usage(CONTENT).free)}  ·  {CONTENT}\n')
     for i, g in enumerate(cat["groups"], 1):
-        tag = f' [{T["required"]}]' if g.get("selection") == "required-default" else ""
+        tag = f' [{T["recommended"]}]' if g.get("selection") == "recommended" else ""
         need = group_size(g, rec)
         print(f'{i:2}. {name(g)}{tag}  ({g["id"]}{", " + human(need) if need else ""})')
         for r in g["resources"]:
@@ -358,26 +392,10 @@ def cmd_missing(cat):
     by_id = groups_by_id(cat)
     todo = [gid for gid in rec.get("selected_groups", []) if gid in by_id and any(
         r["mode"] != "link" and item_state(r, rec) != "installed" for r in by_id[gid]["resources"])]
-    required = [g["id"] for g in cat["groups"] if g.get("selection") == "required-default"]
-    todo = sorted(set(todo) | {g for g in required if any(
-        r["mode"] != "link" and item_state(r, rec) != "installed" for r in by_id[g]["resources"])})
     if not todo:
         print(T["nothing"])
         return 0
     return install(cat, todo)
-
-
-def cmd_baseline(cat):
-    """Install the required groups if they're missing; never fatal."""
-    rec = load_receipt()
-    need = [g for g in cat["groups"] if g.get("selection") == "required-default" and any(
-        r["mode"] != "link" and item_state(r, rec) != "installed" for r in g["resources"])]
-    if not need:
-        return 0
-    rc = install(cat, [])
-    if rc:
-        print(T["baseline_fail"])
-    return 0
 
 
 def cmd_wizard(cat):
@@ -386,20 +404,29 @@ def cmd_wizard(cat):
     cmd_list(cat)
     rec = load_receipt()
     print()
-    answer = input(T["prompt"]).strip().lower()
-    if answer == "q":
-        return 0
+    try:
+        answer = input(T["prompt"]).strip().lower()
+    except EOFError:  # Ctrl+D / closed input: same as cancel
+        answer = ""
+        print()
     groups = cat["groups"]
+    if answer in ("", "q"):
+        print(T["nothing"])
+        return 0
     if answer == "a":
         chosen = [g["id"] for g in groups]
+    elif answer == "r":
+        chosen = [g["id"] for g in groups if g.get("selection") == "recommended"]
     else:
         chosen = []
         for tok in answer.replace(",", " ").split():
             if tok.isdigit() and 1 <= int(tok) <= len(groups):
                 chosen.append(groups[int(tok) - 1]["id"])
     by_id = groups_by_id(cat)
-    required = [g["id"] for g in groups if g.get("selection") == "required-default"]
-    total = sum(group_size(by_id[g], rec) for g in set(chosen) | set(required))
+    if not chosen:
+        print(T["nothing"])
+        return 0
+    total = sum(group_size(by_id[g], rec) for g in set(chosen))
     print(f'{T["total"]}: {human(total)} · {T["free"]}: {human(shutil.disk_usage(CONTENT).free)}')
     return install(cat, chosen)
 
@@ -408,7 +435,7 @@ def main():
     sys.stdout.reconfigure(line_buffering=True)
     ap = argparse.ArgumentParser(prog="rtw fetch", description="Install curated knowledge packs.")
     ap.add_argument("command", nargs="?", default="wizard",
-                    choices=["wizard", "list", "status", "install", "missing", "baseline", "group"])
+                    choices=["wizard", "list", "status", "install", "missing", "group"])
     ap.add_argument("group_id", nargs="?")
     ap.add_argument("--groups", default="")
     ap.add_argument("--all", action="store_true")
@@ -423,8 +450,6 @@ def main():
         return cmd_list(cat, statuses=a.command == "status")
     if a.command == "missing":
         return cmd_missing(cat)
-    if a.command == "baseline":
-        return cmd_baseline(cat)
     if a.command == "group":
         if not a.group_id:
             ap.error("rtw fetch group <id>")

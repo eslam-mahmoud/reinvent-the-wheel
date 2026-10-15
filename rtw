@@ -48,7 +48,7 @@ Run the library
   logs [name]        follow a log: nginx-error (default) | admin | kiwix
 
 Content (knowledge packs: packages/catalog.json)
-  fetch              pick packs to install (Qur'an + Forty Nawawi always included)
+  fetch              pick packs to install (nothing is installed unless you choose it)
   fetch list         every pack and item, with sizes and what's installed
   fetch status       the same, checked against the files on disk
   fetch group <id>   install one pack, e.g. food-agriculture
@@ -120,13 +120,11 @@ case "$cmd" in
         packs=(python3 "$ROOT/scripts/packs.py")
         case "$what" in
             vendor) bash "$ROOT/scripts/fetch-vendor.sh" ;;
-            # The required baseline (Qur'an + Forty Nawawi) comes with the
-            # first content fetch; it never blocks the command if offline.
-            wikipedia|maps|osmand|bitchat) "${packs[@]}" baseline; bash "$ROOT/scripts/fetch-$what.sh" ;;
+            wikipedia|maps|osmand|bitchat) bash "$ROOT/scripts/fetch-$what.sh" ;;
             # Everything in packages/catalog.json, no questions (for scripts).
             all) bash "$ROOT/scripts/fetch-vendor.sh"; "${packs[@]}" install --all --yes ;;
             ""|wizard) "${packs[@]}" wizard ;;
-            list|status|missing|baseline) "${packs[@]}" "$what" ;;
+            list|status|missing) "${packs[@]}" "$what" ;;
             group) "${packs[@]}" group "${2:-}" "${@:3}" ;;
             install) shift; "${packs[@]}" install "$@" ;;
             --*) "${packs[@]}" install "$@" ;;

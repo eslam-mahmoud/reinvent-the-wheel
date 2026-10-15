@@ -284,19 +284,19 @@ export const categories: Category[] = [
       {
         name: "King Fahd Qur'an Printing Complex — Madinah Mushaf (PDF)",
         url: "https://qurancomplex.gov.sa/wp-content/uploads/isdarat/hafs/standard39-2.pdf",
-        fetch: "rtw fetch",
+        fetch: "rtw fetch group islamic-essentials",
         note: {
-          en: "232 MB PDF from the Complex. Always installed with the first `rtw fetch`; the publisher's terms apply.",
-          ar: "ملف PDF من المجمع بحجم 232 ميغابايت. يُثبَّت دائمًا مع أول `rtw fetch`؛ وتُراعى شروط الناشر.",
+          en: "232 MB PDF from the Complex. Recommended pack: `rtw fetch group islamic-essentials`; the publisher's terms apply.",
+          ar: "ملف PDF من المجمع بحجم 232 ميغابايت. حزمة مقترحة: `rtw fetch group islamic-essentials`؛ وتُراعى شروط الناشر.",
         },
       },
       {
         name: "IslamHouse / Dar al-Salam — Forty Nawawi (PDF)",
         url: "https://d1.islamhouse.com/data/ar/ih_books/parts/Forty_Nawawi_Hadith/ar_Forty_Nawawi_Hadith_Dar_Alsalam.pdf",
-        fetch: "rtw fetch",
+        fetch: "rtw fetch group islamic-essentials",
         note: {
-          en: "32-page Arabic PDF. Always installed with the first `rtw fetch`; source and publisher terms apply.",
-          ar: "نسخة عربية من 32 صفحة. تُثبَّت دائمًا مع أول `rtw fetch`؛ وتُراعى شروط المصدر والناشر.",
+          en: "32-page Arabic PDF. Recommended pack: `rtw fetch group islamic-essentials`; source and publisher terms apply.",
+          ar: "نسخة عربية من 32 صفحة. حزمة مقترحة: `rtw fetch group islamic-essentials`؛ وتُراعى شروط المصدر والناشر.",
         },
       },
       {

@@ -199,7 +199,7 @@ rtw address               addresses other devices can open right now
 rtw help                  every command, with examples
 rtw passwd                set / reset admin password
 rtw logs [name]           follow a log: nginx-error (default) | admin | kiwix
-rtw fetch                 pick knowledge packs (Qur'an + Forty Nawawi always included)
+rtw fetch                 pick knowledge packs (nothing is installed unless you choose it)
 rtw fetch list|status     packs, sizes and what's installed
 rtw fetch group <id>      install one pack · rtw fetch missing: retry · rtw fetch all: everything
 rtw fetch <name>          one download: wikipedia | maps | osmand | bitchat | vendor
