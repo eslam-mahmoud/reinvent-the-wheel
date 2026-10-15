@@ -14,8 +14,8 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) => !page.includes("/404"),
-      // hreflang alternates between /page/ and /ar/page/
-      i18n: { defaultLocale: "en", locales: { en: "en", ar: "ar" } },
+      // hreflang alternates between /page/ (Arabic) and /en/page/ (English)
+      i18n: { defaultLocale: "ar", locales: { ar: "ar", en: "en" } },
     }),
   ],
   markdown: {

@@ -11,7 +11,7 @@ order: 3
 - macOS on Apple Silicon or Intel
 - Xcode Command Line Tools — provides `git` and Python 3 (`xcode-select --install`)
 - [Homebrew](https://brew.sh)
-- Disk space for content (see [Preparing Your Library](/docs/preparing-your-library/))
+- Disk space for content (see [Preparing Your Library](/en/docs/preparing-your-library/))
 
 ## Install
 

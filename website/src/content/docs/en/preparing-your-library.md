@@ -43,7 +43,7 @@ Leave headroom: the server refuses an upload if it would leave less than about 2
 
 ## Choosing what to keep
 
-See the [Knowledge Library](/library/) for categories and reputable sources. Check each publisher's license before sharing material with others — not everything that's free to download is free to redistribute.
+See the [Knowledge Library](/en/library/) for categories and reputable sources. Check each publisher's license before sharing material with others — not everything that's free to download is free to redistribute.
 
 ## Maps for other regions
 

@@ -11,7 +11,7 @@ order: 3
 - macOS على Apple Silicon أو Intel
 - أدوات سطر أوامر Xcode — توفّر `git` وPython 3 ‏(`xcode-select --install`)
 - [Homebrew](https://brew.sh)
-- مساحة تخزين للمحتوى (راجع [تجهيز مكتبتك](/ar/docs/preparing-your-library/))
+- مساحة تخزين للمحتوى (راجع [تجهيز مكتبتك](/docs/preparing-your-library/))
 
 ## التثبيت
 

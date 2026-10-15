@@ -4,7 +4,7 @@ description: How to help — code, docs, testing, translation and curation.
 order: 13
 ---
 
-RTW is open source and early. Every kind of help is useful, and many don't involve code. See [Contribute](/contribute/) for an overview.
+RTW is open source and early. Every kind of help is useful, and many don't involve code. See [Contribute](/en/contribute/) for an overview.
 
 ## Report what works on your device
 
@@ -23,7 +23,7 @@ cd reinvent-the-wheel
 ./rtw start
 ```
 
-The library's pages in `web/` are plain HTML and JavaScript — edit and reload. The server's behaviour lives in `server/`. See [Architecture](/docs/architecture/).
+The library's pages in `web/` are plain HTML and JavaScript — edit and reload. The server's behaviour lives in `server/`. See [Architecture](/en/docs/architecture/).
 
 ## Improve these docs
 

@@ -4,7 +4,7 @@ description: Get an offline library running on a Mac in a few minutes.
 order: 2
 ---
 
-This is the fastest path: a Mac with the Xcode Command Line Tools (for `git` and Python 3) and [Homebrew](https://brew.sh). For Android, see [Android Installation](/docs/android-installation/).
+This is the fastest path: a Mac with the Xcode Command Line Tools (for `git` and Python 3) and [Homebrew](https://brew.sh). For Android, see [Android Installation](/en/docs/android-installation/).
 
 ## 1. Get the code
 
@@ -42,7 +42,7 @@ While you're online:
 
 Or upload your own files at `/admin/`. After a new Wikipedia file arrives, run `./rtw restart`.
 
-> The built-in fetch commands currently target Arabic Wikipedia and a Saudi Arabia + Egypt map — the first deployment's needs. Any language or region works; see [Using Kiwix and ZIM Files](/docs/using-kiwix-and-zim-files/) and [Preparing Your Library](/docs/preparing-your-library/).
+> The built-in fetch commands currently target Arabic Wikipedia and a Saudi Arabia + Egypt map — the first deployment's needs. Any language or region works; see [Using Kiwix and ZIM Files](/en/docs/using-kiwix-and-zim-files/) and [Preparing Your Library](/en/docs/preparing-your-library/).
 
 ## Everyday commands
 

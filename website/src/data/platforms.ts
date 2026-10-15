@@ -82,8 +82,8 @@ export const platforms: Platform[] = [
       en: "Turn a phone or tablet into a portable library that nearby devices reach over its hotspot.",
       ar: "حوّل هاتفًا أو جهازًا لوحيًا إلى مكتبة متنقلة تصل إليها الأجهزة القريبة عبر نقطة الاتصال الخاصة به.",
     },
-    status: "testing",
-    statusText: { en: "In testing", ar: "قيد الاختبار" },
+    status: "available",
+    statusText: { en: "Available from source", ar: "متاح من الشيفرة المصدرية" },
     release: null,
     requirements: [
       { en: "64-bit ARM device (arm64-v8a)", ar: "جهاز ARM بنظام 64 بت ‏(arm64-v8a)" },
@@ -120,7 +120,12 @@ export const platforms: Platform[] = [
         status: "available",
         note: { en: "Verified on a Redmi Pad 2 Pro", ar: "تم التحقق على Redmi Pad 2 Pro" },
       },
-      { label: { en: "Library served from the device", ar: "تقديم المكتبة من الجهاز" }, status: "available" },
+      {
+        label: { en: "Library served from the device, including Wikipedia and maps", ar: "تقديم المكتبة من الجهاز، بما فيها ويكيبيديا والخرائط" },
+        status: "available",
+        note: { en: "8.4 GB Arabic Wikipedia via Kiwix", ar: "ويكيبيديا العربية 8.4 غيغابايت عبر Kiwix" },
+      },
+      { label: { en: "Copy content from a Mac over USB (rtw push)", ar: "نسخ المحتوى من Mac عبر USB ‏(rtw push)" }, status: "available" },
       {
         label: { en: "Share with devices on the same Wi-Fi", ar: "المشاركة مع الأجهزة على شبكة Wi-Fi نفسها" },
         status: "available",

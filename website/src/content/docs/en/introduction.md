@@ -27,9 +27,9 @@ order: 1
 ## Platform status
 
 - **macOS** — available from source and tested end to end.
-- **Android** — in testing. The GitHub install, serving and Wi-Fi sharing work on a test tablet; hotspot sharing and on-device downloads are still being verified. See [Android Installation](/docs/android-installation/).
+- **Android** — available from source, tested end to end on a tablet through Termux. Hotspot sharing and on-device downloads are still being verified. See [Android Installation](/en/docs/android-installation/).
 
 ## Next
 
-- [Quick Start](/docs/quick-start/) — running in a few minutes.
-- [How It Works](/how-it-works/) — the architecture in plain language.
+- [Quick Start](/en/docs/quick-start/) — running in a few minutes.
+- [How It Works](/en/how-it-works/) — the architecture in plain language.

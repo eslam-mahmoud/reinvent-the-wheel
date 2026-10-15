@@ -1,3 +1,3 @@
 import { searchIndex } from "../../views/docs-search";
 
-export const GET = () => searchIndex("en");
+export const GET = () => searchIndex("ar");

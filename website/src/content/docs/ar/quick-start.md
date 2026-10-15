@@ -4,7 +4,7 @@ description: شغّل مكتبة تعمل دون اتصال على جهاز Mac 
 order: 2
 ---
 
-هذا أسرع طريق: جهاز Mac مع أدوات سطر أوامر Xcode (لـ`git` وPython 3) و[Homebrew](https://brew.sh). أما Android فراجع [التثبيت على Android](/ar/docs/android-installation/).
+هذا أسرع طريق: جهاز Mac مع أدوات سطر أوامر Xcode (لـ`git` وPython 3) و[Homebrew](https://brew.sh). أما Android فراجع [التثبيت على Android](/docs/android-installation/).
 
 ## ١. احصل على الشيفرة
 
@@ -42,7 +42,7 @@ cd reinvent-the-wheel
 
 أو ارفع ملفاتك الخاصة من `/admin/`. بعد وصول ملف ويكيبيديا جديد، شغّل `./rtw restart`.
 
-> أوامر الجلب المدمجة تستهدف حاليًا ويكيبيديا العربية وخريطة للسعودية ومصر — وهي احتياجات أول تجربة نشر. أي لغة أو منطقة تعمل أيضًا؛ راجع [استخدام Kiwix وملفات ZIM](/ar/docs/using-kiwix-and-zim-files/) و[تجهيز مكتبتك](/ar/docs/preparing-your-library/).
+> أوامر الجلب المدمجة تستهدف حاليًا ويكيبيديا العربية وخريطة للسعودية ومصر — وهي احتياجات أول تجربة نشر. أي لغة أو منطقة تعمل أيضًا؛ راجع [استخدام Kiwix وملفات ZIM](/docs/using-kiwix-and-zim-files/) و[تجهيز مكتبتك](/docs/preparing-your-library/).
 
 ## أوامر يومية
 

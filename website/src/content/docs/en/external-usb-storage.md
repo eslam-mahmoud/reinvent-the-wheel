@@ -5,7 +5,7 @@ order: 9
 draft: true
 ---
 
-> **Not supported yet.** Nothing on this page has been tested. It records what's known so far for anyone who wants to help — see [Contribute](/contribute/).
+> **Not supported yet.** Nothing on this page has been tested. It records what's known so far for anyone who wants to help — see [Contribute](/en/contribute/).
 
 Large collections can outgrow a device's internal storage. Whether an external drive can hold the library depends on the device, its USB-C support, the drive's filesystem and Android's storage permissions — so there's no single answer that works everywhere.
 

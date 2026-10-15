@@ -4,7 +4,7 @@ description: Install RTW in Termux on an Android phone or tablet.
 order: 4
 ---
 
-**Status: in testing.** On a Redmi Pad 2 Pro (Android 16), the one-command GitHub install works, the library is served from the tablet, and other devices on the same Wi-Fi can open it. Sharing over the tablet's own hotspot and downloading content on the device are still being verified — please [report what works on your device](/contribute/).
+**Status: available from source.** Tested end to end on a Redmi Pad 2 Pro (Android 16): the one-command GitHub install, serving every section (including the 8.4 GB Arabic Wikipedia), copying content from a Mac over USB, and other devices on the same Wi-Fi opening the library. Still being verified: sharing over the tablet's own hotspot and downloading content directly on the device — please [report what works on your device](/en/contribute/).
 
 RTW runs inside **Termux**, a terminal app for Android. There is no root, no custom firmware and no separate RTW app.
 
@@ -61,9 +61,9 @@ rtw start
 
 ## Share it
 
-Turn on the Android hotspot and give people the address `rtw start` prints. See [Sharing over Local Wi-Fi](/docs/sharing-over-local-wifi/).
+Turn on the Android hotspot and give people the address `rtw start` prints. See [Sharing over Local Wi-Fi](/en/docs/sharing-over-local-wifi/).
 
 ## Known limitations
 
 - Ports below 1024 aren't available without root, so the library uses port `8080` (and `8443` for HTTPS).
-- External USB storage is not supported yet — see [External USB Storage](/docs/external-usb-storage/).
+- External USB storage is not supported yet — see [External USB Storage](/en/docs/external-usb-storage/).

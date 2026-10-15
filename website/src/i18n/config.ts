@@ -1,9 +1,9 @@
-// Languages the site is published in. English lives at the root, Arabic
-// under /ar/. Add a locale here, then its strings in ui.ts and the views.
+// Languages the site is published in. Arabic (the default) lives at the
+// root, English under /en/. Add a locale here, then its strings in ui.ts and the views.
 
 export const locales = ["en", "ar"] as const;
 export type Lang = (typeof locales)[number];
-export const defaultLang: Lang = "en";
+export const defaultLang: Lang = "ar";
 
 export const langMeta: Record<Lang, { name: string; dir: "ltr" | "rtl"; og: string; short: string }> = {
   en: { name: "English", dir: "ltr", og: "en_US", short: "EN" },
@@ -15,7 +15,7 @@ export type Localized<T = string> = Record<Lang, T>;
 
 export const pick = <T,>(value: Localized<T>, lang: Lang): T => value[lang];
 
-/** Prefix an internal path for a language: ("/docs/", "ar") → "/ar/docs/". */
+/** Prefix an internal path for a language: ("/docs/", "en") → "/en/docs/". */
 export function href(path: string, lang: Lang): string {
   if (!path.startsWith("/") || lang === defaultLang) return path;
   return `/${lang}${path}`;

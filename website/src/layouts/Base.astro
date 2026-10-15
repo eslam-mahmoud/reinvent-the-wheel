@@ -71,11 +71,18 @@ const alternates = translated ? locales.map((l) => ({ lang: l, url: new URL(swit
 
     {ld.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
 
-    <!-- Apply a saved theme before first paint (no flash). -->
-    <script is:inline>
+    <!-- Before first paint: apply the saved theme, and if the visitor chose the
+         other language earlier, send them there (only when arriving from outside
+         the site, so links between languages still work). -->
+    <script is:inline define:vars={{ pageLang: lang, alt: translated ? Object.fromEntries(alternates.map((a) => [a.lang, new URL(a.url).pathname])) : null }}>
       try {
         const t = localStorage.getItem("rtw-theme");
         if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+        const pref = localStorage.getItem("rtw-lang");
+        const internal = document.referrer && new URL(document.referrer).origin === location.origin;
+        if (alt && pref && pref !== pageLang && alt[pref] && !internal) {
+          location.replace(alt[pref] + location.search + location.hash);
+        }
       } catch (e) {}
     </script>
   </head>

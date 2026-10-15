@@ -37,7 +37,7 @@ const otherHref = translated ? switchLang(path, other) : href("/", other);
     </nav>
 
     <div class="actions">
-      <a class="icon-btn lang-btn" href={otherHref} hreflang={other} lang={other} title={s.switchTo} aria-label={s.switchTo}>
+      <a class="icon-btn lang-btn" href={otherHref} hreflang={other} lang={other} title={s.switchTo} aria-label={s.switchTo} data-set-lang={other}>
         {langMeta[other].short}
       </a>
       <button class="icon-btn theme-toggle" type="button" aria-label={s.themeToggle} data-theme-toggle>
@@ -63,7 +63,7 @@ const otherHref = translated ? switchLang(path, other) : href("/", other);
       ))}
       <li><a href={contributeHref} aria-current={isCurrent(contributeHref) ? "page" : undefined}>{s.nav.contribute}</a></li>
       {site.repo.url && <li><a href={site.repo.url}>GitHub <Icon name="external" size={14} /></a></li>}
-      <li><a href={otherHref} hreflang={other} lang={other}>{langMeta[other].name}</a></li>
+      <li><a href={otherHref} hreflang={other} lang={other} data-set-lang={other}>{langMeta[other].name}</a></li>
       <li class="mobile-cta"><a class="btn btn-primary" href={href("/docs/quick-start/", lang)}>{s.getStarted}</a></li>
     </ul>
   </nav>
@@ -77,6 +77,11 @@ const otherHref = translated ? switchLang(path, other) : href("/", other);
     root.dataset.theme = next;
     try { localStorage.setItem("rtw-theme", next); } catch {}
   });
+
+  // Remember the language the visitor picks (read back in Base.astro).
+  document.querySelectorAll<HTMLAnchorElement>("[data-set-lang]").forEach((a) =>
+    a.addEventListener("click", () => { try { localStorage.setItem("rtw-lang", a.dataset.setLang || ""); } catch {} }),
+  );
 
   const btn = document.querySelector<HTMLButtonElement>("[data-menu]");
   const panel = document.getElementById("mobile-nav");

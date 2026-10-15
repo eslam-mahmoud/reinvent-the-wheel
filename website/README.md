@@ -32,7 +32,7 @@ node scripts/check-links.mjs --external   # also request every external URL
 | `src/data/library.ts` | Knowledge Library categories and recommended sources. |
 | `src/content/docs/{en,ar}/*.md` | Documentation pages (Markdown), one folder per language with the same file names. `order` sets sidebar order; `draft: true` shows a "work in progress" banner. |
 | `src/views/` | Each page's markup **and its English + Arabic text**, side by side. |
-| `src/pages/` | Thin routes: `/page/` renders a view with `lang="en"`, `/ar/page/` with `lang="ar"`. |
+| `src/pages/` | Thin routes: `/page/` renders a view with `lang="ar"`, `/en/page/` with `lang="en"`. |
 | `src/i18n/` | Languages (`config.ts`: direction, URL helpers) and shared UI strings (`ui.ts`). |
 | `src/components/` | Header, footer, logo, diagrams, cards, code blocks, icons. |
 | `src/styles/global.css` | Design tokens (colors, type, spacing) and shared styles. Dark first, light theme via OS setting or the toggle. |
@@ -41,8 +41,11 @@ node scripts/check-links.mjs --external   # also request every external URL
 
 ## Languages
 
-English is served at `/`, Arabic at `/ar/` (right-to-left). Every page has
-`hreflang` alternates and a language switch in the header.
+Arabic is the default, served at `/` (right-to-left); English is at `/en/`.
+Every page has `hreflang` alternates and a language switch in the header.
+The visitor's choice of language and theme is remembered in local storage
+(`rtw-lang`, `rtw-theme`); returning visitors who chose English are sent to
+the English page. Old `/ar/…` URLs redirect to `/…` (`public/_redirects`).
 
 - Text lives next to the markup in `src/views/*.astro` as `{ en: …, ar: … }`.
 - Project data with text (`src/data/*.ts`) uses the same shape.
@@ -54,7 +57,7 @@ English is served at `/`, Arabic at `/ar/` (right-to-left). Every page has
 
 To add a language: add it to `src/i18n/config.ts` and `ui.ts`, add its text to each
 view and data file, add `src/content/docs/<lang>/`, and create `src/pages/<lang>/`
-routes like the `ar` ones.
+routes like the `en` ones.
 
 ## Deploy
 
