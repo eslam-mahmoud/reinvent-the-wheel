@@ -21,9 +21,25 @@ Each section only accepts the file types that belong in it, so the library stays
 
 Subfolders are fine everywhere. On a Mac the folders are in `content/`; on Android in the shared `RTW` folder.
 
+## Knowledge packs
+
+`rtw fetch` installs curated packs from [`packages/catalog.json`](https://github.com/eslam-mahmoud/reinvent-the-wheel/blob/main/packages/catalog.json), grouped by topic:
+
+```bash
+rtw fetch                          # pick packs interactively
+rtw fetch list                     # every pack, with sizes and what's installed
+rtw fetch group food-agriculture   # one pack
+rtw fetch missing                  # retry anything that didn't finish
+rtw fetch all                      # everything, no questions
+```
+
+- **Always included:** the Madinah Mushaf (Hafs, 232 MB, King Fahd Qur'an Printing Complex) and the Forty Hadith of an-Nawawi. They're installed with your first content fetch — or retried later if you're offline.
+- **Downloaded vs. linked:** PDFs come straight from their publishers into `books/`. Sources that may not be copied in bulk — such as the six Hadith collections on Sunnah.com — stay links, collected in a note under `notes/RTW-References/`.
+- **Safe to interrupt:** downloads resume, are checked (real PDF, full size, checksum recorded) and only then appear in Books. Files you already have are never re-downloaded.
+
 ## Three ways to add content
 
-1. **Fetch commands** — `rtw fetch wikipedia | maps | osmand | bitchat | all`. Resumable; unfinished downloads wait in hidden `.partial` folders and are never shown to readers.
+1. **Fetch commands** — `rtw fetch` for knowledge packs, or `rtw fetch wikipedia | maps | osmand | bitchat`. Resumable; unfinished downloads wait in hidden `.partial` folders and are never shown to readers.
 2. **The admin page** — open `/admin/`, log in as `admin`, and drop files. *Quick upload* sends each file to the right section by type. You can also rename, move, replace and delete files, and write notes in the browser.
 3. **Copy files directly** into the folders — Finder, the Android Files app, a USB cable or a memory card.
 

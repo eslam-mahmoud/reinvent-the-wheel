@@ -6,7 +6,7 @@
 #   rtw start | stop | restart | status
 #   rtw address          show the addresses other devices can open (they change with the network)
 #   rtw passwd           set or reset the admin password (forgot it? run this)
-#   rtw fetch <what>     download content: wikipedia | maps | osmand | bitchat | vendor | all
+#   rtw fetch [pack]     install knowledge packs (wizard) or one download — see rtw help
 #   rtw update           get the latest version from GitHub and re-install
 #   rtw push [app]       Mac only: copy app (+ content) to the tablet over USB
 #   rtw logs [name]      follow a log: nginx-error | admin | kiwix
@@ -47,8 +47,14 @@ Run the library
                      (they change when you switch Wi-Fi or turn the hotspot on)
   logs [name]        follow a log: nginx-error (default) | admin | kiwix
 
-Content
-  fetch <what>       download content: wikipedia | maps | osmand | bitchat | vendor | all
+Content (knowledge packs: packages/catalog.json)
+  fetch              pick packs to install (Qur'an + Forty Nawawi always included)
+  fetch list         every pack and item, with sizes and what's installed
+  fetch status       the same, checked against the files on disk
+  fetch group <id>   install one pack, e.g. food-agriculture
+  fetch missing      retry anything selected before that isn't on disk yet
+  fetch all          install every pack, no questions (for scripts)
+  fetch <name>       one download: wikipedia | maps | osmand | bitchat | vendor
   push [app]         Mac only: copy the app and all content to a tablet over USB
 
 Setup and admin
@@ -60,6 +66,7 @@ Setup and admin
 Examples
   $me start
   $me address
+  $me fetch group islamic-essentials
   ZIM_PATTERN=wikipedia_en_all_nopic $me fetch wikipedia
 
 Content folder: $content
@@ -110,10 +117,20 @@ case "$cmd" in
         # Content goes where the server reads it (tablet: /sdcard/RTW).
         if [ -f "$RTW_ENV" ]; then set -a; source "$RTW_ENV"; set +a; fi
         what="${1:-}"
+        packs=(python3 "$ROOT/scripts/packs.py")
         case "$what" in
-            vendor|wikipedia|maps|osmand|bitchat) bash "$ROOT/scripts/fetch-$what.sh" ;;
-            all) for w in vendor bitchat osmand maps wikipedia; do bash "$ROOT/scripts/fetch-$w.sh"; done ;;
-            *) echo "usage: rtw fetch wikipedia|maps|osmand|bitchat|vendor|all" >&2; exit 1 ;;
+            vendor) bash "$ROOT/scripts/fetch-vendor.sh" ;;
+            # The required baseline (Qur'an + Forty Nawawi) comes with the
+            # first content fetch; it never blocks the command if offline.
+            wikipedia|maps|osmand|bitchat) "${packs[@]}" baseline; bash "$ROOT/scripts/fetch-$what.sh" ;;
+            # Everything in packages/catalog.json, no questions (for scripts).
+            all) bash "$ROOT/scripts/fetch-vendor.sh"; "${packs[@]}" install --all --yes ;;
+            ""|wizard) "${packs[@]}" wizard ;;
+            list|status|missing|baseline) "${packs[@]}" "$what" ;;
+            group) "${packs[@]}" group "${2:-}" "${@:3}" ;;
+            install) shift; "${packs[@]}" install "$@" ;;
+            --*) "${packs[@]}" install "$@" ;;
+            *) echo "usage: rtw fetch [list|status|missing|group <id>|all|wikipedia|maps|osmand|bitchat|vendor]  (see: rtw help)" >&2; exit 1 ;;
         esac
         ;;
     update)

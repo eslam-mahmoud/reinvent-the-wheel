@@ -1,7 +1,24 @@
 # RTW knowledge packs — implementation handoff
 
 ## Scope and status
-A bilingual curated source catalog lives at `packages/catalog.json`. It is **not yet wired to `rtw fetch`**, and documents/APKs are **not committed** to this repository. The website Library page can list these resources and their sources.
+A bilingual curated source catalog lives at `packages/catalog.json`, installed by `scripts/packs.py` through `rtw fetch` (macOS and Termux, Python standard library only). Documents/APKs are **not committed** to this repository.
+
+### Implemented (2026-10-15)
+- `rtw fetch` (TTY wizard), `list`, `status`, `group <id>`, `missing`, `all`, `--yes --groups a,b`; legacy `rtw fetch wikipedia|maps|osmand|bitchat|vendor` unchanged.
+- `rtw fetch all` = vendor assets + **every** catalog group, non-interactive.
+- Required baseline (`islamic-essentials`) installs with any first content fetch; offline it prints a retry hint and never fails the command.
+- PDFs stream to `CONTENT/.rtw-packages/partial/` (hidden: not served, not pushed), resume with HTTP Range, reject non-2xx and HTML, check `%PDF-`, size and catalog SHA-256 when present, then move into place atomically. Receipts in `CONTENT/.rtw-packages/installed.json`; status re-checks files (signature + recorded size) and works without a receipt.
+- `mode: link` items are never downloaded; each group's links are written to a bilingual note `notes/RTW-References/<group>.md` marked "needs internet".
+- Labels follow `RTW_LANG` or the locale (Arabic / English).
+- Website: Library page marks sources `rtw fetch` downloads vs. online links; knowledge packs marked available; docs (EN/AR) explain the commands.
+
+### Verified
+- Qur'an URL: `application/pdf`, 243,520,529 bytes, `%PDF-1.6`, range requests supported (2026-10-15). Forty Nawawi 597,077 bytes; FAO garden 8,364,980 bytes.
+- Test catalog: baseline-first install, no re-download, HTML/404/no-host rejection, link note, damaged-file repair via `missing`, status without receipt, resume from a 200 KB partial (checksum matches a clean download), offline baseline exit 0, Arabic labels.
+
+### Remaining
+- Offline web UI: an Islamic Studies shortcut (files already appear under Books → Islam).
+- Add `sha256` to catalog entries once publishers' files are confirmed stable.
 
 ## Required baseline
 Install from original publishers on the first **explicit** content fetch:

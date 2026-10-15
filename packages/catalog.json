@@ -30,8 +30,9 @@
           "publisher": "King Fahd Glorious Quran Printing Complex",
           "publisher_url": "https://qurancomplex.gov.sa/quran-hafs/",
           "output": "books/Islam/01-Quran/madinah-mushaf-hafs.pdf",
-          "source_status": "publisher URL supplied; HTTP retrieval not verified by research tool",
-          "license_status": "local user download; do not mirror without permission"
+          "source_status": "direct PDF verified 2026-10-15 (application/pdf, 243,520,529 bytes)",
+          "license_status": "local user download; do not mirror without permission",
+          "bytes": 243520529
         },
         {
           "id": "nawawi-forty",
@@ -45,7 +46,8 @@
           "publisher_url": "https://islamhouse.com/",
           "output": "books/Islam/02-Hadith/forty-nawawi.pdf",
           "source_status": "direct PDF inspected (32 pages)",
-          "license_status": "local user download; verify redistribution before mirroring"
+          "license_status": "local user download; verify redistribution before mirroring",
+          "bytes": 597077
         }
       ]
     },
@@ -196,7 +198,8 @@
           "publisher": "UN FAO",
           "output": "books/Food-and-Agriculture/a-vegetable-garden-for-all.pdf",
           "source_status": "PDF inspected, 269 pages",
-          "license_status": "FAO permits non-commercial personal study with attribution; review before republishing"
+          "license_status": "FAO permits non-commercial personal study with attribution; review before republishing",
+          "bytes": 8364980
         }
       ]
     },
