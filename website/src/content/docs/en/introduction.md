@@ -27,7 +27,7 @@ order: 1
 ## Platform status
 
 - **macOS** — available from source and tested end to end.
-- **Android** — available from source, tested end to end on a tablet through Termux, including sharing over its own hotspot. Downloading content directly on the device is still being verified. See [Android Installation](/en/docs/android-installation/).
+- **Android** — available from source, tested end to end on a tablet through Termux, including sharing over its own hotspot and downloading content on the device. See [Android Installation](/en/docs/android-installation/).
 
 ## Next
 

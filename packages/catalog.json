@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "project": "Reinvent the Wheel (RTW)",
+  "notes": [
+    "This is a curated SOURCE CATALOG, not downloaded third-party content. Fetch integration is a follow-up task.",
+    "required-default packages are automatically selected at the first explicit content fetch; never silently fetch on rtw update.",
+    "link resources are for discovery only: do not scrape or mirror their contents.",
+    "All downloads require size/free-space checks, .partial staging, resume, PDF validation and integrity checks.",
+    "The default Qur'an PDF URL was supplied by the project owner and needs an end-to-end download smoke test before enabling unattended fetch.",
+    "Language UI supports en/ar, while original document language may differ."
+  ],
+  "groups": [
+    {
+      "id": "islamic-essentials",
+      "category": "islamic",
+      "title": {
+        "en": "Islamic Essentials",
+        "ar": "أساسيات المكتبة الإسلامية"
+      },
+      "selection": "recommended",
+      "resources": [
+        {
+          "id": "quran-hafs",
+          "title": {
+            "en": "Madinah Mushaf — Hafs",
+            "ar": "مصحف المدينة النبوية - رواية حفص"
+          },
+          "url": "https://qurancomplex.gov.sa/wp-content/uploads/isdarat/hafs/standard39-2.pdf",
+          "mode": "pdf",
+          "publisher": "King Fahd Glorious Quran Printing Complex",
+          "publisher_url": "https://qurancomplex.gov.sa/quran-hafs/",
+          "output": "books/Islam/01-Quran/madinah-mushaf-hafs.pdf",
+          "source_status": "direct PDF verified 2026-10-15 (application/pdf, 243,520,529 bytes)",
+          "license_status": "local user download; do not mirror without permission",
+          "bytes": 243520529
+        },
+        {
+          "id": "nawawi-forty",
+          "title": {
+            "en": "Forty Hadith of an-Nawawi",
+            "ar": "الأربعون النووية"
+          },
+          "url": "https://d1.islamhouse.com/data/ar/ih_books/parts/Forty_Nawawi_Hadith/ar_Forty_Nawawi_Hadith_Dar_Alsalam.pdf",
+          "mode": "pdf",
+          "publisher": "IslamHouse / Dar al-Salam",
+          "publisher_url": "https://islamhouse.com/",
+          "output": "books/Islam/02-Hadith/forty-nawawi.pdf",
+          "source_status": "direct PDF inspected (32 pages)",
+          "license_status": "local user download; verify redistribution before mirroring",
+          "bytes": 597077
+        }
+      ]
+    },
+    {
+      "id": "islamic-six-books",
+      "category": "islamic",
+      "title": {
+        "en": "The Six Hadith Books",
+        "ar": "الكتب الستة"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "bukhari",
+          "title": {
+            "en": "Sahih al-Bukhari",
+            "ar": "صحيح البخاري"
+          },
+          "url": "https://sunnah.com/bukhari",
+          "mode": "link",
+          "publisher": "Sunnah.com",
+          "license_status": "REFERENCE ONLY: source prohibits bulk scraping/mass reproduction",
+          "source_status": "landing page verified"
+        },
+        {
+          "id": "muslim",
+          "title": {
+            "en": "Sahih Muslim",
+            "ar": "صحيح مسلم"
+          },
+          "url": "https://sunnah.com/muslim",
+          "mode": "link",
+          "publisher": "Sunnah.com",
+          "license_status": "REFERENCE ONLY: source prohibits bulk scraping/mass reproduction",
+          "source_status": "landing page verified"
+        },
+        {
+          "id": "abudawud",
+          "title": {
+            "en": "Sunan Abi Dawud",
+            "ar": "سنن أبي داود"
+          },
+          "url": "https://sunnah.com/abudawud",
+          "mode": "link",
+          "publisher": "Sunnah.com",
+          "license_status": "REFERENCE ONLY: source prohibits bulk scraping/mass reproduction",
+          "source_status": "landing page verified"
+        },
+        {
+          "id": "tirmidhi",
+          "title": {
+            "en": "Jami at-Tirmidhi",
+            "ar": "جامع الترمذي"
+          },
+          "url": "https://sunnah.com/tirmidhi",
+          "mode": "link",
+          "publisher": "Sunnah.com",
+          "license_status": "REFERENCE ONLY: source prohibits bulk scraping/mass reproduction",
+          "source_status": "landing page verified"
+        },
+        {
+          "id": "nasai",
+          "title": {
+            "en": "Sunan an-Nasai",
+            "ar": "سنن النسائي"
+          },
+          "url": "https://sunnah.com/nasai",
+          "mode": "link",
+          "publisher": "Sunnah.com",
+          "license_status": "REFERENCE ONLY: source prohibits bulk scraping/mass reproduction",
+          "source_status": "landing page verified"
+        },
+        {
+          "id": "ibnmajah",
+          "title": {
+            "en": "Sunan Ibn Majah",
+            "ar": "سنن ابن ماجه"
+          },
+          "url": "https://sunnah.com/ibnmajah",
+          "mode": "link",
+          "publisher": "Sunnah.com",
+          "license_status": "REFERENCE ONLY: source prohibits bulk scraping/mass reproduction",
+          "source_status": "landing page verified"
+        }
+      ]
+    },
+    {
+      "id": "water-sanitation",
+      "category": "water",
+      "title": {
+        "en": "Water & Sanitation",
+        "ar": "المياه والصرف الصحي"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "cdc-water",
+          "title": {
+            "en": "How to Make Water Safe in an Emergency",
+            "ar": "كيفية جعل الماء آمناً في الطوارئ"
+          },
+          "url": "https://www.cdc.gov/water-emergency/about/index.html",
+          "mode": "link",
+          "publisher": "US CDC",
+          "source_status": "official page verified"
+        },
+        {
+          "id": "hesperian-health",
+          "title": {
+            "en": "Hesperian Health PDF Library",
+            "ar": "مكتبة هسبريان للصحة"
+          },
+          "url": "https://languages.hesperian.org/pages/en/pdf.html",
+          "mode": "link",
+          "publisher": "Hesperian",
+          "source_status": "publisher page verified; chapter PDF rights vary"
+        },
+        {
+          "id": "sphere",
+          "title": {
+            "en": "Sphere Handbook",
+            "ar": "دليل اسفير"
+          },
+          "url": "https://spherestandards.org/handbook/",
+          "mode": "link",
+          "publisher": "Sphere Association",
+          "source_status": "publisher handbook page verified"
+        }
+      ]
+    },
+    {
+      "id": "food-agriculture",
+      "category": "food",
+      "title": {
+        "en": "Food & Agriculture",
+        "ar": "الغذاء والزراعة"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "fao-garden",
+          "title": {
+            "en": "A Vegetable Garden for All",
+            "ar": "حديقة خضروات للجميع"
+          },
+          "url": "https://www.fao.org/4/i3556e/i3556e.pdf",
+          "mode": "pdf",
+          "publisher": "UN FAO",
+          "output": "books/Food-and-Agriculture/a-vegetable-garden-for-all.pdf",
+          "source_status": "PDF inspected, 269 pages",
+          "license_status": "FAO permits non-commercial personal study with attribution; review before republishing",
+          "bytes": 8364980
+        }
+      ]
+    },
+    {
+      "id": "medical-health",
+      "category": "medicine",
+      "title": {
+        "en": "Medical & First Aid",
+        "ar": "الطب والإسعافات الأولية"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "ifrc-first-aid",
+          "title": {
+            "en": "IFRC First Aid Guidelines",
+            "ar": "إرشادات الاتحاد الدولي للإسعافات الأولية"
+          },
+          "url": "https://www.ifrc.org/document/international-first-aid-resuscitation-and-education-guidelines",
+          "mode": "link",
+          "publisher": "IFRC",
+          "source_status": "official guidelines landing page verified"
+        },
+        {
+          "id": "hesperian-pdfs",
+          "title": {
+            "en": "Where There Is No Doctor and other guides",
+            "ar": "حيث لا يوجد طبيب وأدلة صحية أخرى"
+          },
+          "url": "https://languages.hesperian.org/pages/en/pdf.html",
+          "mode": "link",
+          "publisher": "Hesperian",
+          "source_status": "publisher page verified"
+        }
+      ]
+    },
+    {
+      "id": "engineering",
+      "category": "engineering",
+      "title": {
+        "en": "Engineering & Repair",
+        "ar": "الهندسة والإصلاح"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "survivor",
+          "title": {
+            "en": "Survivor Library",
+            "ar": "مكتبة البقاء"
+          },
+          "url": "https://www.survivorlibrary.com/",
+          "mode": "link",
+          "publisher": "Survivor Library"
+        },
+        {
+          "id": "appropedia",
+          "title": {
+            "en": "Appropedia",
+            "ar": "أبروبيديا"
+          },
+          "url": "https://www.appropedia.org/",
+          "mode": "link",
+          "publisher": "Appropedia"
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "category": "education",
+      "title": {
+        "en": "Education & Science",
+        "ar": "التعليم والعلوم"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "openstax",
+          "title": {
+            "en": "OpenStax Textbooks",
+            "ar": "كتب أوبنستاكس"
+          },
+          "url": "https://openstax.org/subjects",
+          "mode": "link",
+          "publisher": "OpenStax"
+        },
+        {
+          "id": "kiwix-library",
+          "title": {
+            "en": "Kiwix ZIM Library",
+            "ar": "مكتبة كيويكس"
+          },
+          "url": "https://library.kiwix.org/",
+          "mode": "link",
+          "publisher": "Kiwix"
+        }
+      ]
+    },
+    {
+      "id": "offline-maps",
+      "category": "maps",
+      "title": {
+        "en": "Offline Maps",
+        "ar": "الخرائط دون اتصال"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "legacy-maps",
+          "title": {
+            "en": "RTW regional maps",
+            "ar": "خرائط RTW المحلية"
+          },
+          "url": "rtw fetch maps",
+          "mode": "legacy_command",
+          "source_status": "already supported by RTW"
+        },
+        {
+          "id": "legacy-osmand",
+          "title": {
+            "en": "OsmAnd navigation APKs and maps",
+            "ar": "تطبيق وخرائط OsmAnd"
+          },
+          "url": "rtw fetch osmand",
+          "mode": "legacy_command",
+          "source_status": "already supported by RTW"
+        }
+      ]
+    },
+    {
+      "id": "communications",
+      "category": "electronics",
+      "title": {
+        "en": "Offline Communication",
+        "ar": "الاتصالات دون إنترنت"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "legacy-bitchat",
+          "title": {
+            "en": "Bitchat Android APKs",
+            "ar": "تطبيق بيتشات لأندرويد"
+          },
+          "url": "rtw fetch bitchat",
+          "mode": "legacy_command",
+          "source_status": "already supported by RTW"
+        }
+      ]
+    },
+    {
+      "id": "encyclopedia",
+      "category": "general",
+      "title": {
+        "en": "Offline Encyclopedia",
+        "ar": "الموسوعات دون اتصال"
+      },
+      "selection": "optional",
+      "resources": [
+        {
+          "id": "legacy-wikipedia",
+          "title": {
+            "en": "Arabic Wikipedia ZIM",
+            "ar": "ويكيبيديا العربية دون اتصال"
+          },
+          "url": "rtw fetch wikipedia",
+          "mode": "legacy_command",
+          "source_status": "already supported by RTW"
+        }
+      ]
+    }
+  ]
+}

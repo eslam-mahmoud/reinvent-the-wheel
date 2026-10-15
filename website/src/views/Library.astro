@@ -11,20 +11,22 @@ const c = {
     title: "Knowledge Library", description: "A curated directory of knowledge categories and reputable offline sources — encyclopedias, health guides, engineering, agriculture, maps and more.",
     eyebrow: "Knowledge library", h1: "Preserve knowledge before you need it.",
     lead: "A curated directory of what's worth keeping and where to find it. RTW helps you store and share these resources — it doesn't bundle or redistribute them.",
-    legend: [["Supported formats", "File types the RTW server can show today."], ["Recommended sources", "Reputable publishers. Download from them directly, under their terms."], ["Included in RTW", "No third-party content ships with RTW. Fetch commands download from the original source."]],
+    legend: [["Supported formats", "File types the RTW server can show today."], ["Downloadable with rtw fetch", "Sources marked with a command are downloaded onto your device from the original publisher."], ["Online references", "Everything else is a link to browse online. Nothing third-party is bundled with RTW."]],
     formatsH: "Supported formats", catsH: "Categories", useful: "Useful content", types: "Resource types", sources: "Recommended sources",
-    planned: "Planned", packsH: "Knowledge packs",
-    packsLead: "A future goal is curated packs — a category's essential resources, checked for licensing, ready to load in one step. They don't exist yet. Until then, this directory points you to the sources.",
+    planned: "Available", packsH: "Knowledge packs",
+    packsLead: "Run rtw fetch to pick packs by category and install them in one step. Nothing is installed unless you choose it; the Qur'an and Forty Nawawi are suggested as a recommended pack. Downloads come straight from each publisher, resume if interrupted, and are checked before they appear in Books. References that may not be copied, such as the six Hadith collections on Sunnah.com, stay links.",
+    downloads: "Downloaded by",
     suggest: "Suggest it", packsNote1: "Know a resource that belongs here?", packsNote2: ". Health and safety material is listed for reference and education; it hasn't been reviewed by professionals for RTW and doesn't replace qualified advice or emergency services.",
   },
   ar: {
     title: "مكتبة المعرفة", description: "دليل منتقى لتصنيفات المعرفة ومصادر موثوقة تعمل دون اتصال — موسوعات، وأدلة صحية، وهندسة، وزراعة، وخرائط، وغيرها.",
     eyebrow: "مكتبة المعرفة", h1: "احفظ المعرفة قبل أن تحتاج إليها.",
     lead: "دليل منتقى لما يستحق الحفظ وأين تجده. يساعدك RTW على تخزين هذه الموارد ومشاركتها — لكنه لا يضمّنها ولا يعيد توزيعها.",
-    legend: [["الصيغ المدعومة", "أنواع الملفات التي يستطيع خادم RTW عرضها اليوم."], ["المصادر المقترحة", "ناشرون موثوقون. نزّل منهم مباشرة وفق شروطهم."], ["المضمَّن في RTW", "لا يأتي RTW بأي محتوى من أطراف أخرى. أوامر التنزيل تجلبه من مصدره الأصلي."]],
+    legend: [["الصيغ المدعومة", "أنواع الملفات التي يستطيع خادم RTW عرضها اليوم."], ["قابلة للتنزيل بـ rtw fetch", "المصادر المعلَّمة بأمر تُنزَّل إلى جهازك من ناشرها الأصلي."], ["روابط على الإنترنت", "كل ما عداها روابط للتصفح عبر الإنترنت. لا يأتي RTW بأي محتوى من أطراف أخرى."]],
     formatsH: "الصيغ المدعومة", catsH: "التصنيفات", useful: "محتوى مفيد", types: "أنواع الموارد", sources: "مصادر مقترحة",
-    planned: "مخطط له", packsH: "حِزم المعرفة",
-    packsLead: "من أهدافنا المستقبلية حِزم منتقاة — الموارد الأساسية لكل تصنيف، مع التحقق من رخصها، جاهزة للتحميل بخطوة واحدة. لم توجد بعد، وحتى ذلك الحين يرشدك هذا الدليل إلى المصادر.",
+    planned: "متاح", packsH: "حِزم المعرفة",
+    packsLead: "شغّل rtw fetch لاختيار الحِزم حسب التصنيف وتثبيتها بخطوة واحدة. لا يُثبَّت شيء إلا إذا اخترته؛ ويُقترح المصحف والأربعون النووية كحزمة مقترحة. تأتي التنزيلات مباشرة من كل ناشر، وتُستأنف إن انقطعت، ويُتحقق منها قبل ظهورها في الكتب. أما المراجع التي لا يجوز نسخها، مثل الكتب الستة على Sunnah.com، فتبقى روابط.",
+    downloads: "يُنزَّل بالأمر",
     suggest: "اقترحه", packsNote1: "تعرف موردًا يستحق أن يكون هنا؟", packsNote2: ". المواد الصحية ومواد السلامة مدرجة للمرجعية والتعليم؛ لم يراجعها مختصون لصالح RTW، ولا تغني عن المشورة المؤهلة أو خدمات الطوارئ.",
   },
 }[lang];
@@ -82,6 +84,7 @@ const withCode = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").r
                 <li>
                   <a href={p.url.startsWith("/") ? href(p.url, lang) : p.url}>{p.name}{p.url.startsWith("http") && <Icon name="external" size={12} />}</a>
                   <span set:html={withCode(p.note[lang])} />
+                  {p.fetch && <code class="fetch" title={`${c.downloads}: ${p.fetch}`}>{p.fetch}</code>}
                 </li>
               ))}
             </ul>
@@ -93,7 +96,7 @@ const withCode = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 
   <section class="section" aria-labelledby="packs-h">
     <div class="container narrow">
-      <span class="badge badge-planned">{c.planned}</span>
+      <span class="badge badge-available">{c.planned}</span>
       <h2 id="packs-h">{c.packsH}</h2>
       <p class="lead">{c.packsLead}</p>
       <p class="muted">{c.packsNote1} <a href={href("/contribute/", lang)}>{c.suggest}</a>{c.packsNote2}</p>
@@ -129,6 +132,7 @@ const withCode = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").r
   .providers li { display: grid; gap: 2px; }
   .providers a { color: var(--text); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
   .providers span { color: var(--muted); }
+  .providers .fetch { justify-self: start; font-size: .72rem; color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
   .narrow { max-width: 760px; }
   .narrow h2 { margin-top: 14px; }
   .narrow a { color: var(--accent); }

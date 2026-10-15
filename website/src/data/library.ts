@@ -20,6 +20,8 @@ export interface Provider {
   name: string;
   url: string;
   note: Localized;
+  /** Downloaded onto the device by `rtw fetch` (otherwise: a link to the source). */
+  fetch?: string;
 }
 
 export interface Category {
@@ -75,6 +77,7 @@ export const categories: Category[] = [
     },
     formats: ["pdf", "epub", "zim"],
     providers: [
+      { name: "FAO — A Vegetable Garden for All (PDF)", url: "https://www.fao.org/4/i3556e/i3556e.pdf", fetch: "rtw fetch group food-agriculture", note: { en: "8 MB guide. FAO permits non-commercial personal study with attribution.", ar: "دليل بحجم 8 ميغابايت. تسمح الفاو بالدراسة الشخصية غير التجارية مع ذكر المصدر." } },
       { name: "FAO publications", url: "https://www.fao.org/publications", note: { en: "Food and Agriculture Organization of the UN. Licenses vary by publication.", ar: "منظمة الأغذية والزراعة للأمم المتحدة. تختلف الرخص من منشور لآخر." } },
       appropedia({ en: "Practical agriculture and food-processing projects.", ar: "مشاريع عملية في الزراعة وتصنيع الأغذية." }),
     ],
@@ -188,7 +191,7 @@ export const categories: Category[] = [
     providers: [
       kiwix({ en: "Includes offline archives of Stack Exchange sites such as Electrical Engineering.", ar: "تضم أرشيفات دون اتصال لمواقع Stack Exchange مثل الهندسة الكهربائية." }),
       { name: "Wikibooks", url: "https://www.wikibooks.org", note: { en: "Open textbooks on electronics and more; offline via Kiwix.", ar: "كتب مفتوحة عن الإلكترونيات وغيرها؛ متاحة دون اتصال عبر Kiwix." } },
-      { name: "Bitchat", url: "https://github.com/permissionlesstech/bitchat-android", note: { en: "Chat with nearby phones over Bluetooth mesh, no network needed (GPL-3.0). `rtw fetch bitchat` adds it to Downloads.", ar: "دردشة مع الهواتف القريبة عبر شبكة بلوتوث متداخلة دون أي شبكة (GPL-3.0). الأمر `rtw fetch bitchat` يضيفه إلى التنزيلات." } },
+      { name: "Bitchat", url: "https://github.com/permissionlesstech/bitchat-android", fetch: "rtw fetch bitchat", note: { en: "Chat with nearby phones over Bluetooth mesh, no network needed (GPL-3.0). `rtw fetch bitchat` adds it to Downloads.", ar: "دردشة مع الهواتف القريبة عبر شبكة بلوتوث متداخلة دون أي شبكة (GPL-3.0). الأمر `rtw fetch bitchat` يضيفه إلى التنزيلات." } },
     ],
   },
   {
@@ -205,9 +208,9 @@ export const categories: Category[] = [
     },
     formats: ["pmtiles", "apk", "zim"],
     providers: [
-      { name: "Protomaps", url: "https://protomaps.com", note: { en: "OpenStreetMap-based PMTiles — RTW extracts a region from their builds.", ar: "ملفات PMTiles مبنية على OpenStreetMap — يقتطع RTW منطقة من إصداراتهم." } },
+      { name: "Protomaps", url: "https://protomaps.com", fetch: "rtw fetch maps", note: { en: "OpenStreetMap-based PMTiles — RTW extracts a region from their builds.", ar: "ملفات PMTiles مبنية على OpenStreetMap — يقتطع RTW منطقة من إصداراتهم." } },
       { name: "OpenStreetMap", url: "https://www.openstreetmap.org", note: { en: "The open map data behind most offline maps (ODbL).", ar: "بيانات الخرائط المفتوحة وراء معظم الخرائط دون اتصال (ODbL)." } },
-      { name: "OsmAnd", url: "https://osmand.net", note: { en: "Offline navigation app with downloadable map files. `rtw fetch osmand` adds it to Downloads.", ar: "تطبيق ملاحة دون اتصال مع ملفات خرائط قابلة للتنزيل. الأمر `rtw fetch osmand` يضيفه إلى التنزيلات." } },
+      { name: "OsmAnd", url: "https://osmand.net", fetch: "rtw fetch osmand", note: { en: "Offline navigation app with downloadable map files. `rtw fetch osmand` adds it to Downloads.", ar: "تطبيق ملاحة دون اتصال مع ملفات خرائط قابلة للتنزيل. الأمر `rtw fetch osmand` يضيفه إلى التنزيلات." } },
     ],
   },
   {
@@ -262,6 +265,70 @@ export const categories: Category[] = [
     providers: [
       { name: "RTW Notes & Sites", url: "/docs/preparing-your-library/", note: { en: "The Notes and Sites sections are made for locally written material.", ar: "قسما الملاحظات والمواقع مخصّصان للمواد المكتوبة محليًا." } },
       appropedia({ en: "Community-scale infrastructure projects.", ar: "مشاريع بنية تحتية على مستوى المجتمع." }),
+    ],
+  },
+  {
+    id: "islamic",
+    name: { en: "Islamic Studies", ar: "العلوم الإسلامية" },
+    icon: "book",
+    description: {
+      en: "The Qur'an, Forty Nawawi and the six major Hadith collections, linked to original publishers or specialized reference collections.",
+      ar: "القرآن الكريم، والأربعون النووية، والكتب الستة للحديث من مصادرها الأصلية أو المكتبات الحديثية المتخصصة.",
+    },
+    examples: {
+      en: ["Madinah Mushaf — Hafs", "Forty Hadith of an-Nawawi", "The six major Hadith collections"],
+      ar: ["مصحف المدينة النبوية — رواية حفص", "الأربعون النووية", "الكتب الستة"],
+    },
+    formats: ["pdf", "html"],
+    providers: [
+      {
+        name: "King Fahd Qur'an Printing Complex — Madinah Mushaf (PDF)",
+        url: "https://qurancomplex.gov.sa/wp-content/uploads/isdarat/hafs/standard39-2.pdf",
+        fetch: "rtw fetch group islamic-essentials",
+        note: {
+          en: "232 MB PDF from the Complex. Recommended pack: `rtw fetch group islamic-essentials`; the publisher's terms apply.",
+          ar: "ملف PDF من المجمع بحجم 232 ميغابايت. حزمة مقترحة: `rtw fetch group islamic-essentials`؛ وتُراعى شروط الناشر.",
+        },
+      },
+      {
+        name: "IslamHouse / Dar al-Salam — Forty Nawawi (PDF)",
+        url: "https://d1.islamhouse.com/data/ar/ih_books/parts/Forty_Nawawi_Hadith/ar_Forty_Nawawi_Hadith_Dar_Alsalam.pdf",
+        fetch: "rtw fetch group islamic-essentials",
+        note: {
+          en: "32-page Arabic PDF. Recommended pack: `rtw fetch group islamic-essentials`; source and publisher terms apply.",
+          ar: "نسخة عربية من 32 صفحة. حزمة مقترحة: `rtw fetch group islamic-essentials`؛ وتُراعى شروط المصدر والناشر.",
+        },
+      },
+      {
+        name: "Sahih al-Bukhari — صحيح البخاري",
+        url: "https://sunnah.com/bukhari",
+        note: { en: "Online reference only, not bundled or bulk-downloaded.", ar: "رابط مرجعي فقط؛ لا يُضمَّن ولا يُنزَّل آليًا بالكامل." },
+      },
+      {
+        name: "Sahih Muslim — صحيح مسلم",
+        url: "https://sunnah.com/muslim",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Sunan Abi Dawud — سنن أبي داود",
+        url: "https://sunnah.com/abudawud",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Jami at-Tirmidhi — جامع الترمذي",
+        url: "https://sunnah.com/tirmidhi",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Sunan an-Nasa'i — سنن النسائي",
+        url: "https://sunnah.com/nasai",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Sunan Ibn Majah — سنن ابن ماجه",
+        url: "https://sunnah.com/ibnmajah",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
     ],
   },
 ];
