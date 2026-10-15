@@ -33,6 +33,9 @@ if (f) {
 } else {
   mountBrowser(mountShell({ active: "notes" }), {
     base, rootLabel: t.nav.notes, emptyText: t.emptyNotes, accept: /\.(md|txt|markdown)$/i,
+    // Search every note (names and text) on the server, Arabic-aware.
+    search: async (q) => (await fetch("/api/notes-search?q=" + encodeURIComponent(q))).json(),
+    searchPlaceholder: t.searchNotes,
     fileLink: (path, name) => "?f=" + encodeURIComponent(path + name),
   });
 }

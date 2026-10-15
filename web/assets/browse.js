@@ -32,7 +32,7 @@ const collator = new Intl.Collator(lang === "ar" ? "ar" : "en", { numeric: true 
  * fileLink(path, name) can override where a file opens (e.g. notes viewer);
  * download: true marks links as downloads (APKs etc.).
  */
-export function mountBrowser(root, { base, rootLabel, emptyText, fileLink, accept, download = false }) {
+export function mountBrowser(root, { base, rootLabel, emptyText, fileLink, accept, download = false, search, searchPlaceholder }) {
   async function render() {
     const path = currentPath();
     root.replaceChildren(crumbs(path, rootLabel), el("p", { class: "empty" }, t.loading));
@@ -43,8 +43,9 @@ export function mountBrowser(root, { base, rootLabel, emptyText, fileLink, accep
     items = items.filter((i) => !i.name.startsWith(".") && (i.type === "directory" || !accept || accept.test(i.name)));
     items.sort((a, b) => (a.type === b.type ? collator.compare(a.name, b.name) : a.type === "directory" ? -1 : 1));
 
+    const placeholder = search ? searchPlaceholder || t.search : t.filter;
     const filter = el("div", { class: "search", style: "margin-bottom:14px" },
-      el("span", { html: icon("search") }), el("input", { class: "input", type: "search", placeholder: t.filter, "aria-label": t.filter }));
+      el("span", { html: icon("search") }), el("input", { class: "input", type: "search", placeholder, "aria-label": placeholder }));
     const list = el("ul", { class: "files" });
     for (const it of items) {
       const isDir = it.type === "directory";
@@ -55,12 +56,57 @@ export function mountBrowser(root, { base, rootLabel, emptyText, fileLink, accep
         el("span", { class: "meta" }, isDir ? "" : humanSize(it.size)));
       list.append(el("li", {}, a));
     }
-    filter.querySelector("input").addEventListener("input", (e) => {
-      const q = e.target.value.trim().toLowerCase();
-      for (const li of list.children) li.hidden = !!q && !li.textContent.toLowerCase().includes(q);
+    const input = filter.querySelector("input");
+    const results = el("div", { class: "results", hidden: "" });
+    let timer, seq = 0;
+    input.addEventListener("input", () => {
+      const q = input.value.trim();
+      if (!search) {
+        // Local filter: names in this folder.
+        const ql = q.toLowerCase();
+        for (const li of list.children) li.hidden = !!ql && !li.textContent.toLowerCase().includes(ql);
+        return;
+      }
+      // Full search (e.g. every note, names and text) via the server.
+      clearTimeout(timer);
+      if (q.length < 2) { results.hidden = true; list.hidden = false; return; }
+      timer = setTimeout(async () => {
+        const mine = ++seq;
+        let hits = [];
+        try { hits = await search(q); } catch {}
+        if (mine !== seq) return;
+        list.hidden = true;
+        results.hidden = false;
+        results.replaceChildren(el("p", { class: "muted", style: "margin:0 0 8px;font-size:.85rem" }, hits.length ? t.matches(hits.length) : t.noMatches));
+        if (!hits.length) return;
+        const ul = el("ul", { class: "files" });
+        for (const h of hits) {
+          const folder = h.path.slice(0, h.path.lastIndexOf("/") + 1);
+          ul.append(el("li", {}, el("a", { class: "item", href: fileLink ? fileLink(folder, h.name) : fileUrl(base, folder, h.name) },
+            el("span", { class: "ficon", html: icon(iconFor(h.name)) }),
+            el("span", { class: "hit" },
+              el("span", { class: "hit-title" },
+                el("bdi", { class: "hit-name" }, h.name),
+                folder !== "/" ? el("bdi", { class: "path", dir: "auto" }, folder.replace(/^\/|\/$/g, "")) : null),
+              el("span", { class: "snippet", dir: "auto", html: highlight(h.snippet, h.marks) })))));
+        }
+        results.append(ul);
+      }, 200);
     });
-    root.replaceChildren(crumbs(path, rootLabel), ...(items.length ? [filter, list] : [el("p", { class: "empty" }, emptyText)]));
+    root.replaceChildren(crumbs(path, rootLabel), filter, results, items.length ? list : el("p", { class: "empty" }, emptyText));
   }
   addEventListener("hashchange", render);
   render();
+}
+
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** Escape the snippet and wrap the server-reported match ranges in <mark>. */
+function highlight(text, marks = []) {
+  let html = "", at = 0;
+  for (const [a, z] of marks) {
+    if (a < at) continue; // overlapping ranges
+    html += esc(text.slice(at, a)) + "<mark>" + esc(text.slice(a, z)) + "</mark>";
+    at = z;
+  }
+  return html + esc(text.slice(at));
 }

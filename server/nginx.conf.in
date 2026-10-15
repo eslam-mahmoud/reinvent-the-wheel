@@ -127,6 +127,14 @@ http {
             add_header Cache-Control "no-store";
         }
 
+        # Read-only full-text search across notes (names and text).
+        location = /api/notes-search {
+            proxy_pass http://127.0.0.1:@ADMIN_PORT@/admin/api/notes-search$is_args$args;
+            proxy_method GET;
+            proxy_pass_request_body off;
+            add_header Cache-Control "no-store";
+        }
+
         location /data/www/ {
             alias @CONTENT@/www/;
             autoindex on;

@@ -98,6 +98,83 @@ def lan_addresses():
     return found
 
 
+# Arabic-aware matching: ignore diacritics/tatweel, unify letter variants.
+_AR_DIACRITICS = re.compile("[\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed\u0640]")
+_AR_FOLD = str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ٱ": "ا", "ى": "ي", "ة": "ه", "ؤ": "و", "ئ": "ي"})
+
+
+def normalize(text):
+    return _AR_DIACRITICS.sub("", text).translate(_AR_FOLD).casefold()
+
+
+def normalize_map(text):
+    """Normalized text plus, for each of its characters, the index in `text`."""
+    out, index = [], []
+    for i, ch in enumerate(text):
+        if _AR_DIACRITICS.match(ch):
+            continue
+        for c in ch.translate(_AR_FOLD).casefold():
+            out.append(c)
+            index.append(i)
+    return "".join(out), index
+
+
+def make_snippet(text, words, width=180):
+    """A short excerpt of the original text around the first match, with the
+    [start, end) ranges of every matched word inside the excerpt."""
+    norm, index = normalize_map(text)
+    at = norm.find(words[0]) if words else -1
+    start = index[at] if at >= 0 else 0
+    start = max(0, start - 70)
+    # Begin at a word boundary.
+    while start > 0 and not text[start - 1].isspace():
+        start -= 1
+    end = min(len(text), start + width)
+    excerpt = text[start:end]
+    marks = []
+    for w in words:
+        pos = norm.find(w)
+        while pos >= 0:
+            a, z = index[pos], index[pos + len(w) - 1] + 1
+            # Extend over trailing diacritics so marks cover whole letters.
+            while z < len(text) and _AR_DIACRITICS.match(text[z]):
+                z += 1
+            if a >= start and z <= end:
+                marks.append([a - start, z - start])
+            pos = norm.find(w, pos + 1)
+    # Collapse whitespace while keeping mark offsets valid: done client-side.
+    return excerpt, sorted(marks)
+
+
+def search_notes(query, limit=50):
+    """Find notes whose path or text contains every word of the query."""
+    words = normalize(query).split()
+    if not words:
+        return []
+    root = os.path.join(CONTENT, "notes")
+    hits = []
+    for dirpath, dirnames, names in os.walk(root):
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+        for name in names:
+            if name.startswith(".") or not name.lower().endswith((".md", ".markdown", ".txt")):
+                continue
+            full = os.path.join(dirpath, name)
+            rel = "/" + os.path.relpath(full, root).replace(os.sep, "/")
+            try:
+                with open(full, encoding="utf-8", errors="replace") as f:
+                    text = f.read(1 << 20)
+            except OSError:
+                continue
+            npath, ntext = normalize(rel), normalize(text)
+            if not all(w in npath or w in ntext for w in words):
+                continue
+            score = sum(3 for w in words if w in normalize(name)) + sum(ntext.count(w) for w in words)
+            snippet, marks = make_snippet(text, [w for w in words if w in ntext])
+            hits.append({"path": rel, "name": name, "snippet": snippet, "marks": marks, "score": score})
+    hits.sort(key=lambda h: -h["score"])
+    return hits[:limit]
+
+
 def restart_wiki():
     r = subprocess.run(["bash", os.path.join(ROOT, "server", "kiwix.sh"), "restart"],
                        capture_output=True, text=True, timeout=60)
@@ -165,6 +242,9 @@ class Handler(BaseHTTPRequestHandler):
         disk = shutil.disk_usage(CONTENT)
         return {"sections": sections, "free": disk.free, "total": disk.total,
                 "addresses": lan_addresses(), "port": int(os.environ.get("PORT", "8080"))}
+
+    def get_notes_search(self, _rel):
+        return search_notes(self.query.get("q", ""))
 
     def get_list(self, rel):
         full, _, _ = resolve(rel)
