@@ -4,7 +4,7 @@ description: Install RTW in Termux on an Android phone or tablet.
 order: 4
 ---
 
-**Status: available from source.** Tested end to end on a Redmi Pad 2 Pro (Android 16): the one-command GitHub install, serving every section (including the 8.4 GB Arabic Wikipedia), copying content from a Mac over USB, and other devices on the same Wi-Fi opening the library. Still being verified: sharing over the tablet's own hotspot and downloading content directly on the device — please [report what works on your device](/en/contribute/).
+**Status: available from source.** Tested end to end on a Redmi Pad 2 Pro (Android 16): the one-command GitHub install, serving every section (including the 8.4 GB Arabic Wikipedia), copying content from a Mac over USB, and other devices opening the library — both on the same Wi-Fi and over the tablet's own hotspot. Still being verified: downloading content directly on the device — please [report what works on your device](/en/contribute/).
 
 RTW runs inside **Termux**, a terminal app for Android. There is no root, no custom firmware and no separate RTW app.
 

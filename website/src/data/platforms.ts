@@ -131,7 +131,11 @@ export const platforms: Platform[] = [
         status: "available",
         note: { en: "Verified from a Mac on the same network", ar: "تم التحقق من جهاز Mac على الشبكة نفسها" },
       },
-      { label: { en: "Sharing over the device's own hotspot", ar: "المشاركة عبر نقطة الاتصال الخاصة بالجهاز" }, status: "testing" },
+      {
+        label: { en: "Sharing over the device's own hotspot", ar: "المشاركة عبر نقطة الاتصال الخاصة بالجهاز" },
+        status: "available",
+        note: { en: "Verified with a phone on the tablet's hotspot", ar: "تم التحقق بهاتف متصل بنقطة اتصال الجهاز اللوحي" },
+      },
       { label: { en: "Downloading content directly on the device", ar: "تنزيل المحتوى مباشرة على الجهاز" }, status: "testing" },
       { label: { en: "External USB-C storage", ar: "التخزين الخارجي عبر USB-C" }, status: "planned" },
       { label: { en: "Standalone app", ar: "تطبيق مستقل" }, status: "planned" },
