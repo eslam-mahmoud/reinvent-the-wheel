@@ -136,7 +136,11 @@ export const platforms: Platform[] = [
         status: "available",
         note: { en: "Verified with a phone on the tablet's hotspot", ar: "تم التحقق بهاتف متصل بنقطة اتصال الجهاز اللوحي" },
       },
-      { label: { en: "Downloading content directly on the device", ar: "تنزيل المحتوى مباشرة على الجهاز" }, status: "testing" },
+      {
+        label: { en: "Downloading content directly on the device (rtw fetch)", ar: "تنزيل المحتوى مباشرة على الجهاز (rtw fetch)" },
+        status: "available",
+        note: { en: "Verified: knowledge packs wizard, 240 MB", ar: "تم التحقق: معالج حِزم المعرفة، 240 ميغابايت" },
+      },
       { label: { en: "External USB-C storage", ar: "التخزين الخارجي عبر USB-C" }, status: "planned" },
       { label: { en: "Standalone app", ar: "تطبيق مستقل" }, status: "planned" },
     ],

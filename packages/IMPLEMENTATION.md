@@ -16,6 +16,10 @@ A bilingual curated source catalog lives at `packages/catalog.json`, installed b
 - Qur'an URL: `application/pdf`, 243,520,529 bytes, `%PDF-1.6`, range requests supported (2026-10-15). Forty Nawawi 597,077 bytes; FAO garden 8,364,980 bytes.
 - Test catalog: baseline-first install, no re-download, HTML/404/no-host rejection, link note, damaged-file repair via `missing`, status without receipt, resume from a 200 KB partial (checksum matches a clean download), offline baseline exit 0, Arabic labels.
 
+### Verified on devices (2026-10-15)
+- macOS (Apple Silicon): `rtw fetch group islamic-essentials` — Qur'an + Nawawi installed, sizes match the publishers.
+- Android (Redmi Pad 2 Pro, Termux): `rtw fetch list` detects existing content; the wizard (choice `4`) installed the baseline + FAO guide on the device (240.8 MB); files appear under Books → Islam in the offline app.
+
 ### Remaining
 - Offline web UI: an Islamic Studies shortcut (files already appear under Books → Islam).
 - Add `sha256` to catalog entries once publishers' files are confirmed stable.
