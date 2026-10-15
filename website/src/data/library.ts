@@ -264,4 +264,66 @@ export const categories: Category[] = [
       appropedia({ en: "Community-scale infrastructure projects.", ar: "مشاريع بنية تحتية على مستوى المجتمع." }),
     ],
   },
+  {
+    id: "islamic",
+    name: { en: "Islamic Studies", ar: "العلوم الإسلامية" },
+    icon: "book",
+    description: {
+      en: "The Qur'an, Forty Nawawi and the six major Hadith collections, linked to original publishers or specialized reference collections.",
+      ar: "القرآن الكريم، والأربعون النووية، والكتب الستة للحديث من مصادرها الأصلية أو المكتبات الحديثية المتخصصة.",
+    },
+    examples: {
+      en: ["Madinah Mushaf — Hafs", "Forty Hadith of an-Nawawi", "The six major Hadith collections"],
+      ar: ["مصحف المدينة النبوية — رواية حفص", "الأربعون النووية", "الكتب الستة"],
+    },
+    formats: ["pdf", "html"],
+    providers: [
+      {
+        name: "King Fahd Qur'an Printing Complex — Madinah Mushaf (PDF)",
+        url: "https://qurancomplex.gov.sa/wp-content/uploads/isdarat/hafs/standard39-2.pdf",
+        note: {
+          en: "Direct PDF supplied for RTW. Core default when the content-pack downloader is implemented; publisher terms apply.",
+          ar: "ملف PDF لمصحف المدينة. ضمن المحتوى الافتراضي عند تنفيذ تنزيل الحزم؛ تُراعى شروط المجمع.",
+        },
+      },
+      {
+        name: "IslamHouse / Dar al-Salam — Forty Nawawi (PDF)",
+        url: "https://d1.islamhouse.com/data/ar/ih_books/parts/Forty_Nawawi_Hadith/ar_Forty_Nawawi_Hadith_Dar_Alsalam.pdf",
+        note: {
+          en: "32-page Arabic PDF. Core default when the content-pack downloader is implemented; source and publisher terms apply.",
+          ar: "نسخة عربية من ٣٢ صفحة. ضمن المحتوى الافتراضي عند تنفيذ تنزيل الحزم؛ تُراعى شروط المصدر والناشر.",
+        },
+      },
+      {
+        name: "Sahih al-Bukhari — صحيح البخاري",
+        url: "https://sunnah.com/bukhari",
+        note: { en: "Online reference only, not bundled or bulk-downloaded.", ar: "رابط مرجعي فقط؛ لا يُضمَّن ولا يُنزَّل آليًا بالكامل." },
+      },
+      {
+        name: "Sahih Muslim — صحيح مسلم",
+        url: "https://sunnah.com/muslim",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Sunan Abi Dawud — سنن أبي داود",
+        url: "https://sunnah.com/abudawud",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Jami at-Tirmidhi — جامع الترمذي",
+        url: "https://sunnah.com/tirmidhi",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Sunan an-Nasa'i — سنن النسائي",
+        url: "https://sunnah.com/nasai",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+      {
+        name: "Sunan Ibn Majah — سنن ابن ماجه",
+        url: "https://sunnah.com/ibnmajah",
+        note: { en: "Online reference only.", ar: "رابط مرجعي فقط." },
+      },
+    ],
+  },
 ];
