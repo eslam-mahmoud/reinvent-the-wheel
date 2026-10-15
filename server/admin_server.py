@@ -131,7 +131,9 @@ class Handler(BaseHTTPRequestHandler):
             handler = getattr(self, f"{method.lower()}_{action.replace('-', '_')}", None)
             if not handler:
                 raise ApiError(404, "unknown action")
-            self._send(200, handler(self.query.get("path", "")) or {"ok": True})
+            result = handler(self.query.get("path", ""))
+            # An empty list (empty folder) is a valid answer, not "no result".
+            self._send(200, {"ok": True} if result is None else result)
         except ApiError as e:
             self._drain()
             self._send(e.status, {"error": str(e)})

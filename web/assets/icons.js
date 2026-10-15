@@ -25,6 +25,7 @@ const P = {
   upload: '<path d="M12 21V9M7 14l5-5 5 5M4 4h16"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   edit: '<path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/>',
+  rename: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>',
   swap: '<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14.6-4.5L3 9M3 4v5h5M4 13a8 8 0 0 0 14.6 4.5L21 15M21 20v-5h-5"/>',

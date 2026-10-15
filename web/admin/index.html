@@ -176,7 +176,7 @@ async function renderFolder(p) {
     const li = el("li", {}, a);
     if (!isDir && section === "notes") li.append(iconBtn("edit", T.edit, async () => openEditor(target, await (await fetch("/data/" + enc(target), { cache: "no-store" })).text(), false)));
     if (!isDir) li.append(iconBtn("swap", T.replace, () => pickFiles(async ([f]) => { if (f) { await uploadOne(f, target, true); render(); } }, false)));
-    li.append(iconBtn("edit", T.rename, async () => {
+    li.append(iconBtn("rename", T.rename, async () => {
       const to = prompt(T.newPath, target);
       if (to && to !== target) { await call("POST", "rename", { path: target, to: to.includes("/") ? to : join(p, to) }); render(); }
     }));
