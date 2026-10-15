@@ -26,6 +26,9 @@ const STRINGS = {
     gpsHint: "To show your location, open the map over HTTPS",
     phoneApps: "Apps for your phone", phoneAppsSub: "Install from Downloads — they work without internet too.",
     bitchat: "Chat with nearby phones over Bluetooth", osmand: "Offline turn-by-turn navigation",
+    shareTitle: "Share this library", shareSub: "Phones on the same Wi-Fi — or on this device's hotspot — can open:",
+    shareNone: "This device isn't on a network yet. Join Wi-Fi or turn on the hotspot.",
+    shareNote: "The address changes when the network changes or the hotspot is turned on.",
   },
   ar: {
     appName: "المكتبة", projectName: "إعادة اختراع العجلة", tagline: "مكتبة معرفة دون اتصال",
@@ -50,6 +53,9 @@ const STRINGS = {
     gpsHint: "لعرض موقعك، افتح الخريطة عبر HTTPS",
     phoneApps: "تطبيقات لهاتفك", phoneAppsSub: "ثبّتها من التنزيلات — وهي تعمل دون إنترنت أيضًا.",
     bitchat: "دردشة مع الهواتف القريبة عبر البلوتوث", osmand: "ملاحة خطوة بخطوة دون اتصال",
+    shareTitle: "شارك هذه المكتبة", shareSub: "الهواتف المتصلة بشبكة Wi-Fi نفسها — أو بنقطة اتصال هذا الجهاز — تستطيع فتح:",
+    shareNone: "هذا الجهاز غير متصل بشبكة بعد. اتصل بشبكة Wi-Fi أو فعّل نقطة الاتصال.",
+    shareNote: "يتغيّر العنوان عند تغيير الشبكة أو تفعيل نقطة الاتصال.",
   },
 };
 

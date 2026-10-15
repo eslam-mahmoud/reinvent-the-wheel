@@ -13,7 +13,8 @@ rtw logs          # or: rtw logs admin · rtw logs kiwix
 
 ## Other devices can't open the library
 
-- Are they on the **same Wi-Fi** as the host? Use the IP address printed by `rtw start`, including `:8080`.
+- Are they on the **same Wi-Fi** as the host? Use the address from `rtw address` (or the library's home page), including `:8080`.
+- **Turned on the hotspot after starting?** Android gives the hotspot a new address each time; the one `rtw start` printed earlier no longer works. Run `rtw address` for the current one.
 - Some routers isolate devices from each other ("client isolation"). Use the host's own hotspot instead.
 - On a Mac, allow incoming connections for nginx if macOS asks.
 

@@ -18,6 +18,7 @@ Changes under wikipedia/ restart kiwix-serve automatically.
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -78,6 +79,23 @@ def dir_stats(path):
             except OSError:
                 pass
     return files, size
+
+
+def lan_addresses():
+    """IPv4 addresses other devices can reach, read fresh on every call
+    (Android gives the hotspot a new address each time it starts)."""
+    cmds = [["ipconfig", "getifaddr", "en0"], ["ipconfig", "getifaddr", "en1"]] if sys.platform == "darwin" \
+        else [["ip", "-o", "-4", "addr", "show"], ["ifconfig"], ["/system/bin/ifconfig"]]
+    found = []
+    for cmd in cmds:
+        try:
+            out = subprocess.run(cmd, capture_output=True, text=True, timeout=3).stdout
+        except (OSError, subprocess.SubprocessError):
+            continue
+        for ip in re.findall(r"(?:inet (?:addr:)?)?\b((?:\d{1,3}\.){3}\d{1,3})\b", out):
+            if not ip.startswith(("127.", "255.", "0.")) and not ip.endswith(".255") and ip not in found:
+                found.append(ip)
+    return found
 
 
 def restart_wiki():
@@ -143,7 +161,8 @@ class Handler(BaseHTTPRequestHandler):
             sections.append({"name": name, "files": files, "size": size,
                              "accepts": sorted(allowed) if allowed else None})
         disk = shutil.disk_usage(CONTENT)
-        return {"sections": sections, "free": disk.free, "total": disk.total}
+        return {"sections": sections, "free": disk.free, "total": disk.total,
+                "addresses": lan_addresses(), "port": int(os.environ.get("PORT", "8080"))}
 
     def get_list(self, rel):
         full, _, _ = resolve(rel)

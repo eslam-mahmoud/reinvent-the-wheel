@@ -35,3 +35,18 @@ lan_ips() {  # this device's network addresses, for the "open on other devices" 
         fi
     } 2>/dev/null | grep -v '^127[.]' | sort -u
 }
+
+print_addresses() {  # what to open, on this device and on others
+    echo "Open on this device:   http://127.0.0.1:$PORT"
+    local ip found=""
+    for ip in $(lan_ips); do
+        found=1
+        echo "Open on other devices: http://$ip:$PORT   (GPS on map: https://$ip:$HTTPS_PORT)"
+    done
+    if [ -z "$found" ]; then
+        echo "Not on a network yet — join Wi-Fi or turn on the hotspot, then run: rtw address"
+    else
+        echo "The address changes when you switch networks or turn the hotspot on; check again with: rtw address"
+    fi
+    echo "All commands: rtw help"
+}

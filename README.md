@@ -194,7 +194,9 @@ Takes effect immediately; no restart needed.
 ```
 rtw setup                 first-time setup (Mac)
 rtw start|stop|restart    run the services
-rtw status                services + content sizes
+rtw status                services, content sizes and addresses
+rtw address               addresses other devices can open right now
+rtw help                  every command, with examples
 rtw passwd                set / reset admin password
 rtw logs [name]           follow a log: nginx-error (default) | admin | kiwix
 rtw fetch <what>          download content (Mac or tablet)
@@ -206,8 +208,10 @@ On the tablet, `rtw-start`, `rtw-stop`, `rtw-status`, `rtw-passwd` also work.
 
 ## Troubleshooting
 
-- **Page doesn't load from a phone**: same Wi-Fi? Use the IP printed by
-  `rtw start`. Some routers isolate clients — the tablet's own hotspot avoids that.
+- **Page doesn't load from a phone**: same Wi-Fi? Use the address from
+  `rtw address` (also on the library's home page). Android gives the hotspot a
+  new address every time it's turned on, so an address printed earlier may be
+  stale. Some routers isolate clients — the tablet's own hotspot avoids that.
 - **Wikipedia missing**: `rtw status`, then `rtw logs kiwix`. A ZIM still
   downloading can't be served; restart once it's complete.
 - **Server stopped after a while (tablet)**: Termux battery setting → No restrictions.

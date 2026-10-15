@@ -16,7 +16,12 @@
   .hero-search .input { height: 52px; font-size: 1.05rem; border-radius: 14px; background: var(--surface); }
   .sec-h { font-size: .95rem; color: var(--muted); font-weight: 600; margin: 28px 0 12px; }
   .sub { margin: -6px 0 12px; font-size: .9rem; }
-  .foot { margin-top: 32px; }
+  .foot { margin-top: 20px; }
+  .share { margin-top: 28px; display: grid; gap: 8px; max-width: 560px; }
+  .share h2 { font-size: 1.05rem; margin: 0; }
+  .share p { margin: 0; font-size: .9rem; }
+  .share .addr { font-family: var(--mono); font-size: 1.25rem; font-weight: 600; color: var(--accent); text-decoration: none; justify-self: start; }
+  .share .note { color: var(--subtle); font-size: .8rem; }
 </style>
 </head>
 <body>
@@ -107,6 +112,22 @@ fetch("/data/downloads/").then((r) => r.json()).then((items) => {
   }
   main.append(el("h2", { class: "sec-h" }, t.phoneApps), el("p", { class: "muted sub" }, t.phoneAppsSub), row);
 }).catch(() => {});
+
+// Share box: the addresses other devices can open right now (from the server).
+const share = el("section", { class: "share card" }, el("h2", {}, t.shareTitle), el("p", { class: "muted" }, t.loading));
+main.append(share);
+getStats().then((s) => {
+  const addrs = (s && s.addresses) || [];
+  const port = (s && s.port) || location.port || 80;
+  share.replaceChildren(el("h2", {}, t.shareTitle));
+  if (!addrs.length) { share.append(el("p", { class: "muted" }, t.shareNone)); return; }
+  share.append(el("p", { class: "muted" }, t.shareSub));
+  for (const ip of addrs) {
+    const url = `http://${ip}:${port}`;
+    share.append(el("a", { class: "addr ltr", href: url }, url));
+  }
+  share.append(el("p", { class: "note" }, t.shareNote));
+});
 
 main.append(el("p", { class: "status foot", html: `<span class="dot"></span>${t.offline} · ${t.connectedTo} <span class="ltr">${location.host}</span>` }));
 </script>

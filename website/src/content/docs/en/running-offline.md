@@ -12,7 +12,9 @@ Once content is downloaded, RTW needs no internet connection at all.
 rtw start      # start everything and print the addresses
 rtw stop
 rtw restart
-rtw status     # services and content sizes
+rtw status     # services, content sizes and addresses
+rtw address    # the addresses other devices can open right now
+rtw help       # every command, with examples
 rtw logs       # follow the web server's error log (also: admin, kiwix)
 ```
 

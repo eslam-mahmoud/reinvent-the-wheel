@@ -24,7 +24,4 @@ else
 fi
 
 echo
-echo "Open on this device:   http://127.0.0.1:$PORT"
-for ip in $(lan_ips); do
-    echo "Open on other devices: http://$ip:$PORT   (GPS on map: https://$ip:$HTTPS_PORT)"
-done
+print_addresses

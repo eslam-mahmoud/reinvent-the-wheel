@@ -18,6 +18,16 @@ Open on this device:   http://127.0.0.1:8080
 Open on other devices: http://192.168.43.1:8080   (GPS on map: https://192.168.43.1:8443)
 ```
 
+### The address changes
+
+The address depends on the network. It changes when the host joins a different Wi-Fi, and on Android **the hotspot gets a new address every time it's turned on**. Check the current one at any time:
+
+```bash
+rtw address
+```
+
+The library's home page also shows it, under **Share this library**.
+
 ## On the readers' devices
 
 Nothing to install. Any reasonably modern browser works, so older phones make good readers.

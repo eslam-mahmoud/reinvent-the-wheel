@@ -4,6 +4,7 @@
 #
 #   rtw setup            install dependencies + write config (first time)
 #   rtw start | stop | restart | status
+#   rtw address          show the addresses other devices can open (they change with the network)
 #   rtw passwd           set or reset the admin password (forgot it? run this)
 #   rtw fetch <what>     download content: wikipedia | maps | osmand | bitchat | vendor | all
 #   rtw update           get the latest version from GitHub and re-install
@@ -26,6 +27,46 @@ if [[ "$as" == rtw-* ]]; then
 else
     cmd="${1:-help}"; shift || true
 fi
+
+usage() {
+    local me="rtw"; is_termux || me="./rtw"
+    local content="(not set up yet — run: $me setup)"
+    if [ -f "$RTW_ENV" ]; then content="$(. "$RTW_ENV"; echo "$CONTENT")"; fi
+    cat <<EOF
+rtw — Reinvent the Wheel · إعادة اختراع العجلة
+Your offline library: Wikipedia, books, notes, maps and apps, shared over Wi-Fi.
+
+Usage: $me <command>
+
+Run the library
+  start              start the library and show its addresses
+  stop               stop it
+  restart            restart (e.g. after adding a Wikipedia .zim file)
+  status             what's running, content sizes and addresses
+  address            the addresses other devices can open right now
+                     (they change when you switch Wi-Fi or turn the hotspot on)
+  logs [name]        follow a log: nginx-error (default) | admin | kiwix
+
+Content
+  fetch <what>       download content: wikipedia | maps | osmand | bitchat | vendor | all
+  push [app]         Mac only: copy the app and all content to a tablet over USB
+
+Setup and admin
+  setup              install dependencies and write config (first time)
+  passwd             set or reset the admin password (forgot it? run this)
+  update             get the latest version from GitHub and re-install
+  help               show this help
+
+Examples
+  $me start
+  $me address
+  ZIM_PATTERN=wikipedia_en_all_nopic $me fetch wikipedia
+
+Content folder: $content
+Admin page:     http://127.0.0.1:8080/admin/  (user: admin)
+Docs:           https://reinvent-the-wheel.com/en/docs/
+EOF
+}
 
 need_setup() {
     [ -f "$RTW_ENV" ] || { echo "Not set up yet. Run: rtw setup" >&2; exit 1; }
@@ -60,6 +101,7 @@ case "$cmd" in
     stop)    need_setup; bash "$ROOT/server/stop.sh" ;;
     restart) need_setup; bash "$ROOT/server/stop.sh"; sleep 1; bash "$ROOT/server/start.sh" ;;
     status)  need_setup; bash "$ROOT/server/status.sh" ;;
+    address|ip) need_setup; bash "$ROOT/server/address.sh" ;;
     passwd|reset-password)
         need_setup
         python3 "$ROOT/server/passwd.py" "$@"
@@ -82,6 +124,6 @@ case "$cmd" in
         ;;
     push)    bash "$ROOT/scripts/push-to-tablet.sh" "$@" ;;
     logs)    need_setup; tail -n 50 -f "$ROOT/state/logs/${1:-nginx-error}.log" ;;
-    help|-h|--help) sed -n '2,11p' "$SELF" | sed 's/^# \{0,1\}//' ;;
-    *) echo "Unknown command: $cmd (try: rtw help)" >&2; exit 1 ;;
+    help|-h|--help) usage ;;
+    *) echo "Unknown command: $cmd" >&2; echo >&2; usage >&2; exit 1 ;;
 esac

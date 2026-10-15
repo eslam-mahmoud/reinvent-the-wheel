@@ -10,3 +10,6 @@ echo "Content in $CONTENT:"
 for d in wikipedia books notes maps www downloads; do
     printf '  %-10s %s\n' "$d" "$(du -sh "$CONTENT/$d" 2>/dev/null | cut -f1)"
 done
+
+echo
+print_addresses

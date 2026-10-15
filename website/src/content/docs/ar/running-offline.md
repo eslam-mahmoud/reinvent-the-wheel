@@ -12,7 +12,9 @@ order: 7
 rtw start      # تشغيل كل شيء وطباعة العناوين
 rtw stop
 rtw restart
-rtw status     # الخدمات وحجم المحتوى
+rtw status     # الخدمات وحجم المحتوى والعناوين
+rtw address    # العناوين التي تستطيع الأجهزة الأخرى فتحها الآن
+rtw help       # كل الأوامر مع أمثلة
 rtw logs       # متابعة سجل أخطاء خادم الويب (وأيضًا: admin وkiwix)
 ```
 
