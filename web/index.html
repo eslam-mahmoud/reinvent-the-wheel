@@ -88,7 +88,19 @@ for (const s of SECT) {
 }
 main.append(el("h2", { class: "sec-h" }, t.sections), tiles);
 
-// Illustrated Arabic survival guide is part of the built-in offline library.\nmain.append(\n  el("h2", { class: "sec-h" }, lang === "ar" ? "أدلة ميدانية" : "Field guides"),\n  el("div", { class: "tiles" },\n    el("a", { class: "tile", href: "/guide/" },\n      el("span", { class: "ticon", html: icon("books") }),\n      el("h3", {}, lang === "ar" ? "دليل النجاة والاستقلال" : "Survival & Independence Guide"),\n      el("p", {}, lang === "ar" ? "كتاب عربي مصوّر، يشمل المياه والتجهيزات والأسرة، ويعمل دون إنترنت." : "Illustrated Arabic guide to water, emergency supplies and family preparedness. Fully offline.")\n    )\n  )\n);\n\ngetStats().then((s) => {
+// Illustrated Arabic survival guide is part of the built-in offline library.
+main.append(
+  el("h2", { class: "sec-h" }, lang === "ar" ? "أدلة ميدانية" : "Field guides"),
+  el("div", { class: "tiles" },
+    el("a", { class: "tile", href: "/guide/" },
+      el("span", { class: "ticon", html: icon("books") }),
+      el("h3", {}, lang === "ar" ? "دليل النجاة والاستقلال" : "Survival & Independence Guide"),
+      el("p", {}, lang === "ar" ? "كتاب عربي مصوّر، يشمل المياه والتجهيزات والأسرة، ويعمل دون إنترنت." : "Illustrated Arabic guide to water, emergency supplies and family preparedness. Fully offline.")
+    )
+  )
+);
+
+getStats().then((s) => {
   if (!s) return;
   const by = Object.fromEntries(s.sections.map((x) => [x.name, x]));
   for (const tile of tiles.querySelectorAll("[data-stat]")) {
