@@ -44,22 +44,59 @@ jobs:
       - name: Check Cloudflare config
         run: npx wrangler deploy --dry-run
 
-      - name: Deploy to Cloudflare
+      # The exact build that passed the checks is what gets deployed.
+      - name: Save build
         if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # CLOUDFLARE_API_TOKEN is an environment secret of "prod".
+    environment:
+      name: prod
+      url: https://reinvent-the-wheel.com
+    concurrency:
+      group: website-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install wrangler
+        run: npm ci --no-audit --no-fund
+
+      - name: Restore build
+        uses: actions/download-artifact@v4
+        with:
+          name: website-dist
+          path: website/dist
+
+      - name: Deploy to Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "::error title=Cloudflare deployment blocked::GitHub Actions secret CLOUDFLARE_API_TOKEN is missing. Add it under Settings > Secrets and variables > Actions, then re-run this workflow."
+            echo "::error title=Cloudflare deployment blocked::CLOUDFLARE_API_TOKEN is missing from the 'prod' environment (Settings > Environments > prod > Environment secrets)."
             exit 1
           fi
           npx wrangler deploy
 
       - name: Verify the published Arabic book
-        if: github.event_name != 'pull_request'
         run: |
           for attempt in 1 2 3 4 5 6; do
-            if curl --fail --silent --show-error --location --max-time 15 https://reinvent-the-wheel.com/book/ -o /tmp/rtw-book.html; then
+            if curl --fail --silent --show-error --location --max-time 15 "https://reinvent-the-wheel.com/book/?ci=$GITHUB_RUN_ID" -o /tmp/rtw-book.html; then
               if grep -q 'الحضارة بلا إنترنت' /tmp/rtw-book.html; then
                 echo "Published book verified at https://reinvent-the-wheel.com/book/"
                 exit 0
