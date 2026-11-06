@@ -50,7 +50,23 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "::warning::CLOUDFLARE_API_TOKEN secret not set — skipping deploy."
-            exit 0
+            echo "::error title=Cloudflare deployment blocked::GitHub Actions secret CLOUDFLARE_API_TOKEN is missing. Add it under Settings > Secrets and variables > Actions, then re-run this workflow."
+            exit 1
           fi
           npx wrangler deploy
+
+      - name: Verify the published Arabic book
+        if: github.event_name != 'pull_request'
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if curl --fail --silent --show-error --location --max-time 15 https://reinvent-the-wheel.com/book/ -o /tmp/rtw-book.html; then
+              if grep -q 'الحضارة بلا إنترنت' /tmp/rtw-book.html; then
+                echo "Published book verified at https://reinvent-the-wheel.com/book/"
+                exit 0
+              fi
+            fi
+            echo "Book not yet available (attempt $attempt); retrying..."
+            sleep 5
+          done
+          echo "::error title=Public book verification failed::The website did not serve the new book at https://reinvent-the-wheel.com/book/"
+          exit 1
