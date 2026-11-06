@@ -47,7 +47,7 @@ jobs:
       # The exact build that passed the checks is what gets deployed.
       - name: Save build
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: website-dist
           path: website/dist
@@ -78,7 +78,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Restore build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: website-dist
           path: website/dist
